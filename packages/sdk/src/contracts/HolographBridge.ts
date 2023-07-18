@@ -1,11 +1,11 @@
 import {ethers, Signer} from 'ethers'
-import {HolographBridge__factory} from 'src/typechain-types/factories/HolographBridge__factory'
+import {HolographBridge__factory} from '../typechain-types/factories/HolographBridge__factory'
 
 class HolographBridge {
   contract: HolographBridge__factory
 
   constructor(provider: ethers.providers.JsonRpcProvider, contractAddress: string) {
-    this.contract = HolographBridge__factory.connect(contractAddress, provider)
+    this.contract = HolographBridge__factory.connect(contractAddress, provider) as HolographBridge__factory
   }
 
   async init(signer: Signer, initPayload: ethers.utils.BytesLike): Promise<ethers.ContractTransaction> {

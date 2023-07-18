@@ -19,7 +19,7 @@ export class Holograph {
   }
 
   async getChainId(): Promise<number> {
-    return this.contract.getChainId()
+    return parseInt(this.contract.getChainId().toString())
   }
 
   async setChainId(chainId: number): Promise<void> {

@@ -1,5 +1,5 @@
 import {ethers} from 'ethers'
-import {Holograph__factory} from 'src/typechain-types/factories/Holograph__factory'
+import {Holograph__factory} from '../typechain-types/factories/Holograph__factory'
 
 type Address = string
 
@@ -19,7 +19,7 @@ export class Holograph {
   }
 
   async getChainId(): Promise<number> {
-    return this.contract.getChainId()
+    return parseInt((await this.contract.getChainId()).toString())
   }
 
   async setChainId(chainId: number): Promise<void> {

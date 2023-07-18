@@ -2,6 +2,18 @@
   "name": "@holographxyz/sdk",
   "version": "0.0.0",
   "description": "Holograph SDK for interacting with the Holograph Protocol.",
+  "keywords": [
+    "holograph",
+    "ethereum",
+    "sdk"
+  ],
+  "homepage": "https://github.com/holographxyz/holograph/tree/develop/packages/sdk#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holographxyz/holograph.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Holograph",
   "main": "dist/index",
   "types": "dist/index",
   "files": [
@@ -17,22 +29,26 @@
     "lint:fix": "pnpm lint:check --fix",
     "pre-commit": "lint-staged"
   },
-  "keywords": [
-    "holograph",
-    "ethereum",
-    "sdk"
-  ],
-  "homepage": "https://github.com/holographxyz/holograph/tree/develop/packages/sdk#readme",
-  "license": "MIT",
-  "author": "Holograph",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/holographxyz/holograph.git"
+  "dependencies": {
+    "@ethersproject/providers": "^5.7.2"
   },
   "devDependencies": {
-    "@ethersproject/abstract-provider": "^5.7.0",
+    "@ethereumjs/common": "^2.6.4",
+    "@ethereumjs/tx": "^3.5.2",
+    "@ethersproject/abi": "^5.7.0",
+    "@ethersproject/abstract-provider": "^5.6.1",
     "@ethersproject/abstract-signer": "^5.7.0",
+    "@ethersproject/bignumber": "^5.7.0",
+    "@ethersproject/bytes": "^5.7.0",
+    "@ethersproject/contracts": "^5.7.0",
+    "@ethersproject/keccak256": "^5.7.0",
+    "@ethersproject/logger": "^5.7.0",
+    "@ethersproject/networks": "^5.7.1",
+    "@ethersproject/properties": "^5.7.0",
+    "@ethersproject/providers": "^5.7.2",
     "@ethersproject/transactions": "^5.7.0",
+    "@ethersproject/units": "^5.7.0",
+    "@ethersproject/wallet": "^5.7.0",
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "chai-as-promised": "^7.1.1",
