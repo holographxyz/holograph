@@ -13,7 +13,9 @@ node_modules
 coverage
 
 # build
+build/
 build/**
+dist/
 dist/**
 .next/**
 
