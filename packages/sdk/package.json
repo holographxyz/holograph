@@ -22,7 +22,7 @@
   ],
   "scripts": {
     "all": "pnpm clean && pnpm build && pnpm test && pnpm lint:fix && pnpm lint",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -b",
     "clean": "rimraf dist/ ./tsconfig.tsbuildinfo",
     "lint": "pnpm lint:fix && pnpm lint:check",
     "lint:check": "eslint . --max-warnings=0",
@@ -33,6 +33,7 @@
     "@ethersproject/providers": "^5.7.2"
   },
   "devDependencies": {
+    "tsconfig": "workspace:*",
     "@ethereumjs/common": "^2.6.4",
     "@ethereumjs/tx": "^3.5.2",
     "@ethersproject/abi": "^5.7.0",

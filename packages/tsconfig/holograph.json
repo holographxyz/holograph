@@ -1,5 +1,9 @@
 {
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Holograph",
+  "extends": "./base.json",
   "compilerOptions": {
+    "outDir": "dist",
     "module": "commonjs",
     "target": "es2017",
     "sourceMap": true,
@@ -13,6 +17,5 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "typeRoots": ["node_modules/@types"]
-  },
-  "exclude": ["node_modules", "dist"]
+  }
 }
