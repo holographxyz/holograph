@@ -1,0 +1,52 @@
+{
+  "name": "@holographxyz/networks",
+  "version": "0.1.29",
+  "description": "Holograph Protocol",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "@holographxyz",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holographxyz/sdk.git"
+  },
+  "homepage": "https://holograph.xyz",
+  "keywords": [
+    "holograph",
+    "holograph networks",
+    "holograph protocol",
+    "holograph protocol networks"
+  ],
+  "bugs": {
+    "url": "https://github.com/holographxyz/sdk/issues"
+  },
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
+  "files": [
+    "dist",
+    "src",
+    "types.ts",
+    "tsconfig.json",
+    "sample.env"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "prettier:check": "prettier --loglevel error --ignore-path .gitignore --list-different .",
+    "prettier:fix": "prettier --loglevel error --ignore-path .gitignore --write ."
+  },
+  "dependencies": {
+    "@ethersproject/bignumber": "^5.7.0",
+    "@holographxyz/environment": "0.1.10",
+    "dotenv": "^10.0.0",
+    "path": "^0.12.7"
+  },
+  "devDependencies": {
+    "tsconfig": "workspace:*",
+    "@types/data-urls": "^2.0.1",
+    "@types/node": "^17.0.21",
+    "dotenv": "^10.0.0",
+    "path": "^0.12.7",
+    "prettier": "^2.6.2",
+    "ts-node": "^10.1.0",
+    "typechain": "^7.0.0",
+    "typescript": "^4.3.5"
+  }
+}
