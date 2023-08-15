@@ -66,7 +66,7 @@
     "@types/node": "^17.0.21",
     "@typescript-eslint/parser": "^5.42.1",
     "dotenv": "^10.0.0",
-    "ethers": "^5.5.4",
+    "ethers": "^5.5.5",
     "path": "^0.12.7",
     "super-cold-storage-signer": "^0.0.4",
     "truffle-hdwallet-provider": "^1.0.17",
@@ -77,7 +77,8 @@
     "zksync-web3": "^0.4.0"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
+    "tsconfig": "workspace:*",
+    "@nomiclabs/hardhat-ethers": "2.0.0",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "chai": "^4.3.6",
