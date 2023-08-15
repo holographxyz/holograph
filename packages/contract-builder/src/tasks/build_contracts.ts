@@ -1,14 +1,11 @@
-'use strict'
-
 import {task} from 'hardhat/config'
+import fs from 'fs'
+import Web3 from 'web3'
+import {HardhatPluginError} from 'hardhat/plugins'
 
-const fs = require('fs')
-const web3 = new (require('web3'))()
-const {HardhatPluginError} = require('hardhat/plugins')
+const web3 = new Web3()
 
-const {TASK_COMPILE_SOLIDITY_GET_SOURCE_PATHS} = require('hardhat/builtin-tasks/task-names')
-
-const removeX = function (input) {
+function removeX(input: string): string {
   if (input.startsWith('0x')) {
     return input.substring(2)
   } else {
@@ -16,7 +13,7 @@ const removeX = function (input) {
   }
 }
 
-const hexify = function (input, prepend) {
+function hexify(input: string, prepend: boolean): string {
   input = input.toLowerCase().trim()
   input = removeX(input)
   input = input.replace(/[^0-9a-f]/g, '')

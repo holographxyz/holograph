@@ -36,6 +36,7 @@
   "devDependencies": {
     "tsconfig": "workspace:*",
     "eslint": "^7.0.0",
-    "hardhat": "^2.0.0"
+    "hardhat": "^2.0.0",
+    "@types/web3": "1.0.20"
   }
 }

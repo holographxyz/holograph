@@ -107,6 +107,9 @@ importers:
 
   packages/contract-builder:
     devDependencies:
+      '@types/web3':
+        specifier: 1.0.20
+        version: 1.0.20
       eslint:
         specifier: ^7.0.0
         version: 7.0.0
@@ -2272,6 +2275,13 @@ packages:
 
   /@types/web3@1.0.19:
     resolution: {integrity: sha512-fhZ9DyvDYDwHZUp5/STa9XW2re0E8GxoioYJ4pEUZ13YHpApSagixj7IAdoYH5uAK+UalGq6Ml8LYzmgRA/q+A==}
+    dependencies:
+      '@types/bn.js': 5.1.1
+      '@types/underscore': 1.11.6
+    dev: true
+
+  /@types/web3@1.0.20:
+    resolution: {integrity: sha512-KTDlFuYjzCUlBDGt35Ir5QRtyV9klF84MMKUsEJK10sTWga/71V+8VYLT7yysjuBjaOx2uFYtIWNGoz3yrNDlg==}
     dependencies:
       '@types/bn.js': 5.1.1
       '@types/underscore': 1.11.6
