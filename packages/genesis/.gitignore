@@ -1,0 +1,23 @@
+node_modules
+.env
+.npmrc
+
+.idea
+.DS_Store
+
+# ignore any file by prepending "ignore." to it
+ignore.*
+
+dist
+cache
+ganache
+artifacts
+typechain-types
+
+coverage
+coverage.json
+
+gasReport.txt
+
+editor.bbprojectd
+yarn-error.log
