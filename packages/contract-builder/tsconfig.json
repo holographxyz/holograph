@@ -1,0 +1,10 @@
+{
+  "extends": "tsconfig/holograph.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "moduleResolution": "node",
+    "typeRoots": ["./node_modules/@types", "./types"]
+  },
+  "include": ["./src/**/*.ts", "types/index.d.ts"],
+  "exclude": ["dist", "build", "node_modules", "./src/typechain-types"]
+}

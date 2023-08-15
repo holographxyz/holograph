@@ -1,0 +1,41 @@
+{
+  "name": "@holographxyz/contract-builder",
+  "version": "0.0.4",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "author": "holographxyz",
+  "description": "Builds smart contracts in preparation for compiling.",
+  "keywords": [
+    "hardhat",
+    "holograph",
+    "web3",
+    "holograph protocol"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/holographxyz/hardhat-holograph-contract-builder.git"
+  },
+  "types": "dist/index.d.ts",
+  "main": "dist/src/index.js",
+  "files": [
+    "src/tasks",
+    "index.d.ts",
+    "dist",
+    "src",
+    "types.ts",
+    "tsconfig.json",
+    "sample.env"
+  ],
+  "scripts": {
+    "build": "tsc --build",
+    "prettier:check": "prettier --loglevel error --ignore-path .gitignore --list-different .",
+    "prettier:fix": "prettier --loglevel error --ignore-path .gitignore --write ."
+  },
+  "peerDependencies": {
+    "hardhat": "^2.0.0"
+  },
+  "devDependencies": {
+    "tsconfig": "workspace:*",
+    "eslint": "^7.0.0",
+    "hardhat": "^2.0.0"
+  }
+}
