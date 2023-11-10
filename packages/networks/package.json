@@ -18,8 +18,8 @@
   "bugs": {
     "url": "https://github.com/holographxyz/sdk/issues"
   },
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
   "files": [
     "dist",
     "src",

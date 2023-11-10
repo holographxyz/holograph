@@ -30,14 +30,14 @@
     "pre-commit": "lint-staged"
   },
   "dependencies": {
-    "@ethersproject/providers": "^5.7.2"
+    "@ethersproject/providers": "^5.7.2",
+    "@holographxyz/environment": "workspace:*",
+    "@holographxyz/networks": "workspace:*",
+    "fs-extra": "^11.1.1"
   },
   "devDependencies": {
-    "tsconfig": "workspace:*",
-    "@ethereumjs/common": "^2.6.4",
-    "@ethereumjs/tx": "^3.5.2",
     "@ethersproject/abi": "^5.7.0",
-    "@ethersproject/abstract-provider": "^5.6.1",
+    "@ethersproject/abstract-provider": "^5.7.0",
     "@ethersproject/abstract-signer": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
@@ -50,15 +50,8 @@
     "@ethersproject/transactions": "^5.7.0",
     "@ethersproject/units": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
-    "@nomiclabs/hardhat-ethers": "^2.0.2",
-    "@nomiclabs/hardhat-waffle": "^2.0.1",
-    "chai-as-promised": "^7.1.1",
-    "ethereum-waffle": "^3.4.0",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.9.6",
-    "hardhat-deploy": "^0.11.36"
-  },
-  "peerDependencies": {
-    "ethers": "^5"
+    "@typechain/ethers-v6": "^0.5.1",
+    "ethers": "^6.8.1",
+    "tsconfig": "workspace:*"
   }
 }
