@@ -1,4 +1,3 @@
-import {Contract, JsonRpcProvider} from 'ethers'
 import {Network, getNetworkByChainId} from '@holographxyz/networks'
 
 import {getHandlerLogger} from '../config/logger'
@@ -6,11 +5,10 @@ import {Addresses} from '../constants/addresses'
 import {Providers} from '../services/providers.service'
 import {Config} from '../config/config.service'
 import {HolographABI} from '../constants/abi/develop'
-
-import {Abi, AbiFunction, AbiParametersToPrimitiveTypes, ExtractAbiFunction, ExtractAbiFunctionNames} from 'abitype'
+import {getContract} from '../utils/contracts'
 
 type HolographByNetworksResponse = {
-  [chainId: number]: string
+  [chainId: number]: any //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
 }
 
 //TODO: add error handling and maybe retry logic
@@ -22,10 +20,6 @@ export class Holograph {
   constructor(private readonly config: Config, private readonly providers: Providers) {
     // this.logger = getHandlerLogger().child({service: Holograph.name})
     this.networks = this.config.networks
-  }
-
-  private getContract(address: string, provider: JsonRpcProvider): Contract {
-    return new BaseContract<HolographABI>(address, HolographABI, provider)
   }
 
   private getSelectedNetworks(chainIds?: number[]): Network[] {
@@ -49,19 +43,19 @@ export class Holograph {
 
   // Internal function used to actually make the RPC call
   // This has logic protecting the provider calls and any lower level errors
-  private async _getBridge(chainId: number): Promise<string> {
+  private async _getBridge(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getBridge()
+    return contract.getBridge()
   }
 
   // External function that users call
   // This function captures lower level errors and makes then nice errors
   // uses a preconfigured provider
-  async getBridge(chainId: number): Promise<string> {
+  async getBridge(chainId: number) {
     return this._getBridge(chainId)
   }
 
@@ -89,7 +83,7 @@ export class Holograph {
       const provider = this.providers.byChainId(network.chain)
       const address = Addresses.holograph(this.config.environment, network.chain)
 
-      const contract = this.getContract(address, provider)
+      const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
       results[network.chain] = await contract.getChainId()
     }
@@ -97,16 +91,16 @@ export class Holograph {
     return results
   }
 
-  private async _getFactory(chainId: number): Promise<string> {
+  private async _getFactory(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return await contract.getFactory()
   }
 
-  async getFactory(chainId: number): Promise<string> {
+  async getFactory(chainId: number) {
     return this._getFactory(chainId)
   }
 
@@ -125,7 +119,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return (await contract.getHolographChainId()).toString()
   }
@@ -145,16 +139,16 @@ export class Holograph {
     return results
   }
 
-  private async _getInterfaces(chainId: number): Promise<string> {
+  private async _getInterfaces(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return await contract.getInterfaces()
   }
 
-  async getInterfaces(chainId: number): Promise<string> {
+  async getInterfaces(chainId: number) {
     return this._getInterfaces(chainId)
   }
 
@@ -169,16 +163,16 @@ export class Holograph {
     return results
   }
 
-  private async _getOperator(chainId: number): Promise<string> {
+  private async _getOperator(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getOperator()
+    return contract.getOperator()
   }
 
-  async getOperator(chainId: number): Promise<string> {
+  async getOperator(chainId: number) {
     return this._getOperator(chainId)
   }
 
@@ -193,16 +187,16 @@ export class Holograph {
     return results
   }
 
-  private async _getRegistry(chainId: number): Promise<string> {
+  private async _getRegistry(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getRegistry()
+    return contract.getRegistry()
   }
 
-  async getRegistry(chainId: number): Promise<string> {
+  async getRegistry(chainId: number) {
     return this._getRegistry(chainId)
   }
 
@@ -217,16 +211,16 @@ export class Holograph {
     return results
   }
 
-  private async _getUtilityToken(chainId: number): Promise<string> {
+  private async _getUtilityToken(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = this.getContract(address, provider)
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getUtilityToken()
+    return contract.getUtilityToken()
   }
 
-  async getUtilityToken(chainId: number): Promise<string> {
+  async getUtilityToken(chainId: number) {
     return this._getUtilityToken(chainId)
   }
 

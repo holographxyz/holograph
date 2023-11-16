@@ -1,4 +1,4 @@
-import {BaseContract as BaseContractEthers} from 'ethers'
+import {BaseContract as BaseContractEthers, InterfaceAbi, JsonRpcProvider} from 'ethers'
 import {Abi, AbiParametersToPrimitiveTypes, ExtractAbiFunction, ExtractAbiFunctionNames} from 'abitype'
 
 type ReadFunctionNames<TAbi extends Abi> = ExtractAbiFunctionNames<TAbi, 'pure' | 'view'>
@@ -19,4 +19,13 @@ type ContractMethods<TAbi extends Abi> = {
 
 class BaseContract extends BaseContractEthers {}
 
-interface BaseContact extends ContractMethods {}
+export type BaseContractType<TAbi extends Abi> = BaseContract & ContractMethods<TAbi>
+
+export const getContract = <TAbi extends Abi>(
+  address: string,
+  abi: InterfaceAbi,
+  provider: JsonRpcProvider,
+): BaseContractType<TAbi> => {
+  const contract = new BaseContract(address, abi, provider) as BaseContractType<TAbi>
+  return contract
+}

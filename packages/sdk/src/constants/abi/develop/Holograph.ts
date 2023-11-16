@@ -1,4 +1,4 @@
-import {narrow, parseAbi} from 'abitype'
+import {narrow} from 'abitype'
 
 export default narrow([
   {
