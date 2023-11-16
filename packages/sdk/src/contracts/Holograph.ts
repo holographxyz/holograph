@@ -7,6 +7,8 @@ import {Providers} from '../services/providers.service'
 import {Config} from '../config/config.service'
 import {HolographABI} from '../constants/abi/develop'
 
+import {Abi, AbiFunction, AbiParametersToPrimitiveTypes, ExtractAbiFunction, ExtractAbiFunctionNames} from 'abitype'
+
 type HolographByNetworksResponse = {
   [chainId: number]: string
 }
@@ -23,7 +25,7 @@ export class Holograph {
   }
 
   private getContract(address: string, provider: JsonRpcProvider): Contract {
-    return new Contract(address, HolographABI, provider)
+    return new BaseContract<HolographABI>(address, HolographABI, provider)
   }
 
   private getSelectedNetworks(chainIds?: number[]): Network[] {
