@@ -51,6 +51,7 @@
     "@ethersproject/units": "^5.7.0",
     "@ethersproject/wallet": "^5.7.0",
     "@typechain/ethers-v6": "^0.5.1",
+    "abitype": "^0.10.2",
     "ethers": "^6.8.1",
     "tsconfig": "workspace:*"
   }

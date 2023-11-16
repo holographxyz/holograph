@@ -1,11 +1,11 @@
+import {Contract, JsonRpcProvider} from 'ethers'
 import {Network, getNetworkByChainId} from '@holographxyz/networks'
+
 import {getHandlerLogger} from '../config/logger'
 import {Addresses} from '../constants/addresses'
 import {Providers} from '../services/providers.service'
 import {Config} from '../config/config.service'
-import {Holograph__factory} from '../typechain-types/factories/Holograph__factory'
-
-import type {Provider as DeprecatedProvider} from '@ethersproject/providers'
+import {HolographABI} from '../constants/abi/develop'
 
 type HolographByNetworksResponse = {
   [chainId: number]: string
@@ -19,8 +19,11 @@ export class Holograph {
 
   constructor(private readonly config: Config, private readonly providers: Providers) {
     // this.logger = getHandlerLogger().child({service: Holograph.name})
-
     this.networks = this.config.networks
+  }
+
+  private getContract(address: string, provider: JsonRpcProvider): Contract {
+    return new Contract(address, HolographABI, provider)
   }
 
   private getSelectedNetworks(chainIds?: number[]): Network[] {
@@ -48,7 +51,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getBridge()
   }
@@ -84,7 +87,7 @@ export class Holograph {
       const provider = this.providers.byChainId(network.chain)
       const address = Addresses.holograph(this.config.environment, network.chain)
 
-      const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+      const contract = this.getContract(address, provider)
 
       results[network.chain] = await contract.getChainId()
     }
@@ -96,7 +99,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getFactory()
   }
@@ -120,7 +123,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return (await contract.getHolographChainId()).toString()
   }
@@ -144,7 +147,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getInterfaces()
   }
@@ -168,7 +171,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getOperator()
   }
@@ -192,7 +195,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getRegistry()
   }
@@ -216,7 +219,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = this.getContract(address, provider)
 
     return await contract.getUtilityToken()
   }
