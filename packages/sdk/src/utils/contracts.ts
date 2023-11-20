@@ -1,6 +1,10 @@
 import {BaseContract as BaseContractEthers, InterfaceAbi, JsonRpcProvider} from 'ethers'
 import {Abi, AbiParametersToPrimitiveTypes, ExtractAbiFunction, ExtractAbiFunctionNames} from 'abitype'
 
+/**
+ * TODO: Take better look into FunctionReturnType. It appears that it's not returning the correct return type depending on the function, but rather all return types combined
+ */
+
 type ReadFunctionNames<TAbi extends Abi> = ExtractAbiFunctionNames<TAbi, 'pure' | 'view'>
 
 type FunctionArgsTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
@@ -11,7 +15,7 @@ type FunctionArgsTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
 type FunctionReturnTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
   ExtractAbiFunction<TAbi, ReadFunctionNames<TAbi>>['outputs'],
   'outputs'
->
+>[0]
 
 type ContractMethods<TAbi extends Abi> = {
   [name in ReadFunctionNames<TAbi>]: (...args: Array<FunctionArgsTypes<TAbi>>) => Promise<FunctionReturnTypes<TAbi>>

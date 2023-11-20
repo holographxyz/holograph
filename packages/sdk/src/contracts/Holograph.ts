@@ -8,7 +8,7 @@ import {HolographABI} from '../constants/abi/develop'
 import {getContract} from '../utils/contracts'
 
 type HolographByNetworksResponse = {
-  [chainId: number]: any //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
+  [chainId: number]: string | number | BigInt //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
 }
 
 //TODO: add error handling and maybe retry logic

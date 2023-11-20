@@ -1,15 +1,8 @@
-import * as path from 'path'
-import * as fs from 'fs-extra'
 import {keccak256} from 'ethers'
-import {Environment} from '@holographxyz/environment'
 
 export enum ContractName {
   Holograph = 'Holograph',
   HolographRegistry = 'HolographRegistry',
-}
-
-export function getAbi(environment: Environment, contract: string) {
-  return fs.readFileSync(path.join(__dirname, `./constants/abi/${environment}/${contract}.json`))
 }
 
 export function sha3(input: string | undefined): string {

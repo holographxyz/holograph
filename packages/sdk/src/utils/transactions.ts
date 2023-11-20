@@ -1,5 +1,4 @@
-import {JsonRpcProvider} from '@ethersproject/providers'
-import {TransactionReceipt, TransactionResponse} from '@ethersproject/abstract-provider'
+import {JsonRpcProvider, TransactionReceipt, TransactionResponse} from 'ethers'
 
 //TODO: implement retry logic
 export async function getTransactionReceipt(
@@ -14,6 +13,9 @@ export async function getTransactionReceipt(
   return receipt
 }
 
-export async function getTransaction(transactionHash: string, provider: JsonRpcProvider): Promise<TransactionResponse> {
+export async function getTransaction(
+  transactionHash: string,
+  provider: JsonRpcProvider,
+): Promise<TransactionResponse | null> {
   return await provider.getTransaction(transactionHash)
 }

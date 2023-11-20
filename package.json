@@ -7,7 +7,7 @@
   "author": "Holograph",
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev": "dotenv turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "preinstall": "npx only-allow pnpm",
@@ -27,6 +27,7 @@
     "@types/node": "^12.20.55",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
+    "dotenv": "^10.0.0",
     "eslint": "^8.45.0",
     "eslint-config-custom": "workspace:*",
     "eslint-config-prettier": "^8.8.0",

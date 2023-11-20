@@ -1,7 +1,8 @@
 import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
-import {Holograph} from '../contracts/holograph'
+
 import {Providers} from './providers.service'
 import {Config} from '../config/config.service'
+import {Holograph} from '../contracts/holograph'
 
 class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS

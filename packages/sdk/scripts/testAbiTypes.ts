@@ -14,7 +14,9 @@ async function main() {
     rpcProvider,
   )
 
-  console.log(await holograph.getBridge())
+  const address = await holograph.getBridge()
+
+  console.log(address)
 }
 
 main().catch(async e => {
