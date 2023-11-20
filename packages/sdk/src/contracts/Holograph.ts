@@ -5,11 +5,7 @@ import {Addresses} from '../constants/addresses'
 import {Providers} from '../services/providers.service'
 import {Config} from '../config/config.service'
 import {HolographABI} from '../constants/abi/develop'
-import {getContract} from '../utils/contracts'
-
-type HolographByNetworksResponse = {
-  [chainId: number]: string | number | BigInt //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
-}
+import {HolographByNetworksResponse, getContract, getSelectedNetworks} from '../utils/contracts'
 
 //TODO: add error handling and maybe retry logic
 
@@ -20,25 +16,6 @@ export class Holograph {
   constructor(private readonly config: Config, private readonly providers: Providers) {
     // this.logger = getHandlerLogger().child({service: Holograph.name})
     this.networks = this.config.networks
-  }
-
-  private getSelectedNetworks(chainIds?: number[]): Network[] {
-    let networks: Network[] = this.networks
-
-    if (chainIds && chainIds.length > 0) {
-      networks = []
-
-      chainIds.forEach(chainId => {
-        try {
-          const network = getNetworkByChainId(chainId)
-          networks.push(network)
-        } catch (e) {
-          //TODO: map to a new error
-          throw e
-        }
-      })
-    }
-    return networks
   }
 
   // Internal function used to actually make the RPC call
@@ -62,7 +39,7 @@ export class Holograph {
   // This function captures lower level errors and makes then nice errors
   async getBridgeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getBridge(network.chain)
@@ -77,7 +54,7 @@ export class Holograph {
 
   async getChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       const provider = this.providers.byChainId(network.chain)
@@ -106,7 +83,7 @@ export class Holograph {
 
   async getFactoryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getFactory(network.chain)
@@ -130,7 +107,7 @@ export class Holograph {
 
   async getHolographChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getHolographChainId(network.chain)
@@ -154,7 +131,7 @@ export class Holograph {
 
   async getInterfacesByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getInterfaces(network.chain)
@@ -178,7 +155,7 @@ export class Holograph {
 
   async getOperatorByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getOperator(network.chain)
@@ -202,7 +179,7 @@ export class Holograph {
 
   async getRegistryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getRegistry(network.chain)
@@ -226,7 +203,7 @@ export class Holograph {
 
   async getUtilityTokenByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getUtilityToken(network.chain)
