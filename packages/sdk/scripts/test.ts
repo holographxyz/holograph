@@ -1,13 +1,13 @@
 import {Config} from '../src/config/config.service'
-import {Holograph} from '../src/contracts/holograph'
+import {Holograph} from '../src/contracts/Holograph'
 
 import HolographProtocol from '../src/services/holograph-protocol.service'
 import {Providers} from '../src/services/providers.service'
 
 async function main() {
   const networks = {
-    5: 'https://goerli.infura.io/v3/',
-    80001: 'https://polygon-mumbai.infura.io/v3/',
+    5: 'https://goerli.infura.io/v3/', // Include your API key at the end of the URL
+    80001: 'https://polygon-mumbai.infura.io/v3/', // Include your API key at the end of the URL
   }
 
   const config = Config.getInstance(networks)
