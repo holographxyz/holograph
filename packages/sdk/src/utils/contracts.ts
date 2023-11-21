@@ -11,7 +11,7 @@ type ReadFunctionNames<TAbi extends Abi> = ExtractAbiFunctionNames<TAbi, 'pure' 
 type FunctionArgsTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
   ExtractAbiFunction<TAbi, ReadFunctionNames<TAbi>>['inputs'],
   'inputs'
->
+>[0]
 
 type FunctionReturnTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
   ExtractAbiFunction<TAbi, ReadFunctionNames<TAbi>>['outputs'],

@@ -1,5 +1,5 @@
 import {Config} from '../src/config/config.service'
-import {Holograph} from '../src/contracts/Holograph'
+import {Holograph} from '../src/contracts/holograph'
 
 import HolographProtocol from '../src/services/holograph-protocol.service'
 import {Providers} from '../src/services/providers.service'

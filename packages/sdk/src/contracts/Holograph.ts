@@ -1,4 +1,4 @@
-import {Network, getNetworkByChainId} from '@holographxyz/networks'
+import {Network} from '@holographxyz/networks'
 
 import {getHandlerLogger} from '../config/logger'
 import {Addresses} from '../constants/addresses'
