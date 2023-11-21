@@ -4,10 +4,12 @@ import {Holograph} from '../src/contracts/holograph'
 import HolographProtocol from '../src/services/holograph-protocol.service'
 import {Providers} from '../src/services/providers.service'
 
+require('dotenv').config()
+
 async function main() {
   const networks = {
-    5: 'https://goerli.infura.io/v3/', // Include your API key at the end of the URL
-    80001: 'https://polygon-mumbai.infura.io/v3/', // Include your API key at the end of the URL
+    5: process.env.ETHEREUM_TESTNET_RPC ?? '',
+    80001: process.env.POLYGON_TESTNET_RPC ?? '',
   }
 
   const config = Config.getInstance(networks)
