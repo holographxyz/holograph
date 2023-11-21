@@ -1,8 +1,9 @@
 {
   "extends": "tsconfig/holograph.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "target": "ES2022"
   },
-  "include": ["."],
+  "include": [".", "./typechain-types"],
   "exclude": ["dist", "build", "node_modules", "./src/typechain-types"]
 }
