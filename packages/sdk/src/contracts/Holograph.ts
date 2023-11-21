@@ -1,15 +1,11 @@
 import {Network, getNetworkByChainId} from '@holographxyz/networks'
+
 import {getHandlerLogger} from '../config/logger'
 import {Addresses} from '../constants/addresses'
 import {Providers} from '../services/providers.service'
 import {Config} from '../config/config.service'
-import {Holograph__factory} from '../typechain-types/factories/Holograph__factory'
-
-import type {Provider as DeprecatedProvider} from '@ethersproject/providers'
-
-type HolographByNetworksResponse = {
-  [chainId: number]: string
-}
+import {HolographABI} from '../constants/abi/develop'
+import {HolographByNetworksResponse, getContract, getSelectedNetworks} from '../utils/contracts'
 
 //TODO: add error handling and maybe retry logic
 
@@ -19,51 +15,31 @@ export class Holograph {
 
   constructor(private readonly config: Config, private readonly providers: Providers) {
     // this.logger = getHandlerLogger().child({service: Holograph.name})
-
     this.networks = this.config.networks
-  }
-
-  private getSelectedNetworks(chainIds?: number[]): Network[] {
-    let networks: Network[] = this.networks
-
-    if (chainIds && chainIds.length > 0) {
-      networks = []
-
-      chainIds.forEach(chainId => {
-        try {
-          const network = getNetworkByChainId(chainId)
-          networks.push(network)
-        } catch (e) {
-          //TODO: map to a new error
-          throw e
-        }
-      })
-    }
-    return networks
   }
 
   // Internal function used to actually make the RPC call
   // This has logic protecting the provider calls and any lower level errors
-  private async _getBridge(chainId: number): Promise<string> {
+  private async _getBridge(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getBridge()
+    return contract.getBridge()
   }
 
   // External function that users call
   // This function captures lower level errors and makes then nice errors
   // uses a preconfigured provider
-  async getBridge(chainId: number): Promise<string> {
+  async getBridge(chainId: number) {
     return this._getBridge(chainId)
   }
 
   // This function captures lower level errors and makes then nice errors
   async getBridgeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getBridge(network.chain)
@@ -78,13 +54,13 @@ export class Holograph {
 
   async getChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       const provider = this.providers.byChainId(network.chain)
       const address = Addresses.holograph(this.config.environment, network.chain)
 
-      const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+      const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
       results[network.chain] = await contract.getChainId()
     }
@@ -92,22 +68,22 @@ export class Holograph {
     return results
   }
 
-  private async _getFactory(chainId: number): Promise<string> {
+  private async _getFactory(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return await contract.getFactory()
   }
 
-  async getFactory(chainId: number): Promise<string> {
+  async getFactory(chainId: number) {
     return this._getFactory(chainId)
   }
 
   async getFactoryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getFactory(network.chain)
@@ -120,7 +96,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return (await contract.getHolographChainId()).toString()
   }
@@ -131,7 +107,7 @@ export class Holograph {
 
   async getHolographChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getHolographChainId(network.chain)
@@ -140,22 +116,22 @@ export class Holograph {
     return results
   }
 
-  private async _getInterfaces(chainId: number): Promise<string> {
+  private async _getInterfaces(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     return await contract.getInterfaces()
   }
 
-  async getInterfaces(chainId: number): Promise<string> {
+  async getInterfaces(chainId: number) {
     return this._getInterfaces(chainId)
   }
 
   async getInterfacesByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getInterfaces(network.chain)
@@ -164,22 +140,22 @@ export class Holograph {
     return results
   }
 
-  private async _getOperator(chainId: number): Promise<string> {
+  private async _getOperator(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getOperator()
+    return contract.getOperator()
   }
 
-  async getOperator(chainId: number): Promise<string> {
+  async getOperator(chainId: number) {
     return this._getOperator(chainId)
   }
 
   async getOperatorByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getOperator(network.chain)
@@ -188,22 +164,22 @@ export class Holograph {
     return results
   }
 
-  private async _getRegistry(chainId: number): Promise<string> {
+  private async _getRegistry(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getRegistry()
+    return contract.getRegistry()
   }
 
-  async getRegistry(chainId: number): Promise<string> {
+  async getRegistry(chainId: number) {
     return this._getRegistry(chainId)
   }
 
   async getRegistryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getRegistry(network.chain)
@@ -212,22 +188,22 @@ export class Holograph {
     return results
   }
 
-  private async _getUtilityToken(chainId: number): Promise<string> {
+  private async _getUtilityToken(chainId: number) {
     const provider = this.providers.byChainId(chainId)
     const address = Addresses.holograph(this.config.environment, chainId)
 
-    const contract = Holograph__factory.connect(address, provider as unknown as DeprecatedProvider) //TODO: generate typeChain to ethers v6
+    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
-    return await contract.getUtilityToken()
+    return contract.getUtilityToken()
   }
 
-  async getUtilityToken(chainId: number): Promise<string> {
+  async getUtilityToken(chainId: number) {
     return this._getUtilityToken(chainId)
   }
 
   async getUtilityTokenByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
-    let networks = this.getSelectedNetworks(chainIds)
+    let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
       results[network.chain] = await this._getUtilityToken(network.chain)

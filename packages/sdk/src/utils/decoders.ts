@@ -1,5 +1,4 @@
-import {BigNumberish, EventFragment, Interface, AbiCoder} from 'ethers'
-import {TransactionReceipt} from '@ethersproject/abstract-provider'
+import {BigNumberish, EventFragment, Interface, AbiCoder, TransactionReceipt} from 'ethers'
 
 import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
 import {lowerCaseAllStrings} from './transformers'
@@ -55,7 +54,7 @@ export function decodeEvent(
           log.topics,
         ) as readonly string[]
 
-        return lowerCaseAllStrings(event).concat(String(log.logIndex))
+        return lowerCaseAllStrings(event).concat(String(log.index))
       }
     }
   }
@@ -87,7 +86,7 @@ export function decodeErc721TransferEvents(
           log.data,
           log.topics,
         ) as readonly string[]
-        decodedEvents.push(lowerCaseAllStrings(event).concat(String(log.logIndex)))
+        decodedEvents.push(lowerCaseAllStrings(event).concat(String(log.index)))
       }
     }
   }
