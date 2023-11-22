@@ -54,3 +54,7 @@ export function lowerCaseAllStrings(input: readonly any[], add?: string): readon
 
   return output
 }
+
+export const REGEX = {
+  WALLET_ADDRESS: /^0x[a-fA-F0-9]{40}$/,
+}
