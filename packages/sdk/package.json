@@ -27,7 +27,9 @@
     "lint": "pnpm lint:fix && pnpm lint:check",
     "lint:check": "eslint . --max-warnings=0",
     "lint:fix": "pnpm lint:check --fix",
-    "pre-commit": "lint-staged"
+    "pre-commit": "lint-staged",
+    "test": "vitest --reporter=verbose",
+    "coverage": "vitest run --coverage"
   },
   "dependencies": {
     "@holographxyz/environment": "workspace:*",
@@ -35,10 +37,12 @@
     "pino": "^8.16.2"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^0.34.6",
     "abitype": "^0.10.2",
     "dotenv": "^10.0.0",
     "ethers": "^6.8.1",
     "joi": "^17.11.0",
-    "tsconfig": "workspace:*"
+    "tsconfig": "workspace:*",
+    "vitest": "^0.34.6"
   }
 }
