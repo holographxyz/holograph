@@ -24,6 +24,6 @@ export function getNodeEnv(): string {
 }
 
 export function getHolographEnv(): string {
-  const result = HolographEnvSchema.validate(process.env.HOLOGRAPH_ENV)
+  const result = HolographEnvSchema.validate(process.env.HOLOGRAPH_ENVIRONMENT)
   return maybeGetResult(result)
 }

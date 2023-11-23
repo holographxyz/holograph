@@ -1,0 +1,10 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["packages/sdk"],
+  "entryPointStrategy": "packages",
+  "name": "Holograph NPM packages",
+  "out": "docs",
+  // "readme": "none"
+  "plugin": ["@mxssfd/typedoc-theme"],
+  "theme": "my-theme"
+}

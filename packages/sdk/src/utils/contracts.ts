@@ -26,8 +26,10 @@ class BaseContract extends BaseContractEthers {}
 
 export type BaseContractType<TAbi extends Abi> = BaseContract & ContractMethods<TAbi>
 
+export type AnyFunction<TArgs extends any[], TReturn extends any> = (...params: TArgs) => TReturn
+
 export type HolographByNetworksResponse = {
-  [chainId: number]: string | number | BigInt //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
+  [chainId: number]: string | string[] //TODO: work on it
 }
 
 export const getContract = <TAbi extends Abi>(
@@ -54,4 +56,12 @@ export function getSelectedNetworks(networks: Network[], chainIds?: number[]): N
     })
   }
   return networks
+}
+
+export function mapReturnType(returnValue: any | any[]): string | string[] {
+  if (Array.isArray(returnValue) === false) {
+    return returnValue.toString()
+  }
+  //TODO: work on it
+  return returnValue.map(value => value.toString())
 }

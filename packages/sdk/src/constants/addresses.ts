@@ -39,4 +39,41 @@ export class Addresses {
         throw new Error('Not a valid Environment!') //TODO: create error
     }
   }
+
+  static registry(environment: Environment, chainId?: number) {
+    switch (environment) {
+      case Environment.localhost: {
+        switch (chainId) {
+          default:
+            return ''.toLowerCase()
+        }
+      }
+      case Environment.experimental: {
+        switch (chainId) {
+          default:
+            return ''.toLowerCase()
+        }
+      }
+      case Environment.develop: {
+        switch (chainId) {
+          default:
+            return '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB'.toLowerCase()
+        }
+      }
+      case Environment.testnet: {
+        switch (chainId) {
+          default:
+            return '0x9c120F9281308D71C838F8FADB41a82Bfc7ffFEF'.toLowerCase()
+        }
+      }
+      case Environment.mainnet: {
+        switch (chainId) {
+          default:
+            return '0x9c120F9281308D71C838F8FADB41a82Bfc7ffFEF'.toLowerCase()
+        }
+      }
+      default:
+        throw new Error('Not a valid Environment!') //TODO: create error
+    }
+  }
 }

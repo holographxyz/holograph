@@ -1,0 +1,18 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "name": "Holograph SDK Reference",
+  "tsconfig": "./tsconfig.json",
+  "entryPoints": ["src/contracts/index.ts", "src/services/index.ts"],
+  "exclude": ["src/tests"]
+  // "intentionallyNotExported": ["Environment", "LensContext", "Typename", "PickByTypename"]
+  // "extends": ["../../typedoc.base.json"],
+  // "includeVersion": true,
+  // "excludeExternals": false,
+  // "excludeInternal": true,
+  // "excludeNotDocumented": false,
+  // "excludePrivate": true,
+  // "excludeProtected": true,
+  // "disableSources": true,
+  // "gitRevision": "develop",
+  // "hideGenerator": true
+}
