@@ -1,6 +1,6 @@
 ## Describe Changes
 
-Changes made to the package **PACKAGE_NAME**.
+Changes made to the package: **PACKAGE_NAME**.
 
 I made it better by doing ...
 
