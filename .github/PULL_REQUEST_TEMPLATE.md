@@ -11,4 +11,4 @@ I made it better by doing ...
 
 - [ ] I have performed a self-review of my code
 - [ ] Code styles have been enforced
-- [ ] All Hardhat tests are passing
+- [ ] All tests are passing
