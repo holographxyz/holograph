@@ -26,8 +26,15 @@ class BaseContract extends BaseContractEthers {}
 
 export type BaseContractType<TAbi extends Abi> = BaseContract & ContractMethods<TAbi>
 
+export type AnyFunction<TArgs extends any[], TReturn extends any> = (...params: TArgs) => TReturn
+
 export type HolographByNetworksResponse = {
-  [chainId: number]: string | number | BigInt //TODO: Change to `string` as soon as we fix FunctionReturnTypes in the file '../utils/contracts.ts'
+  [chainId: number]: string | string[]
+  /**
+   * @ignore
+   * TODO:
+    We need to better define the return type for our functions. It's my understanding that we want to create our own type instead of the type returned when making the raw call.
+ */
 }
 
 export const getContract = <TAbi extends Abi>(
@@ -54,4 +61,21 @@ export function getSelectedNetworks(networks: Network[], chainIds?: number[]): N
     })
   }
   return networks
+}
+
+export function mapReturnType(returnValue: any | any[]): string | string[] {
+  if (Array.isArray(returnValue) === false) {
+    return returnValue.toString()
+  }
+
+  /**
+   * @ignore
+   * TODO:
+   * There are two things that need to be dealt with:
+
+    We need to better define the return type for our functions. It's my understanding that we want to create our own type instead of the type returned when making the raw call.
+
+    The raw call return types are not correctly mapped using ABITypes, we need to make some improvements in our type definitions before mapping to our return type.
+ */
+  return returnValue.map(value => value.toString())
 }

@@ -1,8 +1,7 @@
 import {Config} from '../src/config/config.service'
-import {Holograph} from '../src/contracts/Holograph'
+import {Holograph} from '../src/contracts/holograph.contract'
 
-import HolographProtocol from '../src/services/holograph-protocol.service'
-import {Providers} from '../src/services/providers.service'
+import {HolographProtocol, Providers} from '../src/services'
 
 require('dotenv').config()
 
@@ -33,6 +32,9 @@ async function main() {
 
   const holograph = new Holograph(config, multiProviders)
   console.log(await holograph.getRegistryByNetworks())
+
+  // registry
+  console.log(await protocol.registry.getContractTypeAddressByNetworks('0xee33bd1045208107547f351e8235e81f9a5baccd'))
 }
 
 main().catch(async e => {
