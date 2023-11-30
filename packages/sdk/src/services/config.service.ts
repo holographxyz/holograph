@@ -1,25 +1,27 @@
 import {BigNumberish} from 'ethers'
 import {Environment, getEnvironment} from '@holographxyz/environment'
 import {getNetworkByChainId, Network} from '@holographxyz/networks'
-import {getHandlerLogger} from './logger'
+import {HolographLogger} from './logger.service'
 
 export type ChainsRpc = Record<number, string>
 
 export class Config {
   private static _instance?: Config
 
-  private readonly logger //TODO: improve logger
+  private readonly logger: HolographLogger
   private readonly _environment: Environment
   private readonly _networks: Network[] = []
 
   private constructor(private chainsRpc: ChainsRpc) {
     this._environment = getEnvironment()
-    this.logger = getHandlerLogger().child({service: Config.name})
+    this.logger = HolographLogger.createLogger({serviceName: Config.name})
 
     this.setNetworks(Object.keys(chainsRpc))
   }
 
   private setNetworks(chainIds: BigNumberish[]) {
+    const logger = this.logger.addContext({functionName: this.setNetworks.name})
+    logger.info('settings networks')
     for (let chainId of chainIds) {
       try {
         const network = getNetworkByChainId(chainId)

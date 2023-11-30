@@ -1,6 +1,6 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Config} from '../../config/config.service'
+import {Config} from '../../services/config.service'
 import {Holograph} from '../../contracts'
 import {Providers} from '../../services'
 import {REGEX} from '../../utils/transformers'
