@@ -1,4 +1,4 @@
-import {Config} from '../src/config/config.service'
+import {Config} from '../src/services/config.service'
 import {Holograph} from '../src/contracts/holograph.contract'
 
 import {HolographProtocol, Providers} from '../src/services'
@@ -23,12 +23,12 @@ async function main() {
   const bridge = await protocol.holograph.getBridge(5)
   console.log('bridge on chain: ', bridge)
 
-  /// Multi-providers usage:
+  // /// Multi-providers usage:
 
   const multiProviders = new Providers(config)
   console.log('providers: ', multiProviders.providers)
 
-  /// stand alone contract usage:
+  // /// stand alone contract usage:
 
   const holograph = new Holograph(config, multiProviders)
   console.log(await holograph.getRegistryByNetworks())

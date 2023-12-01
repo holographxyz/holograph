@@ -1,15 +1,16 @@
 import {JsonRpcProvider} from 'ethers'
 import {Network} from '@holographxyz/networks'
 
-import {Config} from '../config/config.service'
+import {Config} from './config.service'
+import {HolographLogger} from './logger.service'
 
 export class Providers {
-  // private readonly logger //TODO: improve Logger
+  private readonly logger: HolographLogger
   private readonly _providers: Record<number, JsonRpcProvider>
   private readonly _networks: Network[]
 
   constructor(private readonly protocolConfig: Config) {
-    // this.logger = getHandlerLogger().child({service: Providers.name})
+    this.logger = HolographLogger.createLogger({serviceName: Providers.name})
     this._networks = this.protocolConfig.networks
     this._providers = {}
 
@@ -23,7 +24,8 @@ export class Providers {
   }
 
   byChainId(chainId: number) {
-    // this.logger.debug(`provider accessing chainId = ${chainId}`)
+    const logger = this.logger.addContext({functionName: this.byChainId.name})
+    logger.info(`provider accessing chainId = ${chainId}`)
     return this._providers[chainId]
   }
 }

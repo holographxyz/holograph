@@ -1,14 +1,13 @@
 import {Network} from '@holographxyz/networks'
 
-import {getHandlerLogger} from '../config/logger'
 import {Addresses} from '../constants/addresses'
 import {Providers} from '../services'
-import {Config} from '../config/config.service'
+import {Config} from '../services/config.service'
 import {HolographABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographLogger} from '../services/logger.service'
 
 //TODO: add error handling
-//TODO: add logger
 
 /**
  * @group Contracts
@@ -26,9 +25,15 @@ import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturn
 export class Holograph {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
+  private logger: HolographLogger
 
-  constructor(private readonly config: Config, private readonly providers: Providers) {
-    // this.logger = getHandlerLogger().child({service: Holograph.name})
+  constructor(private readonly config: Config, private readonly providers: Providers, parentLogger?: HolographLogger) {
+    if (parentLogger) {
+      this.logger = parentLogger.addContext({className: Holograph.name})
+    } else {
+      this.logger = HolographLogger.createLogger({className: Holograph.name})
+    }
+
     this.networks = this.config.networks
   }
 
@@ -49,9 +54,11 @@ export class Holograph {
    * @returns The HolographBridge contract address in the provided network.
    */
   private async _getBridge(chainId: number) {
+    const logger = this.logger.addContext({functionName: this._getBridge.name})
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
+    logger.info({chainId, address}, 'getting holograph contract')
     const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
 
     const result = await contract.getBridge()

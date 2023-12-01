@@ -1,14 +1,14 @@
 import {Network} from '@holographxyz/networks'
 
 import {Addresses} from '../constants/addresses'
-import {Config} from '../config/config.service'
+import {Config} from '../services/config.service'
 import {HolographRegistryABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 import {Address} from 'abitype'
 import {Providers} from '../services'
+import {HolographLogger} from '../services/logger.service'
 
 //TODO: add error handling
-//TODO: add logger
 
 /**
  * @group Contracts
@@ -22,9 +22,15 @@ import {Providers} from '../services'
 export class Registry {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
+  private logger: HolographLogger
 
-  constructor(private readonly config: Config, private readonly providers: Providers) {
-    // this.logger = getHandlerLogger().child({service: Holograph.name})
+  constructor(private readonly config: Config, private readonly providers: Providers, parentLogger?: HolographLogger) {
+    if (parentLogger) {
+      this.logger = parentLogger.addContext({className: Registry.name})
+    } else {
+      this.logger = HolographLogger.createLogger({className: Registry.name})
+    }
+
     this.networks = this.config.networks
   }
 

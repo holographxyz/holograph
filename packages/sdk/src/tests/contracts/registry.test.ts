@@ -1,6 +1,6 @@
 import {assertType, beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
-import {Config} from '../../config/config.service'
+import {Config} from '../../services/config.service'
 import {Registry} from '../../contracts'
 import {Providers} from '../../services'
 import {REGEX} from '../../utils/transformers'
