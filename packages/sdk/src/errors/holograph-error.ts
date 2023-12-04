@@ -1,4 +1,9 @@
-import {HolographErrorCode} from './error-info'
+export enum HolographErrorCode {
+  HOLO_SDK_10000 = 'HOLO_SDK_10000',
+  HOLO_SDK_10001 = 'HOLO_SDK_10001',
+  HOLO_SDK_10002 = 'HOLO_SDK_10002',
+  HOLO_SDK_10003 = 'HOLO_SDK_10003',
+}
 
 interface HolographErrorParams {
   name: string
@@ -24,4 +29,11 @@ export abstract class HolographError extends Error {
     this.code = code
     this.triggerFunction = triggerFunction
   }
+}
+
+export const normalizeException = (err: any): Error => {
+  if (!(err instanceof Error)) {
+    err = new Error(err)
+  }
+  return err
 }
