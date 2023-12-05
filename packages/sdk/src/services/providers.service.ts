@@ -3,6 +3,7 @@ import {Network} from '@holographxyz/networks'
 
 import {Config} from './config.service'
 import {HolographLogger} from './logger.service'
+import {UnavailableNetworkError} from '../errors/general/unavailable-network.error'
 
 export class Providers {
   private readonly logger: HolographLogger
@@ -19,13 +20,20 @@ export class Providers {
     })
   }
 
-  get providers() {
+  get providers(): Record<number, JsonRpcProvider> {
     return this._providers
   }
 
-  byChainId(chainId: number) {
+  byChainId(chainId: number): JsonRpcProvider {
     const logger = this.logger.addContext({functionName: this.byChainId.name})
     logger.info(`provider accessing chainId = ${chainId}`)
-    return this._providers[chainId]
+
+    const provider = this._providers[chainId]
+
+    if (provider === undefined) {
+      throw new UnavailableNetworkError(chainId, this.byChainId.name)
+    }
+
+    return provider
   }
 }

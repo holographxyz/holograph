@@ -1,29 +1,8 @@
-// interface HolographErrorMap {
-//   [${class or service}]: HolographErrorGroup
-//   holographContract: HolographErrorGroup
-// }
-
-// interface HolographErrorGroup {
-//  [code]: HolographError
-// }
-
-// interface HologrphErrorCode {
-//  [code]: string // HOLO_SDK_00000
-// }
-
-// // // Example function that outputs nice errors for people but debug if needed
-// // function logHolographError(error: HolographError) {
-// //  logger.debug(error.error.stack) // log stack if in debug mode
-// //  if (error.message) {
-// //    logger.info(`${error.code}: ${error.message}`) // nice error output
-// //  } else {
-// //    // log the internal error that we have not captured yet
-// //    logger.error(error.error.message)
-// //  }
-// // }
-
-enum HologrphErrorCode {
-  HOLO_SDK_00000 = 'string', // HOLO_SDK_00000
+export enum HolographErrorCode {
+  HOLO_SDK_10000 = 'HOLO_SDK_10000',
+  HOLO_SDK_10001 = 'HOLO_SDK_10001',
+  HOLO_SDK_10002 = 'HOLO_SDK_10002',
+  HOLO_SDK_10003 = 'HOLO_SDK_10003',
 }
 
 interface HolographErrorParams {
@@ -31,20 +10,30 @@ interface HolographErrorParams {
   description?: string
   options?: {cause: Error} //original error
   message: string // the human readable error
-  code: HologrphErrorCode
+  code: HolographErrorCode
+  triggerFunction?: string // name of the function
 }
 
-abstract class HolographError extends Error {
-  public name: string
-  public description?: string
-  public code: HologrphErrorCode
+export abstract class HolographError extends Error {
+  public readonly name: string
+  public readonly description?: string
+  public readonly code: HolographErrorCode
+  public readonly triggerFunction?: string
 
   constructor(holographErrorParams: HolographErrorParams) {
-    const {name, description, options, message, code} = holographErrorParams
+    const {name, description, options, message, code, triggerFunction} = holographErrorParams
     super(message, options)
 
     this.name = name
     this.description = description
     this.code = code
+    this.triggerFunction = triggerFunction
   }
+}
+
+export const normalizeException = (err: any): Error => {
+  if (!(err instanceof Error)) {
+    err = new Error(err)
+  }
+  return err
 }

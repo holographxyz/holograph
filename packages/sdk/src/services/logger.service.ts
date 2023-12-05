@@ -2,6 +2,7 @@ import pino from 'pino'
 import pretty from 'pino-pretty'
 import {v4 as uuidv4} from 'uuid'
 import {getLoggerConfigs} from '../config/logger.config'
+import {HolographError} from '../errors'
 
 function baseClassSimulacrum<T>(): new () => Pick<T, keyof T> {
   return class {} as any
@@ -56,6 +57,16 @@ export class HolographLogger extends baseClassSimulacrum<PinoMethods>() {
         return target.pinoLogger[prop as keyof typeof target.pinoLogger]
       },
     })
+  }
+
+  logHolographError(error: HolographError) {
+    this.pinoLogger.debug(error.stack) // log stack if in debug mode
+    if (error.message) {
+      this.pinoLogger.info(`${error.code}: ${error.message}`) // nice error output
+    } else {
+      // log the internal error that we have not captured yet
+      this.pinoLogger.error(error.cause)
+    }
   }
 
   getContext() {

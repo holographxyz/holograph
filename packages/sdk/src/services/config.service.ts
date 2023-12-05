@@ -2,6 +2,7 @@ import {BigNumberish} from 'ethers'
 import {Environment, getEnvironment} from '@holographxyz/environment'
 import {getNetworkByChainId, Network} from '@holographxyz/networks'
 import {HolographLogger} from './logger.service'
+import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
 
 export type ChainsRpc = Record<number, string>
 
@@ -27,9 +28,12 @@ export class Config {
         const network = getNetworkByChainId(chainId)
         network.rpc = this.chainsRpc[Number(chainId)]
         this._networks.push(network)
-      } catch (e) {
-        // TODO: map error from getNetworkByChainId to new Error
-        throw e
+      } catch (err: any) {
+        err = normalizeException(err)
+        if (err.message === 'ChainId does not exist in Networks') {
+          throw new UnavailableNetworkError(chainId, this.setNetworks.name, err)
+        }
+        throw new UnknownError(err, this.setNetworks.name)
       }
     }
   }
