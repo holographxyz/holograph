@@ -76,4 +76,41 @@ export class Addresses {
         throw new Error('Not a valid Environment!') //TODO: create error
     }
   }
+
+  static treasury(environment: Environment, chainId?: number) {
+    switch (environment) {
+      case Environment.localhost: {
+        switch (chainId) {
+          default:
+            return ''.toLowerCase()
+        }
+      }
+      case Environment.experimental: {
+        switch (chainId) {
+          default:
+            return ''.toLowerCase()
+        }
+      }
+      case Environment.develop: {
+        switch (chainId) {
+          default:
+            return '0x98Ad6d9Ff18C5f3ADf7aa225A374C56e246094eF'.toLowerCase()
+        }
+      }
+      case Environment.testnet: {
+        switch (chainId) {
+          default:
+            return '0xD3Ab25452B0e97ec923536dD49287DA6dD089050'.toLowerCase()
+        }
+      }
+      case Environment.mainnet: {
+        switch (chainId) {
+          default:
+            return '0xD3Ab25452B0e97ec923536dD49287DA6dD089050'.toLowerCase()
+        }
+      }
+      default:
+        throw new Error('Not a valid Environment!') //TODO: create error
+    }
+  }
 }

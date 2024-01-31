@@ -31,7 +31,7 @@ describe('Contract class: Holograph', () => {
   beforeAll(() => {
     config = Config.getInstance(NETWORKS_MOCK)
     providersWrapper = new Providers(config)
-    holograph = new Holograph(config, providersWrapper)
+    holograph = new Holograph(config)
   })
 
   it('should be able to get the correct providers', () => {

@@ -1,9 +1,8 @@
-import {assertType, beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
+import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {Config} from '../../services/config.service'
 import {Registry} from '../../contracts'
 import {Providers} from '../../services'
-import {REGEX} from '../../utils/transformers'
 import {Address} from 'abitype'
 import {ZeroAddress} from 'ethers'
 
@@ -18,9 +17,9 @@ const expectedValues = {
   holographAddress: '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97',
   hToken: '0x0000000000000000000000000000000000000000',
   utilityTokenAddress: '0x01F3f1Ce33592a548a2EdF047Fe331f8A5Eb4389',
-  holographedContractExample: '0xf84449429f9e0d27cdf0745b7f34eba0a0fb00df', // only deployed to network 5
+  holographedContractExample: '0xf84449429f9e0d27cdf0745b7f34eba0a0fb00df', // deployed to both networks
   notHolographedContractExample: '0x43dff9458D67f49E8F9BE56c7E6a9Fc8FA2640b3',
-  deployedContractHash: '0xb70ca02e6ec6da877005687b50ab3d614c6b27a0f1cafc6d13242e6b617c5bda', // only deployed to network 5
+  deployedContractHash: '0xb70ca02e6ec6da877005687b50ab3d614c6b27a0f1cafc6d13242e6b617c5bda', // deployed to both networks
   deployedContractHashAddress: '0xf84449429F9e0d27cdf0745B7F34EbA0A0Fb00dF',
   notDeployedContractHash: '0x0000000000000000000000000000000000000000000000000000011aa9999999',
   notAcontractType: '0x0000000000000000000000000000000000486f6c6f6772617068455243370000',
@@ -36,7 +35,7 @@ describe('Contract class: Registry', () => {
   beforeAll(() => {
     config = Config.getInstance(NETWORKS_MOCK)
     providersWrapper = new Providers(config)
-    registry = new Registry(config, providersWrapper)
+    registry = new Registry(config)
   })
 
   it('should be able to get the correct providers', () => {
@@ -84,7 +83,7 @@ describe('Contract class: Registry', () => {
       expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
 
       expect(isHolographedContractByNetworks[Object.keys(NETWORKS_MOCK)[0]]).toBe('true')
-      expect(isHolographedContractByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('false')
+      expect(isHolographedContractByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('true')
     })
 
     it('should be able to validate that a contract is not holographed', async () => {
@@ -128,7 +127,7 @@ describe('Contract class: Registry', () => {
       expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
 
       expect(isDeployedByNetworks[Object.keys(NETWORKS_MOCK)[0]]).toBe('true')
-      expect(isDeployedByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('false')
+      expect(isDeployedByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('true')
     })
 
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash per network", async () => {
@@ -171,7 +170,7 @@ describe('Contract class: Registry', () => {
     expect(Object.keys(contractAddressByNetwork)).toEqual(Object.keys(NETWORKS_MOCK))
 
     expect(contractAddressByNetwork[Object.keys(NETWORKS_MOCK)[0]]).toBe(expectedValues.deployedContractHashAddress)
-    expect(contractAddressByNetwork[Object.keys(NETWORKS_MOCK)[1]]).toBe(ZeroAddress)
+    expect(contractAddressByNetwork[Object.keys(NETWORKS_MOCK)[1]]).toBe(expectedValues.deployedContractHashAddress)
   })
 
   describe('getContractTypeAddress():', () => {
