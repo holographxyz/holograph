@@ -16,7 +16,7 @@ type FunctionArgsTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
 type FunctionReturnTypes<TAbi extends Abi> = AbiParametersToPrimitiveTypes<
   ExtractAbiFunction<TAbi, ReadFunctionNames<TAbi>>['outputs'],
   'outputs'
->[0]
+>[0] // TODO: better unwrap the return type
 
 type ContractMethods<TAbi extends Abi> = {
   [name in ReadFunctionNames<TAbi>]: (...args: Array<FunctionArgsTypes<TAbi>>) => Promise<FunctionReturnTypes<TAbi>>

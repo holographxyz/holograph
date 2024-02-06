@@ -31,6 +31,7 @@ describe('Contract class: Registry', () => {
   let config: Config
   let providersWrapper: Providers
   let registry: Registry
+  const chainIds = Object.keys(NETWORKS_MOCK)
 
   beforeAll(() => {
     config = Config.getInstance(NETWORKS_MOCK)
@@ -40,7 +41,7 @@ describe('Contract class: Registry', () => {
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(NETWORKS_MOCK)
+
     expect(multiProviders).toHaveProperty(chainIds[0])
     expect(multiProviders).toHaveProperty(chainIds[1])
   })
@@ -51,8 +52,9 @@ describe('Contract class: Registry', () => {
     expect(registry).toHaveProperty('getContractTypeAddress')
   })
 
-  it('should be able to get the correct Registry contract address according to the environment and chainId', () => {
-    expect(registry.getAddress()).toBe(expectedValues.contractAddress)
+  it('should be able to get the correct Registry contract address according to the environment and chainId', async () => {
+    const address = (await registry.getAddress(Number(chainIds[1]))).toLowerCase()
+    expect(address).toBe(expectedValues.contractAddress)
   })
 
   describe('isHolographedContract():', () => {

@@ -24,6 +24,7 @@ describe('Contract class: Treasury', () => {
   let config: Config
   let providersWrapper: Providers
   let treasury: Treasury
+  const chainIds = Object.keys(NETWORKS_MOCK)
 
   beforeAll(() => {
     config = Config.getInstance(NETWORKS_MOCK)
@@ -37,12 +38,13 @@ describe('Contract class: Treasury', () => {
     expect(treasury).toHaveProperty('getHolographByNetworks')
   })
 
-  it('should be able to get the correct Treasury contract address according to the environment and chainId', () => {
-    expect(treasury.getAddress()).toBe(expectedValues.contractAddress)
+  it('should be able to get the correct Treasury contract address according to the environment and chainId', async () => {
+    const address = (await treasury.getAddress(Number(chainIds[1]))).toLowerCase()
+    expect(address).toBe(expectedValues.contractAddress)
   })
 
   it('getBridge(): should be able to get the correct HolographBridge address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(chainIds[0])
     const bridgeAddress = await treasury.getBridge(chainId)
     expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
     expect(bridgeAddress).toBe(expectedValues.bridgeAddress)

@@ -1,14 +1,11 @@
 import {Network} from '@holographxyz/networks'
-
-import {Addresses} from '../constants/addresses'
-import {Config} from '../services/config.service'
-import {HolographTreasuryABI} from '../constants/abi/develop'
-import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {Address} from 'abitype'
-import {Providers} from '../services'
-import {HolographLogger} from '../services/logger.service'
-import {ContractRevertError, EthersError, HolographError} from '../errors'
 import {isCallException} from 'ethers'
+
+import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {ContractRevertError, EthersError, HolographError} from '../errors'
+import {Providers, HolographLogger, Config} from '../services'
+import {HolographTreasuryABI} from '../constants/abi/develop'
+import {Holograph} from './index'
 
 /**
  * @group Contracts
@@ -22,16 +19,18 @@ import {isCallException} from 'ethers'
 export class Treasury {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
-  private readonly providers: Providers
-  private logger: HolographLogger
+  /** The record of addresses per chainId. */
+  private readonly _addresses: Record<number, string> = {}
+  private readonly _providers: Providers
+  private _logger: HolographLogger
 
   constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this.providers = new Providers(config)
+    this._providers = new Providers(config)
 
     if (parentLogger) {
-      this.logger = parentLogger.addContext({className: Treasury.name})
+      this._logger = parentLogger.addContext({className: Treasury.name})
     } else {
-      this.logger = HolographLogger.createLogger({className: Treasury.name})
+      this._logger = HolographLogger.createLogger({className: Treasury.name})
     }
 
     this.networks = this.config.networks
@@ -43,8 +42,14 @@ export class Treasury {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographTreasury contract address in the provided network.
    */
-  getAddress(chainId?: number | string) {
-    return Addresses.treasury(this.config.environment, Number(chainId))
+  async getAddress(chainId: number): Promise<string> {
+    if (this._addresses[chainId] === undefined) {
+      const holograph = new Holograph(this.config)
+      const add = (await holograph.getTreasury(chainId)) as string
+      this._addresses[chainId] = add
+    }
+
+    return this._addresses[chainId]
   }
 
   /**** getBridge ****/
@@ -55,9 +60,9 @@ export class Treasury {
    * @returns The address of the HolographBridge module
    */
   private async _getBridge(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getBridge.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getBridge.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
 
@@ -120,9 +125,9 @@ export class Treasury {
    * @return the holograph contract address.
    */
   private async _getHolograph(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHolograph.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHolograph.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
 
@@ -186,9 +191,9 @@ export class Treasury {
    * @returns The HolographOperator contract address in the provided network.
    */
   private async _getOperator(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getOperator.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getOperator.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
 
@@ -251,9 +256,9 @@ export class Treasury {
    * @returns The HolographRegistry contract address in the provided network.
    */
   private async _getRegistry(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getRegistry.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getRegistry.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
 
