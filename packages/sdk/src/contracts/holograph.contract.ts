@@ -25,9 +25,12 @@ import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturn
 export class Holograph {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
+  private readonly providers: Providers
   private logger: HolographLogger
 
-  constructor(private readonly config: Config, private readonly providers: Providers, parentLogger?: HolographLogger) {
+  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
+    this.providers = new Providers(config)
+
     if (parentLogger) {
       this.logger = parentLogger.addContext({className: Holograph.name})
     } else {
@@ -93,7 +96,7 @@ export class Holograph {
    * @readonly
    * Get the address of the Holograph Bridge module.
    * Used for beaming holographable assets cross-chain.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographBridge contract address per network.
    */
   async getBridgeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -153,7 +156,7 @@ export class Holograph {
    * @readonly
    * Get the chain ID that the Protocol was deployed on.
    * Useful for checking if/when a hard fork occurs.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The chaiIds per network.
    */
   async getChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -211,7 +214,7 @@ export class Holograph {
    * @readonly
    * Get the address of the Holograph Factory module.
    * Used for deploying holographable smart contracts.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographFactory contract address per network.
    */
   async getFactoryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -274,7 +277,7 @@ export class Holograph {
    * @readonly
    * Get the Holograph chain Id.
    * Holograph uses an internal chain id mapping.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The Holograph chainId per network.
    */
   async getHolographChainIdByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -337,7 +340,7 @@ export class Holograph {
    * @readonly
    * Get the address of the Holograph Interfaces module.
    * Holograph uses this contract to store data that needs to be accessed by a large portion of the modules.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographInterfaces contract address per network.
    */
   async getInterfacesByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -395,7 +398,7 @@ export class Holograph {
    * @readonly
    * Get the address of the Holograph Operator module.
    * All cross-chain Holograph Bridge beams are handled by the Holograph Operator module.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographOperator contract address per network.
    */
   async getOperatorByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -453,7 +456,7 @@ export class Holograph {
    * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographRegistry contract address per network.
    */
   async getRegistryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -511,7 +514,7 @@ export class Holograph {
    * @readonly
    * Get the Holograph Treasury module.
    * All of the Holograph Protocol assets are stored and managed by this module.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographTreasury contract address per network.
    */
   async getTreasuryByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
@@ -574,7 +577,7 @@ export class Holograph {
    * @readonly
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HToken contract address per network.
    */
   async getUtilityTokenByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {

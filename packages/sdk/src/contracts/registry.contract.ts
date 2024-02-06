@@ -1,14 +1,12 @@
 import {Network} from '@holographxyz/networks'
-
-import {Addresses} from '../constants/addresses'
-import {Config} from '../services/config.service'
-import {HolographRegistryABI} from '../constants/abi/develop'
-import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {Address} from 'abitype'
-import {Providers} from '../services'
-import {HolographLogger} from '../services/logger.service'
-import {ContractRevertError, EthersError, HolographError} from '../errors'
 import {isCallException} from 'ethers'
+import {Address} from 'abitype'
+
+import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {ContractRevertError, EthersError, HolographError} from '../errors'
+import {HolographLogger, Providers, Config} from '../services'
+import {HolographRegistryABI} from '../constants/abi/develop'
+import {Holograph} from './index'
 
 //TODO: add error handling
 
@@ -24,13 +22,18 @@ import {isCallException} from 'ethers'
 export class Registry {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
-  private logger: HolographLogger
+  /** The record of addresses per chainId. */
+  private readonly _addresses: Record<number, string> = {}
+  private readonly _providers: Providers
+  private _logger: HolographLogger
 
-  constructor(private readonly config: Config, private readonly providers: Providers, parentLogger?: HolographLogger) {
+  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
+    this._providers = new Providers(config)
+
     if (parentLogger) {
-      this.logger = parentLogger.addContext({className: Registry.name})
+      this._logger = parentLogger.addContext({className: Registry.name})
     } else {
-      this.logger = HolographLogger.createLogger({className: Registry.name})
+      this._logger = HolographLogger.createLogger({className: Registry.name})
     }
 
     this.networks = this.config.networks
@@ -42,8 +45,14 @@ export class Registry {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographRegistry contract address in the provided network.
    */
-  getAddress(chainId?: number | string) {
-    return Addresses.registry(this.config.environment, Number(chainId))
+  async getAddress(chainId: number): Promise<string> {
+    if (this._addresses[chainId] === undefined) {
+      const holograph = new Holograph(this.config)
+      const add = (await holograph.getRegistry(chainId)) as string
+      this._addresses[chainId] = add
+    }
+
+    return this._addresses[chainId]
   }
 
   /**** isHolographedContract ****/
@@ -55,9 +64,9 @@ export class Registry {
    * @return true if it's holographed, and false otherwise.
    */
   private async _isHolographedContract(contractAddress: Address, chainId: number) {
-    const logger = this.logger.addContext({functionName: this._isHolographedContract.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._isHolographedContract.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -98,7 +107,7 @@ export class Registry {
    * @readonly
    * Checks if the contract it's aligned with the Holograph standard by network.
    * @param contractAddress The contract address.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return true if it's holographed, and false otherwise per network.
    */
   async isHolographedContractByNetworks(
@@ -126,9 +135,9 @@ export class Registry {
    */
   private async _isHolographedHashDeployed(hash: Address, chainId: number) {
     //TODO: hash is not an Address, it's a bytes32
-    const logger = this.logger.addContext({functionName: this._isHolographedHashDeployed.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._isHolographedHashDeployed.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -170,7 +179,7 @@ export class Registry {
    * @readonly
    * Checks if the hash is deployed per network.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return true if it's deployed, and false otherwise per network.
    */
   async isHolographedHashDeployedByNetworks(hash: Address, chainIds?: number[]) {
@@ -194,10 +203,10 @@ export class Registry {
    * @return the contract address for the provided contract type.
    */
   private async _getContractTypeAddress(contractType: Address, chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getContractTypeAddress.name})
+    const logger = this._logger.addContext({functionName: this._getContractTypeAddress.name})
     //TODO: contractType is not an Address, it's a bytes32
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -238,7 +247,7 @@ export class Registry {
    * @readonly
    * Returns the contract address for a contract type per network.
    * @param contractType The contract type bytes32.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the contract address for the provided contract type per network.
    */
   async getContractTypeAddressByNetworks(contractType: Address, chainIds?: number[]) {
@@ -261,9 +270,9 @@ export class Registry {
    * @return the holograph contract address.
    */
   private async _getHolograph(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHolograph.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHolograph.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -304,7 +313,7 @@ export class Registry {
    * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the holograph contract address per network.
    */
   async getHolographByNetworks(chainIds?: number[]) {
@@ -324,9 +333,9 @@ export class Registry {
    * @return the hToken contract address.
    */
   private async _getHToken(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHToken.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHToken.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -366,7 +375,7 @@ export class Registry {
   /**
    * @readonly
    * Get the HToken address per network.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the hToken contract address per network.
    */
   async getHTokenByNetworks(chainIds?: number[]) {
@@ -387,9 +396,9 @@ export class Registry {
    * @return the Holograph Utility Token contract address.
    */
   private async _getUtilityToken(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getUtilityToken.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getUtilityToken.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -430,7 +439,7 @@ export class Registry {
    * @readonly
    * Get the Holograph Utility Token address per network.
    * This is the official utility token of the Holograph Protocol.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the Holograph Utility Token contract address per network.
    */
   async getUtilityTokenByNetworks(chainIds?: number[]) {
@@ -454,9 +463,9 @@ export class Registry {
    * @return contracts address[] Returns a set length array of holographable contracts deployed in the chainId
    */
   private async _getHolographableContracts(index: bigint, length: bigint, chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHolographableContracts.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHolographableContracts.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -522,9 +531,9 @@ export class Registry {
    */
   private async _getHolographedHashAddress(hash: Address, chainId: number) {
     //TODO: hash is not an address, it's a bytes32
-    const logger = this.logger.addContext({functionName: this._getHolographedHashAddress.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHolographedHashAddress.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -565,7 +574,7 @@ export class Registry {
    * @readonly
    * Returns the address for a holographed hash per network.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the contract address for the provided hash per network.
    */
   async getHolographedHashAddressContractsByNetworks(hash: Address, chainIds?: number[]) {
@@ -585,9 +594,9 @@ export class Registry {
    * @returns the number of deployed holographable contracts.
    */
   private async _getHolographableContractsLength(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHolographableContractsLength.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const logger = this._logger.addContext({functionName: this._getHolographableContractsLength.name})
+    const provider = this._providers.byChainId(chainId)
+    const address = await this.getAddress(chainId)
 
     const contract = getContract<typeof HolographRegistryABI>(address, HolographRegistryABI, provider)
 
@@ -627,7 +636,7 @@ export class Registry {
   /**
    * @readonly
    * Get total number of deployed holographable contracts per network.
-   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @return the number of deployed holographable contracts per network.
    */
   async getHolographableContractsLengthByNetworks(chainIds?: number[]) {

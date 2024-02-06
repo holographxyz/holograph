@@ -1,9 +1,8 @@
-import {assertType, beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
+import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {Config} from '../../services/config.service'
 import {Registry} from '../../contracts'
 import {Providers} from '../../services'
-import {REGEX} from '../../utils/transformers'
 import {Address} from 'abitype'
 import {ZeroAddress} from 'ethers'
 
@@ -32,16 +31,17 @@ describe('Contract class: Registry', () => {
   let config: Config
   let providersWrapper: Providers
   let registry: Registry
+  const chainIds = Object.keys(NETWORKS_MOCK)
 
   beforeAll(() => {
     config = Config.getInstance(NETWORKS_MOCK)
     providersWrapper = new Providers(config)
-    registry = new Registry(config, providersWrapper)
+    registry = new Registry(config)
   })
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(NETWORKS_MOCK)
+
     expect(multiProviders).toHaveProperty(chainIds[0])
     expect(multiProviders).toHaveProperty(chainIds[1])
   })
@@ -52,8 +52,9 @@ describe('Contract class: Registry', () => {
     expect(registry).toHaveProperty('getContractTypeAddress')
   })
 
-  it('should be able to get the correct Registry contract address according to the environment and chainId', () => {
-    expect(registry.getAddress()).toBe(expectedValues.contractAddress)
+  it('should be able to get the correct Registry contract address according to the environment and chainId', async () => {
+    const address = (await registry.getAddress(Number(chainIds[1]))).toLowerCase()
+    expect(address).toBe(expectedValues.contractAddress)
   })
 
   describe('isHolographedContract():', () => {
