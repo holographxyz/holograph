@@ -1,7 +1,11 @@
 import {Environment} from '@holographxyz/environment'
+import {InvalidHolographEnvironmentError} from '../errors/general/invalid-holograph-environment.error'
 export class Addresses {
   private constructor() {}
 
+  /**
+   * version V2
+   */
   static holograph(environment: Environment, chainId?: number) {
     switch (environment) {
       case Environment.localhost: {
@@ -19,23 +23,23 @@ export class Addresses {
       case Environment.develop: {
         switch (chainId) {
           default:
-            return '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'.toLowerCase()
+            return '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'.toLowerCase() // V1
         }
       }
       case Environment.testnet: {
         switch (chainId) {
           default:
-            return '0x6429b42da2a06aA1C46710509fC96E846F46181e'.toLowerCase()
+            return '0x1Ed99DFE7462763eaF6925271D7Cb2232a61854C'.toLowerCase()
         }
       }
       case Environment.mainnet: {
         switch (chainId) {
           default:
-            return '0x6429b42da2a06aA1C46710509fC96E846F46181e'.toLowerCase()
+            return '0x1Ed99DFE7462763eaF6925271D7Cb2232a61854C'.toLowerCase()
         }
       }
       default:
-        throw new Error('Not a valid Environment!') //TODO: create error
+        throw new InvalidHolographEnvironmentError(this.holograph.name)
     }
   }
 }

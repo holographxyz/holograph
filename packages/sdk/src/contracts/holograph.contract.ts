@@ -1,11 +1,13 @@
 import {Network} from '@holographxyz/networks'
 import {isCallException} from 'ethers'
+import {Address} from 'abitype'
 
 import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
 import {HolographLogger, Config, Providers} from '../services'
 import {EthersError, HolographError, ContractRevertError} from '../errors'
-import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {getContract} from '../utils/abitype'
 
 //TODO: add error handling
 
@@ -46,8 +48,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The Holograph contract address in the provided network.
    */
-  getAddress(chainId?: number | string) {
-    return Addresses.holograph(this.config.environment, Number(chainId))
+  getAddress(chainId?: number | string): Address {
+    return Addresses.holograph(this.config.environment, Number(chainId)) as Address
   }
 
   /**
@@ -62,7 +64,7 @@ export class Holograph {
     const address = this.getAddress(chainId)
 
     logger.info({chainId, address}, 'getting holograph contract')
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -122,7 +124,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -181,7 +183,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -239,7 +241,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -302,7 +304,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -365,7 +367,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -423,7 +425,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -481,7 +483,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
@@ -539,7 +541,7 @@ export class Holograph {
     const provider = this.providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographABI>(address, HolographABI, provider)
+    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
