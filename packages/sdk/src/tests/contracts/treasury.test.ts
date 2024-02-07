@@ -3,7 +3,6 @@ import {beforeAll, describe, expect, it} from 'vitest'
 import {Config} from '../../services/config.service'
 import {Treasury} from '../../contracts'
 import {Providers} from '../../services'
-import {} from '../../contracts/treasury.contract'
 import {REGEX} from '../../utils/transformers'
 
 const NETWORKS_MOCK = {

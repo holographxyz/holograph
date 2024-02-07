@@ -1,11 +1,13 @@
 import {Network} from '@holographxyz/networks'
 import {isCallException} from 'ethers'
+import {Address} from 'abitype'
 
-import {HolographByNetworksResponse, getContract, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, EthersError, HolographError} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {HolographTreasuryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
+import {getContract} from '../utils/abitype'
 
 /**
  * @group Contracts
@@ -20,7 +22,7 @@ export class Treasury {
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
   /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, string> = {}
+  private readonly _addresses: Record<number, Address> = {}
   private readonly _providers: Providers
   private _logger: HolographLogger
 
@@ -42,10 +44,10 @@ export class Treasury {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographTreasury contract address in the provided network.
    */
-  async getAddress(chainId: number): Promise<string> {
+  async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
       const holograph = new Holograph(this.config)
-      const add = (await holograph.getTreasury(chainId)) as string
+      const add = (await holograph.getTreasury(chainId)) as Address
       this._addresses[chainId] = add
     }
 
@@ -64,7 +66,7 @@ export class Treasury {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
+    const contract = getContract({address, abi: HolographTreasuryABI, signerOrProvider: provider})
 
     let result
     try {
@@ -129,7 +131,7 @@ export class Treasury {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
+    const contract = getContract({address, abi: HolographTreasuryABI, signerOrProvider: provider})
 
     let result
     try {
@@ -195,7 +197,7 @@ export class Treasury {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
+    const contract = getContract({address, abi: HolographTreasuryABI, signerOrProvider: provider})
 
     let result
     try {
@@ -260,7 +262,7 @@ export class Treasury {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract<typeof HolographTreasuryABI>(address, HolographTreasuryABI, provider)
+    const contract = getContract({address, abi: HolographTreasuryABI, signerOrProvider: provider})
 
     let result
     try {
