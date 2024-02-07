@@ -12,9 +12,12 @@ import {
   supportedShortNetworks,
 } from './utils';
 
-export type { NetworkType, Network, Networks, NetworkKeys, NetworkHelper };
-
 export {
+  NetworkType,
+  Network,
+  Networks,
+  NetworkKeys,
+  NetworkHelper,
   networks,
   getSupportedNetworks,
   getNetworkByKey,
