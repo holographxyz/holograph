@@ -1,8 +1,17 @@
 {
-  "extends": "tsconfig/holograph.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "target": "ES2017",
+    "module": "commonjs",
+    "lib": ["es2020"],
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "strict": true,
+    "rootDirs": ["./src"],
+    "esModuleInterop": true,
+    "resolveJsonModule": true
   },
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules", "./src/typechain-types"]
+  "exclude": ["dist", "node_modules"],
+  "include": ["./src", "types.ts"]
 }

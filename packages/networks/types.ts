@@ -1,3 +1,4 @@
+import { BigNumberish } from '@ethersproject/bignumber';
 import { NetworkType } from './src/network-type';
 
 export interface Network {
@@ -14,6 +15,8 @@ export interface Network {
   explorer: string | undefined;
   lzEndpoint: string;
   lzId: number;
+  ccipEndpoint: string;
+  ccipId: BigNumberish;
   active: boolean;
   protocolMultisig: string | undefined;
   deprecated?: boolean;
@@ -33,6 +36,4 @@ export interface NetworkHelper {
   byLzId: Networks;
 }
 
-export { NetworkType };
-
-export type { NetworkKeys };
+export { NetworkType, NetworkKeys };
