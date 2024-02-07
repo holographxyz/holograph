@@ -1,6 +1,6 @@
 {
-  "name": "@holographxyz/genesis",
-  "version": "0.0.7",
+  "name": "@holographxyz/holograph-genesis",
+  "version": "0.2.0",
   "description": "Holograph Protocol Genesis",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "@holographxyz",
@@ -28,6 +28,7 @@
     "typechain-types"
   ],
   "scripts": {
+    "postinstall": "(ls .env >> /dev/null 2>&1 && echo '.env file already exists') || cp sample.env .env",
     "init": "(ls .env >> /dev/null 2>&1 && cp .env ignore.original.env) ; cp sample.env .env",
     "abi": "hardhat abi",
     "build": "hardhat holograph-build-contracts",
@@ -49,15 +50,16 @@
     "prettier:fix": "prettier --loglevel error --ignore-path .gitignore --write ."
   },
   "dependencies": {
+    "@anders-t/ethers-ledger": "^1.0.4",
     "@ethersproject/abstract-provider": "^5.7.0",
     "@ethersproject/bignumber": "^5.7.0",
     "@ethersproject/bytes": "^5.7.0",
     "@ethersproject/providers": "^5.7.2",
     "@ethersproject/units": "^5.7.0",
     "@holographxyz/environment": "0.1.10",
-    "@holographxyz/hardhat-deploy-holographed": "^0.0.5",
+    "@holographxyz/hardhat-deploy-holographed": "^0.0.6",
     "@holographxyz/hardhat-holograph-contract-builder": "^0.0.4",
-    "@holographxyz/networks": "0.1.31",
+    "@holographxyz/networks": "^0.2.0",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",
     "@types/chai": "^4.3.0",
@@ -65,10 +67,9 @@
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.21",
     "@typescript-eslint/parser": "^5.42.1",
-    "dotenv": "^10.0.0",
-    "ethers": "^5.5.5",
+    "dotenv": "^16.4.1",
+    "ethers": "^5.5.4",
     "path": "^0.12.7",
-    "super-cold-storage-signer": "^0.0.4",
     "truffle-hdwallet-provider": "^1.0.17",
     "ts-node": "^10.1.0",
     "typechain": "^7.0.0",
@@ -77,8 +78,7 @@
     "zksync-web3": "^0.4.0"
   },
   "devDependencies": {
-    "tsconfig": "workspace:*",
-    "@nomiclabs/hardhat-ethers": "2.0.0",
+    "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers@^0.3.0-beta.13",
     "@nomiclabs/hardhat-etherscan": "^3.1.0",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "chai": "^4.3.6",
@@ -96,5 +96,8 @@
     "prettier-plugin-solidity": "^1.0.0-beta.13",
     "solhint": "^3.3.7",
     "solhint-plugin-prettier": "^0.0.5"
+  },
+  "resolutions": {
+    "node-hid": "github:holographxyz/node-hid#feature/guard-against-reinstantiating-connection"
   }
 }
