@@ -97,7 +97,9 @@
     "solhint": "^3.3.7",
     "solhint-plugin-prettier": "^0.0.5"
   },
-  "resolutions": {
-    "node-hid": "github:holographxyz/node-hid#feature/guard-against-reinstantiating-connection"
+  "pnpm": {
+    "overrides": {
+      "node-hid": "github:holographxyz/node-hid#feature/guard-against-reinstantiating-connection"
+    }
   }
 }
