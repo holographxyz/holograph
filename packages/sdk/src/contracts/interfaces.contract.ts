@@ -79,43 +79,23 @@ export class Interfaces {
     return this._addresses[chainId]
   }
 
-  /**** contractURI ****/
-
-  /**
-   * Get a base64 encoded contract URI JSON string.
-   * Used to dynamically generate contract JSON payload.
-   * @param name the name of the smart contract.
-   * @param imageURL string pointing to the primary contract image, can be: https, ipfs, or ar (arweave).
-   * @param externalLink url to website/page related to smart contract.
-   * @param bps basis points used for specifying royalties percentage.
-   * @param contractAddress address of the smart contract.
-   * @param chainId The chainId of the network to get the result from.
-   * @return a base64 encoded json string representing the smart contract.
-   */
-  private async _contractURI(
-    name: string,
-    imageURL: string,
-    externalLink: string,
-    bps: number,
-    contractAddress: Address,
-    chainId: number,
-  ) {
-    const logger = this._logger.addContext({functionName: this._getChainId.name})
+  private async _getContractFunction(chainId: number, functionName: string, ...args: any[]) {
+    const logger = this._logger.addContext({functionName})
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
     const contract = getContract({address, abi: HolographInterfacesABI, signerOrProvider: provider})
 
-    let result: string
+    let result
     try {
-      result = await contract.contractURI(name, imageURL, externalLink, bps, contractAddress)
+      result = await contract[functionName](...args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
-        holographError = new ContractRevertError('Interfaces', contract.getChainId.name, error, this._getChainId.name)
+        holographError = new ContractRevertError('HolographInterfaces', functionName, error)
       } else {
-        holographError = new EthersError(error, this._getChainId.name)
+        holographError = new EthersError(error, functionName)
       }
 
       logger.logHolographError(error)
@@ -125,19 +105,27 @@ export class Interfaces {
     return mapReturnType(result)
   }
 
+  /**** contractURI ****/
   /**
-   * @readonly
-   * {@inheritDoc Interfaces#_contractURI}
-   * */
-  async contractUri(
+   * Get a base64 encoded contract URI JSON string.
+   * Used to dynamically generate contract JSON payload.
+   * @param chainId The chainId of the network to get the result from.
+   * @param name the name of the smart contract.
+   * @param imageURL string pointing to the primary contract image, can be: https, ipfs, or ar (arweave).
+   * @param externalLink url to website/page related to smart contract.
+   * @param bps basis points used for specifying royalties percentage.
+   * @param contractAddress address of the smart contract.
+   * @return a base64 encoded json string representing the smart contract.
+   */
+  async contractURI(
+    chainId: number,
     name: string,
     imageURL: string,
     externalLink: string,
     bps: number,
     contractAddress: Address,
-    chainId: number,
   ) {
-    return this._contractURI(name, imageURL, externalLink, bps, contractAddress, chainId)
+    return this._getContractFunction(chainId, 'contractURI', name, imageURL, externalLink, bps, contractAddress)
   }
 
   /**
@@ -152,7 +140,7 @@ export class Interfaces {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns a base64 encoded json string representing the smart contract per network.
    */
-  async contractUriByNetworks(
+  async contractURIByNetworks(
     name: string,
     imageURL: string,
     externalLink: string,
@@ -164,13 +152,14 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._contractURI(
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'contractURI',
         name,
         imageURL,
         externalLink,
         bps,
         contractAddress,
-        network.chain,
       )
     }
 
@@ -178,47 +167,16 @@ export class Interfaces {
   }
 
   /**** getUriPrepend ****/
-
   /**
    * TODO: describe it better
    * Get the prepend to use for tokenURI.
    * Provides the prepend to use with TokenUriType URI.
-   * @param uriType
    * @param chainId The chainId of the network to get the result from.
+   * @param uriType
    * @returns
    */
-  private async _getUriPrepend(uriType: TokenUriType, chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getChainId.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographInterfacesABI, signerOrProvider: provider})
-
-    let result: string
-    try {
-      result = await contract.getUriPrepend(uriType)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Interfaces', contract.getChainId.name, error, this._getChainId.name)
-      } else {
-        holographError = new EthersError(error, this._getChainId.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Interfaces#_getUriPrepend}
-   * */
-  async getUriPrepend(uriType: TokenUriType, chainId: number) {
-    return this._getUriPrepend(uriType, chainId)
+  async getUriPrepend(chainId: number, uriType: TokenUriType) {
+    return this._getContractFunction(chainId, 'getUriPrepend', uriType)
   }
 
   /**
@@ -235,59 +193,23 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getUriPrepend(uriType, network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getUriPrepend', uriType)
     }
 
     return results
   }
 
   /**** getChainId ****/
-
   /**
    * It's used to convert between the different types of chainIds.
+   * @param chainId The chainId of the network to get the result from.
    * @param fromChainType
    * @param fromChainId
    * @param toChainType
-   * @param chainId The chainId of the network to get the result from.
    * @returns The Holograph chainId in the provided network.
    */
-  private async _getChainId(
-    fromChainType: ChainIdType,
-    fromChainId: bigint,
-    toChainType: ChainIdType,
-    chainId: number,
-  ) {
-    const logger = this._logger.addContext({functionName: this._getChainId.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographInterfacesABI, signerOrProvider: provider})
-
-    let result: bigint
-    try {
-      result = await contract.getChainId(fromChainType, fromChainId, toChainType)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Interfaces', contract.getChainId.name, error, this._getChainId.name)
-      } else {
-        holographError = new EthersError(error, this._getChainId.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Interfaces#_getChainId}
-   * */
-  async getChainId(fromChainType: ChainIdType, fromChainId: bigint, toChainType: ChainIdType, chainId: number) {
-    return this._getChainId(fromChainType, fromChainId, toChainType, chainId)
+  async getChainId(chainId: number, fromChainType: ChainIdType, fromChainId: bigint, toChainType: ChainIdType) {
+    return this._getContractFunction(chainId, 'getChainId', fromChainType, fromChainId, toChainType)
   }
 
   /**
@@ -309,7 +231,13 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getChainId(fromChainType, fromChainId, toChainType, network.chain)
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'getChainId',
+        fromChainType,
+        fromChainId,
+        toChainType,
+      )
     }
 
     return results
@@ -319,43 +247,13 @@ export class Interfaces {
 
   /**
    * Helper to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to get the result from.
    * @param interfaceType
    * @param interfaceId
-   * @param chainId The chainId of the network to get the result from.
    * @returns true or false.
    */
-  private async _supportsInterface(interfaceType: InterfaceType, interfaceId: Address, chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getChainId.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographInterfacesABI, signerOrProvider: provider})
-
-    let result: boolean
-    try {
-      result = await contract.supportsInterface(interfaceType, interfaceId)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Interfaces', contract.getChainId.name, error, this._getChainId.name)
-      } else {
-        holographError = new EthersError(error, this._getChainId.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Interfaces#_supportsInterface}
-   * */
-  async supportsInterface(interfaceType: InterfaceType, interfaceId: Address, chainId: number) {
-    return this._supportsInterface(interfaceType, interfaceId, chainId)
+  async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Address) {
+    return this._getContractFunction(chainId, 'supportsInterface', interfaceType, interfaceId)
   }
 
   /**
@@ -375,7 +273,12 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._supportsInterface(interfaceType, interfaceId, network.chain)
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'supportsInterface',
+        interfaceType,
+        interfaceId,
+      )
     }
 
     return results

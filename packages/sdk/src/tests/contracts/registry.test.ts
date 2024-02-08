@@ -61,8 +61,8 @@ describe('Contract class: Registry', () => {
     it('should be able to validate a holographed contract', async () => {
       const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
       const isHolographedContract = await registry.isHolographedContract(
-        expectedValues.holographedContractExample as Address,
         chainId,
+        expectedValues.holographedContractExample as Address,
       )
       expect(isHolographedContract).toBe('true')
     })
@@ -70,8 +70,8 @@ describe('Contract class: Registry', () => {
     it('should be able to validate that a contract is not holographed', async () => {
       const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
       const isHolographedContract = await registry.isHolographedContract(
-        expectedValues.notHolographedContractExample as Address,
         chainId,
+        expectedValues.notHolographedContractExample as Address,
       )
       expect(isHolographedContract).toBe('false')
     })
@@ -104,8 +104,8 @@ describe('Contract class: Registry', () => {
     it("should be able to validate a deployed contract using it's deployement config hash", async () => {
       const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
       const isDeployed = await registry.isHolographedHashDeployed(
-        expectedValues.deployedContractHash as Address,
         chainId,
+        expectedValues.deployedContractHash as Address,
       )
       expect(isDeployed).toBe('true')
     })
@@ -113,8 +113,8 @@ describe('Contract class: Registry', () => {
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash", async () => {
       const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
       const isDeployed = await registry.isHolographedHashDeployed(
-        expectedValues.notDeployedContractHash as Address,
         chainId,
+        expectedValues.notDeployedContractHash as Address,
       )
       expect(isDeployed).toBe('false')
     })
@@ -149,16 +149,16 @@ describe('Contract class: Registry', () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
     it('should return the contract address for a holographed hash', async () => {
       const isDeployed = await registry.getHolographedHashAddress(
-        expectedValues.deployedContractHash as Address,
         chainId,
+        expectedValues.deployedContractHash as Address,
       )
       expect(isDeployed).toBe(expectedValues.deployedContractHashAddress)
     })
 
     it('should return the zero address for a holographed hash that is not deployed', async () => {
       const isDeployed = await registry.getHolographedHashAddress(
-        expectedValues.notDeployedContractHash as Address,
         chainId,
+        expectedValues.notDeployedContractHash as Address,
       )
       expect(isDeployed).toBe(ZeroAddress)
     })
@@ -178,14 +178,14 @@ describe('Contract class: Registry', () => {
   describe('getContractTypeAddress():', () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
     it('should return the correct contract address for the provided contract type', async () => {
-      const contractTypeAddress = await registry.getContractTypeAddress(expectedValues.contractType as Address, chainId)
+      const contractTypeAddress = await registry.getContractTypeAddress(chainId, expectedValues.contractType as Address)
       expect(contractTypeAddress).toBe(expectedValues.contractTypeAddress)
     })
 
     it('should return the zero address when an invalid contract type is provided', async () => {
       const contractTypeAddress = await registry.getContractTypeAddress(
-        expectedValues.notAcontractType as Address,
         chainId,
+        expectedValues.notAcontractType as Address,
       )
       expect(contractTypeAddress).toBe(ZeroAddress)
     })
@@ -267,7 +267,7 @@ describe('Contract class: Registry', () => {
 
   it('getHolographableContracts(): should be return the correct Holograph contract address', async () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
-    const holographableContracts = (await registry.getHolographableContracts(0n, 10n, chainId)) as string[]
+    const holographableContracts = (await registry.getHolographableContracts(chainId, 0n, 10n)) as string[]
     expectTypeOf(holographableContracts).toBeArray()
     expectTypeOf(holographableContracts).items.toBeString()
   })
