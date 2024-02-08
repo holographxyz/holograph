@@ -56,16 +56,8 @@ export class Registry {
     return this._addresses[chainId]
   }
 
-  /**** isHolographedContract ****/
-
-  /**
-   * Checks if the contract it's aligned with the Holograph standard.
-   * @param contractAddress The contract address.
-   * @param chainId The chainId of the network to get the result from.
-   * @return true if it's holographed, and false otherwise.
-   */
-  private async _isHolographedContract(contractAddress: Address, chainId: number) {
-    const logger = this._logger.addContext({functionName: this._isHolographedContract.name})
+  private async _getContractFunction(chainId: number, functionName: string, ...args: any[]) {
+    const logger = this._logger.addContext({functionName})
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
@@ -73,35 +65,32 @@ export class Registry {
 
     let result
     try {
-      result = await contract.isHolographedContract(contractAddress)
+      result = await contract[functionName](...args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.isHolographedContract.name,
-          error,
-          this._isHolographedContract.name,
-        )
+        holographError = new ContractRevertError('HolographRegistry', functionName, error)
       } else {
-        holographError = new EthersError(error, this._isHolographedContract.name)
+        holographError = new EthersError(error, functionName)
       }
 
       logger.logHolographError(error)
 
       throw holographError
     }
-
     return mapReturnType(result)
   }
 
+  /**** isHolographedContract ****/
   /**
-   * @readonly
-   * {@inheritDoc Registry#_isHolographedContract}
-   * */
-  async isHolographedContract(contractAddress: Address, chainId: number) {
-    return this._isHolographedContract(contractAddress, chainId)
+   * Checks if the contract it's aligned with the Holograph standard.
+   * @param chainId The chainId of the network to get the result from.
+   * @param contractAddress The contract address.
+   * @return true if it's holographed, and false otherwise.
+   */
+  async isHolographedContract(chainId: number, contractAddress: Address) {
+    return this._getContractFunction(chainId, 'isHolographedContract', contractAddress)
   }
 
   /**
@@ -119,60 +108,22 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._isHolographedContract(contractAddress, network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'isHolographedContract', contractAddress)
     }
 
     return results
   }
 
   /**** isHolographedHashDeployed ****/
-
   //TODO: add a better description! Hash of what?
   /**
    * Checks if the hash is deployed.
-   * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @param chainId The chainId of the network to get the result from.
+   * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @return true if it's deployed, and false otherwise.
    */
-  private async _isHolographedHashDeployed(hash: Address, chainId: number) {
-    //TODO: hash is not an Address, it's a bytes32
-    const logger = this._logger.addContext({functionName: this._isHolographedHashDeployed.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.isHolographedHashDeployed(hash)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.isHolographedHashDeployed.name,
-          error,
-          this._isHolographedHashDeployed.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._isHolographedHashDeployed.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_isHolographedHashDeployed}
-   * */
-  async isHolographedHashDeployed(hash: Address, chainId: number) {
-    return this._isHolographedHashDeployed(hash, chainId)
+  async isHolographedHashDeployed(chainId: number, hash: Address) {
+    return this._getContractFunction(chainId, 'isHolographedHashDeployed', hash)
   }
 
   //TODO: add a better description! Hash of what?
@@ -188,60 +139,22 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._isHolographedHashDeployed(hash, network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'isHolographedHashDeployed', hash)
     }
 
     return results
   }
 
   /**** getContractTypeAddress ****/
-
   //TODO: add a better description!
   /**
    * Returns the contract address for a contract type.
-   * @param contractType The contract type bytes32.
    * @param chainId The chainId of the network to get the result from.
+   * @param contractType The contract type bytes32.
    * @return the contract address for the provided contract type.
    */
-  private async _getContractTypeAddress(contractType: Address, chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getContractTypeAddress.name})
-    //TODO: contractType is not an Address, it's a bytes32
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getContractTypeAddress(contractType)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getContractTypeAddress.name,
-          error,
-          this._getContractTypeAddress.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getContractTypeAddress.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getContractTypeAddress}
-   * */
-  async getContractTypeAddress(contractType: Address, chainId: number) {
-    return this._getContractTypeAddress(contractType, chainId)
+  async getContractTypeAddress(chainId: number, contractType: Address) {
+    return this._getContractFunction(chainId, 'getContractTypeAddress', contractType)
   }
 
   /**
@@ -256,58 +169,21 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractTypeAddress(contractType, network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getContractTypeAddress', contractType)
     }
 
     return results
   }
 
   /**** getHolograph ****/
-
   /**
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainId The chainId of the network to get the result from.
    * @return the holograph contract address.
    */
-  private async _getHolograph(chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getHolograph.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getHolograph()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getHolograph.name,
-          error,
-          this._getHolograph.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHolograph.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getHolograph}
-   * */
   async getHolograph(chainId: number) {
-    return this._getHolograph(chainId)
+    return this._getContractFunction(chainId, 'getHolograph')
   }
 
   /**
@@ -322,7 +198,7 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHolograph(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHolograph')
     }
 
     return results
@@ -333,46 +209,11 @@ export class Registry {
    * @param chainId The chainId of the network to get the result from.
    * @return the hToken contract address.
    */
-  private async _getHToken(chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getHToken.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getHToken(chainId)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getHToken.name,
-          error,
-          this._getHToken.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHToken.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getHToken}
-   * */
   async getHToken(chainId: number) {
-    return this._getHToken(chainId)
+    return this._getContractFunction(chainId, 'getHToken', chainId)
   }
 
+  /**** getHToken ****/
   /**
    * @readonly
    * Get the HToken address per network.
@@ -384,56 +225,21 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHToken(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHToken', network.chain)
     }
 
     return results
   }
 
+  /**** getUtilityToken ****/
   /**
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol
    * @param chainId The chainId of the network to get the result from.
    * @return the Holograph Utility Token contract address.
    */
-  private async _getUtilityToken(chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getUtilityToken.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getUtilityToken()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getUtilityToken.name,
-          error,
-          this._getUtilityToken.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getUtilityToken.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getUtilityToken}
-   * */
   async getUtilityToken(chainId: number) {
-    return this._getUtilityToken(chainId)
+    return this._getContractFunction(chainId, 'getUtilityToken')
   }
 
   /**
@@ -448,58 +254,22 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getUtilityToken(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getUtilityToken')
     }
 
     return results
   }
 
   /**** getHolographableContracts ****/
-
   /**
    * Get set length list, starting from index, for all holographable contracts
+   * @param chainId The chainId of the network to get the result from
    * @param index The index to start enumeration from
    * @param length The length of returned results
-   * @param chainId The chainId of the network to get the result from
    * @return contracts address[] Returns a set length array of holographable contracts deployed in the chainId
    */
-  private async _getHolographableContracts(index: bigint, length: bigint, chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getHolographableContracts.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = (await contract.getHolographableContracts(index, length)) as Address[]
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getHolographableContracts.name,
-          error,
-          this._getHolographableContracts.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHolographableContracts.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getHolographableContracts} */
-  async getHolographableContracts(index: bigint, length: bigint, chainId: number) {
-    return this._getHolographableContracts(index, length, chainId)
+  async getHolographableContracts(chainId: number, index: bigint, length: bigint) {
+    return this._getContractFunction(chainId, 'getHolographableContracts', index, length)
   }
 
   /**
@@ -515,60 +285,27 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHolographableContracts(index, length, network.chain)
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'getHolographableContracts',
+        index,
+        length,
+      )
     }
 
     return results
   }
 
   /**** getHolographedHashAddress ****/
-
   //TODO: define `hash` better. Hash of what?
   /**
    * Returns the address for a holographed hash.
-   * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @param chainId The chainId of the network to get the result from.
+   * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @returns a contract address for the provided hash.
    */
-  private async _getHolographedHashAddress(hash: Address, chainId: number) {
-    //TODO: hash is not an address, it's a bytes32
-    const logger = this._logger.addContext({functionName: this._getHolographedHashAddress.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getHolographedHashAddress(hash)
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getHolographedHashAddress.name,
-          error,
-          this.getHolographedHashAddress.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHolographedHashAddress.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getHolographedHashAddress}
-   * */
-  async getHolographedHashAddress(hash: Address, chainId: number) {
-    return this._getHolographedHashAddress(hash, chainId)
+  async getHolographedHashAddress(chainId: number, hash: Address) {
+    return this._getContractFunction(chainId, 'getHolographedHashAddress', hash)
   }
 
   /**
@@ -583,55 +320,20 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHolographedHashAddress(hash, network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographedHashAddress', hash)
     }
 
     return results
   }
 
+  /**** getHolographableContractsLength ****/
   /**
    * Get total number of deployed holographable contracts.
    * @param chainId The chainId of the network to get the result from.
    * @returns the number of deployed holographable contracts.
    */
-  private async _getHolographableContractsLength(chainId: number) {
-    const logger = this._logger.addContext({functionName: this._getHolographableContractsLength.name})
-    const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getHolographableContractsLength()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'HolographRegistry',
-          contract.getHolographableContractsLength.name,
-          error,
-          this._getHolographableContractsLength.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHolographableContractsLength.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Registry#_getHolographableContractsLength}
-   * */
   async getHolographableContractsLength(chainId: number) {
-    return this._getHolographableContractsLength(chainId)
+    return this._getContractFunction(chainId, 'getHolographableContractsLength')
   }
 
   /**
@@ -645,7 +347,7 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHolographableContractsLength(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographableContractsLength')
     }
 
     return results

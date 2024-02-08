@@ -52,46 +52,41 @@ export class Holograph {
     return Addresses.holograph(this.config.environment, Number(chainId)) as Address
   }
 
-  /**
-   * Get the address of the Holograph Bridge module.
-   * Used for beaming holographable assets cross-chain.
-   * @param chainId The chainId of the network to get the result from.
-   * @returns The HolographBridge contract address in the provided network.
-   */
-  private async _getBridge(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getBridge.name})
+  private async _getContractFunction(chainId: number, functionName: string, ...args: any[]) {
+    const logger = this.logger.addContext({functionName})
     const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
+    const address = await this.getAddress(chainId)
 
     logger.info({chainId, address}, 'getting holograph contract')
     const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
 
     let result
     try {
-      result = await contract.getBridge()
+      result = await contract[functionName](...args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getBridge.name, error, this._getBridge.name)
+        holographError = new ContractRevertError('Holograph', functionName, error)
       } else {
-        holographError = new EthersError(error, this._getBridge.name)
+        holographError = new EthersError(error, functionName)
       }
 
       logger.logHolographError(error)
 
       throw holographError
     }
-
     return mapReturnType(result)
   }
 
   /**
-   * @readonly
-   * {@inheritDoc Holograph#_getBridge}
-   * */
+   * Get the address of the Holograph Bridge module.
+   * Used for beaming holographable assets cross-chain.
+   * @param chainId The chainId of the network to get the result from.
+   * @returns The HolographBridge contract address in the provided network.
+   */
   async getBridge(chainId: number) {
-    return this._getBridge(chainId)
+    return this._getContractFunction(chainId, 'getBridge')
   }
 
   /**
@@ -106,7 +101,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getBridge(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getBridge')
     }
 
     return results
@@ -119,38 +114,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The chainId in the provided network.
    */
-  private async _getChainId(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getChainId.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getChainId()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getChainId.name, error, this._getChainId.name)
-      } else {
-        holographError = new EthersError(error, this._getChainId.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getChainId}
-   * */
   async getChainId(chainId: number) {
-    return this._getChainId(chainId)
+    return this._getContractFunction(chainId, 'getChainId')
   }
 
   // TODO: if the value is the same for all networks, there's no need to check for all.
@@ -166,7 +131,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getChainId(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getChainId')
     }
 
     return results
@@ -178,38 +143,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographFactory contract address in the provided network.
    */
-  private async _getFactory(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getFactory.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getFactory()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getFactory.name, error, this._getFactory.name)
-      } else {
-        holographError = new EthersError(error, this._getFactory.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getFactory}
-   * */
   async getFactory(chainId: number) {
-    return this._getFactory(chainId)
+    return this._getContractFunction(chainId, 'getFactory')
   }
 
   /**
@@ -224,7 +159,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getFactory(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getFactory')
     }
 
     return results
@@ -236,43 +171,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The Holograph chainID in the provided network.
    */
-  private async _getHolographChainId(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getHolographChainId.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getHolographChainId()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'Holograph',
-          contract.getHolographChainId.name,
-          error,
-          this._getHolographChainId.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getHolographChainId.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getHolographChainId}
-   * */
   async getHolographChainId(chainId: number) {
-    return this._getHolographChainId(chainId)
+    return this._getContractFunction(chainId, 'getHolographChainId')
   }
 
   /**
@@ -287,7 +187,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getHolographChainId(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographChainId')
     }
 
     return results
@@ -299,43 +199,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographInterfaces contract address in the provided network.
    */
-  private async _getInterfaces(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getInterfaces.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getInterfaces()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'Holograph',
-          contract.getInterfaces.name,
-          error,
-          this._getInterfaces.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getInterfaces.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getInterfaces}
-   * */
   async getInterfaces(chainId: number) {
-    return this._getInterfaces(chainId)
+    return this._getContractFunction(chainId, 'getInterfaces')
   }
 
   /**
@@ -350,7 +215,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getInterfaces(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getInterfaces')
     }
 
     return results
@@ -362,38 +227,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
-  private async _getOperator(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getOperator.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getOperator()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getOperator.name, error, this._getOperator.name)
-      } else {
-        holographError = new EthersError(error, this._getOperator.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getOperator}
-   * */
   async getOperator(chainId: number) {
-    return this._getOperator(chainId)
+    return this._getContractFunction(chainId, 'getOperator')
   }
 
   /**
@@ -408,7 +243,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getOperator(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getOperator')
     }
 
     return results
@@ -420,38 +255,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographRegistry contract address in the provided network.
    */
-  private async _getRegistry(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getRegistry.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getRegistry()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getRegistry.name, error, this._getRegistry.name)
-      } else {
-        holographError = new EthersError(error, this._getRegistry.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getRegistry}
-   * */
   async getRegistry(chainId: number) {
-    return this._getRegistry(chainId)
+    return this._getContractFunction(chainId, 'getRegistry')
   }
 
   /**
@@ -466,7 +271,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getRegistry(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getRegistry')
     }
 
     return results
@@ -478,38 +283,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographTreasury contract address in the provided network.
    */
-  private async _getTreasury(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getTreasury.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getTreasury()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('Holograph', contract.getTreasury.name, error, this._getTreasury.name)
-      } else {
-        holographError = new EthersError(error, this._getTreasury.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getTreasury}
-   * */
   async getTreasury(chainId: number) {
-    return this._getTreasury(chainId)
+    return this._getContractFunction(chainId, 'getTreasury')
   }
 
   /**
@@ -524,7 +299,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getTreasury(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getTreasury')
     }
 
     return results
@@ -536,43 +311,8 @@ export class Holograph {
    * @param chainId The chainId of the network to get the result from.
    * @returns The HToken contract address in the provided network.
    */
-  private async _getUtilityToken(chainId: number) {
-    const logger = this.logger.addContext({functionName: this._getUtilityToken.name})
-    const provider = this.providers.byChainId(chainId)
-    const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
-
-    let result
-    try {
-      result = await contract.getUtilityToken()
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError(
-          'Holograph',
-          contract.getUtilityToken.name,
-          error,
-          this._getUtilityToken.name,
-        )
-      } else {
-        holographError = new EthersError(error, this._getUtilityToken.name)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
-  }
-
-  /**
-   * @readonly
-   * {@inheritDoc Holograph#_getUtilityToken}
-   * */
   async getUtilityToken(chainId: number) {
-    return this._getUtilityToken(chainId)
+    return this._getContractFunction(chainId, 'getUtilityToken')
   }
 
   /**
@@ -587,7 +327,7 @@ export class Holograph {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getUtilityToken(network.chain)
+      results[network.chain] = await this._getContractFunction(network.chain, 'getUtilityToken')
     }
 
     return results

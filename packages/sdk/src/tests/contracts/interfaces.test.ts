@@ -48,7 +48,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('should be able to get the Interfaces wrapper class', () => {
-    expect(interfaces).toHaveProperty('contractUri')
+    expect(interfaces).toHaveProperty('contractURI')
     expect(interfaces).toHaveProperty('getUriPrepend')
     expect(interfaces).toHaveProperty('getChainIdByNetworks')
   })
@@ -58,22 +58,22 @@ describe('Contract class: Interfaces', () => {
     expect(address).toBe(expectedValues.contractAddress)
   })
 
-  it('contractUri(): should be able to get the base64 encoded contract URI JSON string', async () => {
+  it('contractURI(): should be able to get the base64 encoded contract URI JSON string', async () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
-    const contractUri = await interfaces.contractUri(
+    const contractUri = await interfaces.contractURI(
+      chainId,
       expectedValues.nameExample,
       expectedValues.imageUrlExample,
       expectedValues.externalLinkExample,
       expectedValues.bpsExample,
       expectedValues.contractAddressExample as Address,
-      chainId,
     )
 
     expect(contractUri).toBe(expectedValues.contractUriExample)
   })
 
-  it('contractUriByNetworks(): should be able to get the base64 encoded contract URI JSON string per network', async () => {
-    const contractUriByNetworks = await interfaces.contractUriByNetworks(
+  it('contractURIByNetworks(): should be able to get the base64 encoded contract URI JSON string per network', async () => {
+    const contractUriByNetworks = await interfaces.contractURIByNetworks(
       expectedValues.nameExample,
       expectedValues.imageUrlExample,
       expectedValues.externalLinkExample,
@@ -89,7 +89,7 @@ describe('Contract class: Interfaces', () => {
   it('getUriPrepend(): should be able to get the prepend to use for tokenURI', async () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
 
-    const uriPrepend = await interfaces.getUriPrepend(supportedPrepends[2].type, chainId)
+    const uriPrepend = await interfaces.getUriPrepend(chainId, supportedPrepends[2].type)
 
     expect(uriPrepend).toBe(supportedPrepends[2].prepend)
   })
@@ -106,10 +106,10 @@ describe('Contract class: Interfaces', () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
 
     const toChainIdValue = await interfaces.getChainId(
+      chainId,
       expectedValues.fromChainIdTypeExample,
       expectedValues.fromChainIdExample,
       expectedValues.toChainIdTypeExample,
-      chainId,
     )
 
     expect(toChainIdValue).toBe(expectedValues.toChainIdExample)
@@ -130,7 +130,7 @@ describe('Contract class: Interfaces', () => {
   it('supportsInterface(): should be able to get the ...', async () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
 
-    const supportsInterface = await interfaces.supportsInterface(InterfaceType.ERC721, EIP165_ID, chainId)
+    const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
 
     expect(supportsInterface).toBe('true')
   })
