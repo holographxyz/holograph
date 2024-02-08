@@ -35,7 +35,8 @@
     "@holographxyz/environment": "workspace:*",
     "@holographxyz/networks": "workspace:*",
     "pino": "^8.16.2",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "viem": "^2.7.6"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.6",

@@ -1,3 +1,11 @@
+import {
+  CallExecutionError,
+  ContractFunctionExecutionError,
+  ContractFunctionRevertedError,
+  ContractFunctionZeroDataError,
+  RawContractError,
+} from 'viem'
+
 export enum HolographErrorCode {
   HOLO_SDK_10000 = 'HOLO_SDK_10000',
   HOLO_SDK_10001 = 'HOLO_SDK_10001',
@@ -37,4 +45,24 @@ export const normalizeException = (err: any): Error => {
     err = new Error(err)
   }
   return err
+}
+
+/**
+ * Checks if the error is a result of a contract call
+ * @param err
+ * @returns true or false
+ */
+export const isCallException = (err: any): boolean => {
+  if (
+    err.name &&
+    (err.name === CallExecutionError.name ||
+      err.name === CallExecutionError.name ||
+      err.name === ContractFunctionExecutionError.name ||
+      err.name === ContractFunctionRevertedError.name ||
+      err.name === ContractFunctionZeroDataError.name ||
+      err.name === RawContractError.name)
+  ) {
+    return true
+  }
+  return false
 }
