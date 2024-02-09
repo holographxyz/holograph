@@ -1,6 +1,6 @@
 import {Network} from '@holographxyz/networks'
+import {Address, ExtractAbiFunctionNames} from 'abitype'
 import {isCallException} from 'ethers'
-import {Address} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, EthersError, HolographError} from '../errors'
@@ -8,6 +8,8 @@ import {HolographLogger, Providers, Config} from '../services'
 import {HolographRegistryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
 import {getContract} from '../utils/abitype'
+
+type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI, 'view'>
 
 //TODO: add error handling
 
@@ -56,7 +58,7 @@ export class Registry {
     return this._addresses[chainId]
   }
 
-  private async _getContractFunction(chainId: number, functionName: string, ...args: any[]) {
+  private async _getContractFunction(chainId: number, functionName: HolographRegistryFunctionNames, ...args: any[]) {
     const logger = this._logger.addContext({functionName})
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
@@ -65,7 +67,7 @@ export class Registry {
 
     let result
     try {
-      result = await contract[functionName](...args)
+      result = await contract[functionName](...(args as never[]))
     } catch (error: any) {
       let holographError: HolographError
 

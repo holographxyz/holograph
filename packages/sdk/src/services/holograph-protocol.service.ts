@@ -1,6 +1,6 @@
 import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
 import {Config} from './config.service'
-import {Holograph, Registry, Treasury} from '../contracts'
+import {Holograph, Operator, Registry, Treasury} from '../contracts'
 import {HolographLogger} from './logger.service'
 
 export class HolographProtocol {
@@ -9,8 +9,8 @@ export class HolographProtocol {
   private holographContract!: Holograph
   private registryContract!: Registry
   private treasuryContract!: Treasury
+  private operatorContract!: Operator
   // private bridgeContract!: Bridge
-  // private operatorContract!: Operator
   // private factoryContract!: Factory
 
   constructor(private readonly protocolConfig: Config) {
@@ -21,6 +21,8 @@ export class HolographProtocol {
     this.registryContract = new Registry(this.protocolConfig)
 
     this.treasuryContract = new Treasury(this.protocolConfig)
+
+    this.operatorContract = new Operator(this.protocolConfig)
   }
 
   get holograph(): Holograph {
@@ -33,5 +35,9 @@ export class HolographProtocol {
 
   get treasury(): Treasury {
     return this.treasuryContract
+  }
+
+  get operator(): Operator {
+    return this.operatorContract
   }
 }

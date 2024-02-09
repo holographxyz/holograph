@@ -1,4 +1,5 @@
 import {Network} from '@holographxyz/networks'
+import {Address, ExtractAbiFunctionNames} from 'abitype'
 import {isCallException} from 'ethers'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
@@ -7,7 +8,8 @@ import {Providers, HolographLogger, Config} from '../services'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {Holograph} from './index'
 import {getContract} from '../utils/abitype'
-import {Address} from 'abitype'
+
+type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI, 'view' | 'pure'>
 
 export enum ChainIdType {
   UNDEFINED, //  0
@@ -79,7 +81,7 @@ export class Interfaces {
     return this._addresses[chainId]
   }
 
-  private async _getContractFunction(chainId: number, functionName: string, ...args: any[]) {
+  private async _getContractFunction(chainId: number, functionName: HolographInterfacesFunctionNames, ...args: any[]) {
     const logger = this._logger.addContext({functionName})
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
@@ -88,7 +90,7 @@ export class Interfaces {
 
     let result
     try {
-      result = await contract[functionName](...args)
+      result = await contract[functionName](...(args as never[]))
     } catch (error: any) {
       let holographError: HolographError
 

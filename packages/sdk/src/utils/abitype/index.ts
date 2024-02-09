@@ -2,16 +2,29 @@ export * from './ethers'
 export * from './types'
 
 import type {
+  Abi,
   AbiEvent,
   AbiFunction,
   AbiParameter,
   AbiParametersToPrimitiveTypes,
   AbiStateMutability,
   Address,
+  ExtractAbiFunction,
+  ExtractAbiFunctionNames,
   ResolvedRegister,
 } from 'abitype'
 
 import type {ContractEventPayload, Overrides as EthersOverrides} from 'ethers'
+
+export type AbiFunctionArgs<
+  TAbi extends Abi,
+  TFunctionName extends ExtractAbiFunctionNames<TAbi, 'nonpayable' | 'payable' | 'pure' | 'view'>,
+> = AbiParametersToPrimitiveTypes<ExtractAbiFunction<TAbi, TFunctionName>['inputs']>
+
+export type AbiFunctionReturn<
+  TAbi extends Abi,
+  TFunctionName extends ExtractAbiFunctionNames<TAbi, 'pure' | 'view'>,
+> = AbiParametersToPrimitiveTypes<ExtractAbiFunction<TAbi, TFunctionName>['outputs'], 'outputs'>
 
 /**
  * Get name for {@link AbiFunction} or {@link AbiEvent}
