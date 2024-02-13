@@ -1,6 +1,6 @@
-import {Network} from '@holographxyz/networks'
 import {getContract} from 'viem'
-import {Address} from 'abitype'
+import {Network} from '@holographxyz/networks'
+import {Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
@@ -9,8 +9,6 @@ import {ViemError, HolographError, ContractRevertError, isCallException} from '.
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 
 type HolographFunctionNames = ExtractAbiFunctionNames<typeof HolographABI, 'view'>
-
-//TODO: add error handling
 
 /**
  * @group Contracts
@@ -63,6 +61,7 @@ export class Holograph {
 
     let result
     try {
+      // @ts-expect-error: ts(2345)
       result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError

@@ -1,10 +1,9 @@
 import {Network} from '@holographxyz/networks'
+import {getContract} from 'viem'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
-import {isCallException} from 'ethers'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {getContract} from '../utils/abitype'
-import {ContractRevertError, EthersError, HolographError} from '../errors'
+import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {HolographOperatorABI} from '../constants/abi/develop'
 import {Holograph} from './index'
@@ -61,18 +60,19 @@ export class Operator {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract({address, abi: HolographOperatorABI, signerOrProvider: provider})
+    const contract = getContract({address, abi: HolographOperatorABI, client: provider})
 
     let result
     try {
-      result = await contract[functionName](...args)
+      // @ts-expect-error: ts(2345)
+      result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
         holographError = new ContractRevertError('HolographOperator', functionName, error)
       } else {
-        holographError = new EthersError(error, functionName)
+        holographError = new ViemError(error, functionName)
       }
 
       logger.logHolographError(error)

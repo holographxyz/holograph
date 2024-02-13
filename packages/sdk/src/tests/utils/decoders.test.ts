@@ -1,16 +1,16 @@
+import {Address} from 'abitype'
+import {createPublicClient, http} from 'viem'
 import {beforeAll, describe, expect, it} from 'vitest'
 import {
   decodeAvailableOperatorJobEvent,
   decodeBridgeInErc721Args,
   decodeBridgeableContractDeployedEvent,
   decodeCrossChainMessageSentEvent,
-  decodeDeploymentConfig,
   decodeDeploymentConfigInput,
   decodeErc721TransferEvent,
   decodeLzPacketEvent,
 } from '../../utils/decoders'
-import {createPublicClient, http} from 'viem'
-import {Address} from 'abitype'
+require('dotenv').config()
 
 const RPC_URL = process.env.ETHEREUM_TESTNET_RPC // goerli
 

@@ -1,9 +1,7 @@
-import {Hex, createPublicClient, http} from 'viem'
-import {beforeAll, describe, expect, it} from 'vitest'
+import {Hex} from 'viem'
+import {describe, expect, it} from 'vitest'
 import {create2address, deploymentConfigHash, storageSlot} from '../../utils/encoders'
 import {DeploymentConfig} from '../../utils/decoders'
-
-const RPC_URL = process.env.ETHEREUM_TESTNET_RPC // goerli
 
 describe('Utils: encoders', () => {
   const deploymentConfig: DeploymentConfig = {

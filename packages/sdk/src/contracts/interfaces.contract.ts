@@ -1,12 +1,12 @@
-import {Network} from '@holographxyz/networks'
 import {getContract} from 'viem'
+import {Network} from '@holographxyz/networks'
+import {Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {Providers, HolographLogger, Config} from '../services'
 import {HolographInterfacesABI} from '../constants/abi/develop'
+import {Providers, HolographLogger, Config} from '../services'
 import {Holograph} from './index'
-import {Address} from 'abitype'
 
 type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI, 'view' | 'pure'>
 
@@ -89,6 +89,7 @@ export class Interfaces {
 
     let result
     try {
+      /// @ts-expect-error: ts(2345)
       result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError

@@ -1,6 +1,6 @@
-import {Network} from '@holographxyz/networks'
 import {getContract} from 'viem'
-import {Address} from 'abitype'
+import {Network} from '@holographxyz/networks'
+import {Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
@@ -64,6 +64,7 @@ export class Treasury {
 
     let result
     try {
+      // @ts-expect-error: ts(2345)
       result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError

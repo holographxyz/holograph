@@ -37,11 +37,6 @@ async function main() {
 
   const holograph = new Holograph(config)
   console.log(await holograph.getRegistryByNetworks())
-
-  /// Multi-providers usage:
-
-  // const multiProviders = new Providers(config)
-  // console.log('providers: ', multiProviders.providers)
 }
 
 main().catch(async e => {
