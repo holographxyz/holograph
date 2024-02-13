@@ -1,4 +1,4 @@
-import {keccak256} from 'ethers'
+import {Hex, keccak256} from 'viem'
 
 export enum ContractName {
   Holograph = 'Holograph',
@@ -11,7 +11,7 @@ export function sha3(input: string | undefined): string {
     return '0xc5d2460186f7233c927e7db2dcc703c0e500b653ca82273b7bfad8045d85a470'
   }
 
-  return keccak256(input)
+  return keccak256(input as Hex)
 }
 
 export function remove0x(input: string): string {
@@ -40,7 +40,7 @@ export function toAscii(input: string): string {
   return output
 }
 
-export function lowerCaseAllStrings(input: readonly any[], add?: string): readonly any[] {
+export function lowerCaseAllStrings(input: any[], add?: string): any[] {
   const output = [...input]
   if (add !== undefined) {
     output.push(add)

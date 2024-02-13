@@ -1,4 +1,4 @@
-import {keccak256, toBigInt} from 'ethers'
+import {Hex, keccak256} from 'viem'
 import {bytecodes, BytecodeType} from '../constants/bytecodes'
 
 import {remove0x, sha3} from './transformers'
@@ -18,12 +18,12 @@ export function deploymentConfigHash(deploymentConfig: DeploymentConfig): string
   const configHash: string = sha3(
     (
       '0x' +
-      remove0x(toBigInt(deploymentConfig.config.contractType).toString(16)).padStart(64, '0') +
-      remove0x(toBigInt(deploymentConfig.config.chainType).toString(16)).padStart(8, '0') +
-      remove0x(toBigInt(deploymentConfig.config.salt).toString(16)).padStart(64, '0') +
+      remove0x(BigInt(deploymentConfig.config.contractType).toString(16)).padStart(64, '0') +
+      remove0x(BigInt(deploymentConfig.config.chainType).toString(16)).padStart(8, '0') +
+      remove0x(BigInt(deploymentConfig.config.salt).toString(16)).padStart(64, '0') +
       remove0x(sha3(deploymentConfig.config.byteCode)) +
       remove0x(sha3(deploymentConfig.config.initCode)) +
-      remove0x(toBigInt(deploymentConfig.signer).toString(16)).padStart(40, '0')
+      remove0x(BigInt(deploymentConfig.signer).toString(16)).padStart(40, '0')
     ).toLowerCase(),
   )
   return configHash
@@ -44,8 +44,8 @@ export function deploymentConfigHash(deploymentConfig: DeploymentConfig): string
 //   return configHash
 // }
 
-export function storageSlot(input: string): string {
-  return '0x' + remove0x((toBigInt(keccak256(input)) - toBigInt(1)).toString(16)).padStart(64, '0')
+export function storageSlot(input: Hex): string {
+  return '0x' + remove0x((BigInt(keccak256(input)) - BigInt(1)).toString(16)).padStart(64, '0')
   //TODO: validate
   // return (
   //   '0x' +
