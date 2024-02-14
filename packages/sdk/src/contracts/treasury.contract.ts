@@ -82,7 +82,6 @@ export class Treasury {
     return mapReturnType(result)
   }
 
-  /**** getBridge ****/
   /**
    * Get the HolographBridge contract address according to the chainId.
    * @param chainId The chainId of the network to get the result from.
@@ -96,7 +95,7 @@ export class Treasury {
    * @readonly
    * Get the HolographBridge contract address by network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the HolographBridge contract address per network.
+   * @returns the HolographBridge contract address per network.
    */
   async getBridgeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
@@ -109,12 +108,11 @@ export class Treasury {
     return results
   }
 
-  /**** getHolograph ****/
   /**
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainId The chainId of the network to get the result from.
-   * @return the holograph contract address.
+   * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
     return this._getContractFunction(chainId, 'getHolograph')
@@ -125,7 +123,7 @@ export class Treasury {
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the holograph contract address per network.
+   * @returns the holograph contract address per network.
    */
   async getHolographByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -138,10 +136,9 @@ export class Treasury {
     return results
   }
 
-  /**** getOperator ****/
   /**
    * Get the address of the Holograph Operator module.
-   * All cross-chain Holograph Bridge beams are handled by the Holograph Operator module.
+   * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
@@ -152,7 +149,7 @@ export class Treasury {
   /**
    * @readonly
    * Get the address of the Holograph Operator module.
-   * All cross-chain Holograph Bridge beams are handled by the Holograph Operator module.
+   * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographOperator contract address per network.
    */
@@ -167,7 +164,6 @@ export class Treasury {
     return results
   }
 
-  /**** getRegistry ****/
   /**
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.

@@ -83,7 +83,7 @@ export class Holograph {
 
   /**
    * Get the address of the Holograph Bridge module.
-   * Used for beaming holographable assets cross-chain.
+   * Used for bridging holographable assets cross-chain.
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographBridge contract address in the provided network.
    */
@@ -94,7 +94,7 @@ export class Holograph {
   /**
    * @readonly
    * Get the address of the Holograph Bridge module.
-   * Used for beaming holographable assets cross-chain.
+   * Used for bridging holographable assets cross-chain.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographBridge contract address per network.
    */
@@ -225,7 +225,7 @@ export class Holograph {
 
   /**
    * Get the address of the Holograph Operator module.
-   * All cross-chain Holograph Bridge beams are handled by the Holograph Operator module.
+   * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
@@ -236,7 +236,7 @@ export class Holograph {
   /**
    * @readonly
    * Get the address of the Holograph Operator module.
-   * All cross-chain Holograph Bridge beams are handled by the Holograph Operator module.
+   * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The HolographOperator contract address per network.
    */

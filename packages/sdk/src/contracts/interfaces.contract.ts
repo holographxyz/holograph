@@ -107,7 +107,6 @@ export class Interfaces {
     return mapReturnType(result)
   }
 
-  /**** contractURI ****/
   /**
    * Get a base64 encoded contract URI JSON string.
    * Used to dynamically generate contract JSON payload.
@@ -117,7 +116,7 @@ export class Interfaces {
    * @param externalLink url to website/page related to smart contract.
    * @param bps basis points used for specifying royalties percentage.
    * @param contractAddress address of the smart contract.
-   * @return a base64 encoded json string representing the smart contract.
+   * @returns a base64 encoded json string representing the smart contract.
    */
   async contractURI(
     chainId: number,
@@ -168,7 +167,6 @@ export class Interfaces {
     return results
   }
 
-  /**** getUriPrepend ****/
   /**
    * TODO: describe it better
    * Get the prepend to use for tokenURI.
@@ -201,7 +199,6 @@ export class Interfaces {
     return results
   }
 
-  /**** getChainId ****/
   /**
    * It's used to convert between the different types of chainIds.
    * @param chainId The chainId of the network to get the result from.
@@ -244,8 +241,6 @@ export class Interfaces {
 
     return results
   }
-
-  /**** supportsInterface ****/
 
   /**
    * Helper to identify if a contract supports a particular interface.

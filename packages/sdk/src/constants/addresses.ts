@@ -4,7 +4,7 @@ export class Addresses {
   private constructor() {}
 
   /**
-   * version V2
+   * V2
    */
   static holograph(environment: Environment, chainId?: number) {
     switch (environment) {
@@ -36,6 +36,34 @@ export class Addresses {
         switch (chainId) {
           default:
             return '0x1Ed99DFE7462763eaF6925271D7Cb2232a61854C'.toLowerCase()
+        }
+      }
+      default:
+        throw new InvalidHolographEnvironmentError(this.holograph.name)
+    }
+  }
+
+  /**
+   * V2
+   */
+  static layerZeroModule(environment: Environment, chainId?: number) {
+    switch (environment) {
+      case Environment.develop: {
+        switch (chainId) {
+          default:
+            return '0x422cfa9d656588e55fdd5d34a55c89f711f724cc'.toLowerCase() // V1
+        }
+      }
+      case Environment.testnet: {
+        switch (chainId) {
+          default:
+            return '0x7969414AA6958a44e276e9C3C5f28C5bC42E0271'.toLowerCase()
+        }
+      }
+      case Environment.mainnet: {
+        switch (chainId) {
+          default:
+            return '0x7969414AA6958a44e276e9C3C5f28C5bC42E0271'.toLowerCase()
         }
       }
       default:

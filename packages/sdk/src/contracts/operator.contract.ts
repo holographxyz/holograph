@@ -82,118 +82,107 @@ export class Operator {
     return mapReturnType(result)
   }
 
-  /**** getJobDetails ****/
   /**
    * Get the details for an available operator job.
    * @param chainId The chainId of the network to get the result from.
    * @param jobHash keccak256 hash of the job.
-   * @return an OperatorJob struct with details about a specific job.
+   * @returns an OperatorJob struct with details about a specific job.
    */
   async getJobDetails(chainId: number, jobHash: Address) {
     return this._getContractFunction(chainId, 'getJobDetails', jobHash)
   }
 
-  /**** getTotalPods ****/
   /**
    * Get number of pods available.
    * @param chainId The chainId of the network to get the result from.
-   * @return number of pods that have been opened via bonding.
+   * @returns number of pods that have been opened via bonding.
    */
   async getTotalPods(chainId: number) {
     return this._getContractFunction(chainId, 'getTotalPods')
   }
 
-  /**** getPodOperatorsLength ****/
   /**
    * Get total number of operators in a pod.
    * @param chainId The chainId of the network to get the result from.
    * @param pod the pod to query.
-   * @return total operators in a pod.
+   * @returns total operators in a pod.
    */
   async getPodOperatorsLength(chainId: number, pod: bigint | number) {
     return this._getContractFunction(chainId, 'getPodOperatorsLength', pod)
   }
 
-  /**** getPodOperators ****/
   /**
    * Get list of operators in a pod.
    * @param chainId The chainId of the network to get the result from.
    * @param pod the pod to query.
-   * @return operators array list of operators in a pod.
+   * @returns operators array list of operators in a pod.
    */
   async getPodOperators(chainId: number, pod: bigint | number) {
     return this._getContractFunction(chainId, 'getPodOperators', pod)
   }
 
-  /**** getPaginatedPodOperators ****/
   /**
    * Get paginated list of operators in a pod.
    * @param pod the pod to query.
    * @param index the array index to start from.
    * @param length the length of result set to be (will be shorter if reached end of array).
-   * @return operators a paginated array of operators.
+   * @returns operators a paginated array of operators.
    */
   async getPaginatedPodOperators(chainId: number, pod: bigint | number, index: number, length: number) {
     return this._getContractFunction(chainId, 'getPodOperators', pod, index, length)
   }
 
-  /**** getPodBondAmounts ****/
   /**
    * Check the base and current price for bonding to a particular pod.
    * @param pod the pod to get bonding amounts for.
-   * @return base the base bond amount required for a pod.
-   * @return current the current bond amount required for a pod.
+   * @returns base the base bond amount required for a pod.
+   * @returns current the current bond amount required for a pod.
    */
   async getPodBondAmounts(chainId: number, pod: bigint | number) {
     return this._getContractFunction(chainId, 'getPodBondAmounts', pod)
   }
 
-  /**** getBondedAmount ****/
   /**
    * Get an operator's currently bonded amount.
    * @param operator address of operator to check.
-   * @return amount total number of utility token bonded.
+   * @returns amount total number of utility token bonded.
    */
   async getBondedAmount(chainId: number, operator: Address) {
     return this._getContractFunction(chainId, 'getBondedAmount', operator)
   }
 
-  /**** getBondedPod ****/
   /**
    * Get an operator's currently bonded pod.
    * @param operator address of operator to check.
-   * @return pod number that operator is bonded on, returns zero if not bonded or selected for job.
+   * @returns pod number that operator is bonded on, returns zero if not bonded or selected for job.
    */
   async getBondedPod(chainId: number, operator: Address) {
     return this._getContractFunction(chainId, 'getBondedPod', operator)
   }
 
-  /**** getBondedPodIndex ****/
   /**
    * Get an operator's currently bonded pod index.
    * @param operator address of operator to check.
-   * @return index currently bonded pod's operator index, returns zero if not in pod or moved out for active job.
+   * @returns index currently bonded pod's operator index, returns zero if not in pod or moved out for active job.
    */
   async getBondedPodIndex(chainId: number, operator: Address) {
     return this._getContractFunction(chainId, 'getBondedPodIndex', operator)
   }
 
-  /**** getMinGasPrice ****/
   /**
    * Get the Minimum Gas Price.
-   * @return The minimum value required to execute a job without it being marked as under priced.
+   * @returns The minimum value required to execute a job without it being marked as under priced.
    */
   async getMinGasPrice(chainId: number) {
     return this._getContractFunction(chainId, 'getMinGasPrice')
   }
 
-  /**** getHolographByNetworks ****/
   /**
    * @readonly
    * Get the Holograph Protocol contract address by network.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the Holograph contract address per network.
+   * @returns the Holograph contract address per network.
    */
   async getHolographByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -206,12 +195,11 @@ export class Operator {
     return results
   }
 
-  /**** getBridgeByNetworks ****/
   /**
    * @readonly
    * Get the Holograph Bridge contract address by network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the Holograph Bridge contract address per network.
+   * @returns the Holograph Bridge contract address per network.
    */
   async getBridgeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
@@ -224,7 +212,6 @@ export class Operator {
     return results
   }
 
-  /**** getRegistryByNetworks ****/
   /**
    * @readonly
    * Get the Holograph Registry module by network.
@@ -243,7 +230,6 @@ export class Operator {
     return results
   }
 
-  /**** getMessagingModuleByNetworks ****/
   /**
    * @readonly
    * Get the address of the Holograph Messaging Module by network.
@@ -262,7 +248,6 @@ export class Operator {
     return results
   }
 
-  /**** getUtilityTokenByNetworks ****/
   /**
    * @readonly
    * Get the Holograph Utility Token address by network.
