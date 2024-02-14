@@ -7,11 +7,11 @@ export type EventInfo = {
 export enum HolographEventName {
   // TransferERC20 = 'TransferERC20',
   TransferERC721 = 'TransferERC721',
-  // HolographableContractEvent = 'HolographableContractEvent',
+  HolographableContractEvent = 'HolographableContractEvent',
   BridgeableContractDeployed = 'BridgeableContractDeployed',
   CrossChainMessageSent = 'CrossChainMessageSent',
   AvailableOperatorJob = 'AvailableOperatorJob',
-  // FinishedOperatorJob = 'FinishedOperatorJob',
+  FinishedOperatorJob = 'FinishedOperatorJob',
   // FailedOperatorJob = 'FailedOperatorJob',
   // SecondarySaleFees = 'SecondarySaleFees',
   // EditionInitialized = 'EditionInitialized',
@@ -48,5 +48,15 @@ export const HOLOGRAPH_EVENTS: {readonly [key in HolographEventName]: EventInfo}
     name: HolographEventName.AvailableOperatorJob,
     topic: '0x4422a85db963f113e500bc4ada8f9e9f1a7bcd57cbec6907fbb2bf6aaf5878ff',
     signature: 'event AvailableOperatorJob(bytes32 jobHash, bytes payload)',
+  },
+  [HolographEventName.FinishedOperatorJob]: {
+    name: HolographEventName.FinishedOperatorJob,
+    topic: '0xfc3963369d694e97f35e33cc03fcd382bfa4dbb688ae43d318fcf344f479425e',
+    signature: 'event FinishedOperatorJob(bytes32 _jobHash, address _operator)',
+  },
+  [HolographEventName.HolographableContractEvent]: {
+    name: HolographEventName.HolographableContractEvent,
+    topic: '0xb4d3a3f85e85fdbd1d39f939d8c75355ec33ef437522432fe1a7b8b20bb4fab4',
+    signature: 'event HolographableContractEvent(address indexed _holographableContract, bytes _payload)',
   },
 }
