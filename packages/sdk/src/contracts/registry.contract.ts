@@ -1,17 +1,14 @@
+import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
-import {isCallException} from 'ethers'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, EthersError, HolographError} from '../errors'
+import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {HolographLogger, Providers, Config} from '../services'
 import {HolographRegistryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
-import {getContract} from '../utils/abitype'
 
 type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI, 'view'>
-
-//TODO: add error handling
 
 /**
  * @group Contracts
@@ -63,18 +60,19 @@ export class Registry {
     const provider = this._providers.byChainId(chainId)
     const address = await this.getAddress(chainId)
 
-    const contract = getContract({address, abi: HolographRegistryABI, signerOrProvider: provider})
+    const contract = getContract({address, abi: HolographRegistryABI, client: provider})
 
     let result
     try {
-      result = await contract[functionName](...(args as never[]))
+      // @ts-expect-error: ts(2345)
+      result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
         holographError = new ContractRevertError('HolographRegistry', functionName, error)
       } else {
-        holographError = new EthersError(error, functionName)
+        holographError = new ViemError(error, functionName)
       }
 
       logger.logHolographError(error)

@@ -1,15 +1,23 @@
+import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
-import {isCallException} from 'ethers'
 
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {getContract} from '../utils/abitype'
-import {ContractRevertError, EthersError, HolographError} from '../errors'
+import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {LayerZeroModuleABI} from '../constants/abi/develop'
 import {Addresses} from '../constants/addresses'
 
 type LayerZeroModuleFunctionNames = ExtractAbiFunctionNames<typeof LayerZeroModuleABI, 'view'>
+
+export type GasParameters = {
+  msgBaseGas: bigint
+  msgGasPerByte: bigint
+  jobBaseGas: bigint
+  jobGasPerByte: bigint
+  minGasPrice: bigint
+  maxGasLimit: bigint
+}
 
 /**
  * @group Contracts
@@ -56,18 +64,19 @@ export class LayerZeroModule {
     const provider = this._providers.byChainId(chainId)
     const address = this.getAddress(chainId)
 
-    const contract = getContract({address, abi: LayerZeroModuleABI, signerOrProvider: provider})
+    const contract = getContract({address, abi: LayerZeroModuleABI, client: provider})
 
     let result
     try {
-      result = await contract[functionName](...args)
+      /// @ts-expect-error: ts(2345)
+      result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
         holographError = new ContractRevertError('LayerZeroModule', functionName, error)
       } else {
-        holographError = new EthersError(error, functionName)
+        holographError = new ViemError(error, functionName)
       }
 
       logger.logHolographError(error)

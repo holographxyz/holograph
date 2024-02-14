@@ -1,9 +1,10 @@
+import {config} from 'dotenv'
 import {Config} from '../src/services/config.service'
 import {Holograph} from '../src/contracts/holograph.contract'
 
 import {HolographProtocol, Providers} from '../src/services'
 
-require('dotenv').config()
+config()
 
 async function main() {
   const networks = {
@@ -23,15 +24,20 @@ async function main() {
   const bridge = await protocol.holograph.getBridge(5)
   console.log('bridge on chain: ', bridge)
 
+  const result = await protocol.interfaces.contractURI(
+    5,
+    'Test',
+    'imageUrl',
+    'externalLink.com',
+    1,
+    '0xe713aaa55cea11f7abfbdc894f4945b05c7c5690',
+  )
+  console.log(`Interfaces contractURI: ${result}`)
+
   /// stand alone contract usage:
 
   const holograph = new Holograph(config)
   console.log(await holograph.getRegistryByNetworks())
-
-  /// Multi-providers usage:
-
-  const multiProviders = new Providers(config)
-  console.log('providers: ', multiProviders.providers)
 }
 
 main().catch(async e => {

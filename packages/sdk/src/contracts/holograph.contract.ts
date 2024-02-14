@@ -1,17 +1,14 @@
+import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
-import {isCallException} from 'ethers'
 
 import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
 import {HolographLogger, Config, Providers} from '../services'
-import {EthersError, HolographError, ContractRevertError} from '../errors'
+import {ViemError, HolographError, ContractRevertError, isCallException} from '../errors'
 import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
-import {getContract} from '../utils/abitype'
 
 type HolographFunctionNames = ExtractAbiFunctionNames<typeof HolographABI, 'view'>
-
-//TODO: add error handling
 
 /**
  * @group Contracts
@@ -60,18 +57,19 @@ export class Holograph {
     const address = this.getAddress(chainId)
 
     logger.info({chainId, address}, 'getting holograph contract')
-    const contract = getContract({address, abi: HolographABI, signerOrProvider: provider})
+    const contract = getContract({address, abi: HolographABI, client: provider})
 
     let result
     try {
-      result = await contract[functionName](...args)
+      // @ts-expect-error: ts(2345)
+      result = await contract.read[functionName](args)
     } catch (error: any) {
       let holographError: HolographError
 
       if (isCallException(error)) {
         holographError = new ContractRevertError('Holograph', functionName, error)
       } else {
-        holographError = new EthersError(error, functionName)
+        holographError = new ViemError(error, functionName)
       }
 
       logger.logHolographError(error)

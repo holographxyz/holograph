@@ -1,5 +1,5 @@
 export * from './holograph-error'
 export * from './contracts/contract-revert.error'
 export * from './general/unknown.error'
-export * from './general/ethers.error'
+export * from './general/viem.error'
 export * from './general/unavailable-network.error'
