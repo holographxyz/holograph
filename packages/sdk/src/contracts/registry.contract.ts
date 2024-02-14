@@ -84,12 +84,11 @@ export class Registry {
     return mapReturnType(result)
   }
 
-  /**** isHolographedContract ****/
   /**
    * Checks if the contract it's aligned with the Holograph standard.
    * @param chainId The chainId of the network to get the result from.
    * @param contractAddress The contract address.
-   * @return true if it's holographed, and false otherwise.
+   * @returns true if it's holographed, and false otherwise.
    */
   async isHolographedContract(chainId: number, contractAddress: Address) {
     return this._getContractFunction(chainId, 'isHolographedContract', contractAddress)
@@ -100,7 +99,7 @@ export class Registry {
    * Checks if the contract it's aligned with the Holograph standard by network.
    * @param contractAddress The contract address.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return true if it's holographed, and false otherwise per network.
+   * @returns true if it's holographed, and false otherwise per network.
    */
   async isHolographedContractByNetworks(
     contractAddress: Address,
@@ -116,13 +115,12 @@ export class Registry {
     return results
   }
 
-  /**** isHolographedHashDeployed ****/
   //TODO: add a better description! Hash of what?
   /**
    * Checks if the hash is deployed.
    * @param chainId The chainId of the network to get the result from.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
-   * @return true if it's deployed, and false otherwise.
+   * @returns true if it's deployed, and false otherwise.
    */
   async isHolographedHashDeployed(chainId: number, hash: Address) {
     return this._getContractFunction(chainId, 'isHolographedHashDeployed', hash)
@@ -134,7 +132,7 @@ export class Registry {
    * Checks if the hash is deployed per network.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return true if it's deployed, and false otherwise per network.
+   * @returns true if it's deployed, and false otherwise per network.
    */
   async isHolographedHashDeployedByNetworks(hash: Address, chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -147,13 +145,12 @@ export class Registry {
     return results
   }
 
-  /**** getContractTypeAddress ****/
   //TODO: add a better description!
   /**
    * Returns the contract address for a contract type.
    * @param chainId The chainId of the network to get the result from.
    * @param contractType The contract type bytes32.
-   * @return the contract address for the provided contract type.
+   * @returns the contract address for the provided contract type.
    */
   async getContractTypeAddress(chainId: number, contractType: Address) {
     return this._getContractFunction(chainId, 'getContractTypeAddress', contractType)
@@ -164,7 +161,7 @@ export class Registry {
    * Returns the contract address for a contract type per network.
    * @param contractType The contract type bytes32.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the contract address for the provided contract type per network.
+   * @returns the contract address for the provided contract type per network.
    */
   async getContractTypeAddressByNetworks(contractType: Address, chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -177,12 +174,11 @@ export class Registry {
     return results
   }
 
-  /**** getHolograph ****/
   /**
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainId The chainId of the network to get the result from.
-   * @return the holograph contract address.
+   * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
     return this._getContractFunction(chainId, 'getHolograph')
@@ -193,7 +189,7 @@ export class Registry {
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the holograph contract address per network.
+   * @returns the holograph contract address per network.
    */
   async getHolographByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -209,18 +205,17 @@ export class Registry {
   /**
    * Returns the hToken address for a given chain id.
    * @param chainId The chainId of the network to get the result from.
-   * @return the hToken contract address.
+   * @returns the hToken contract address.
    */
   async getHToken(chainId: number) {
     return this._getContractFunction(chainId, 'getHToken', chainId)
   }
 
-  /**** getHToken ****/
   /**
    * @readonly
    * Get the HToken address per network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the hToken contract address per network.
+   * @returns the hToken contract address per network.
    */
   async getHTokenByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -233,12 +228,11 @@ export class Registry {
     return results
   }
 
-  /**** getUtilityToken ****/
   /**
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol
    * @param chainId The chainId of the network to get the result from.
-   * @return the Holograph Utility Token contract address.
+   * @returns the Holograph Utility Token contract address.
    */
   async getUtilityToken(chainId: number) {
     return this._getContractFunction(chainId, 'getUtilityToken')
@@ -249,7 +243,7 @@ export class Registry {
    * Get the Holograph Utility Token address per network.
    * This is the official utility token of the Holograph Protocol.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the Holograph Utility Token contract address per network.
+   * @returns the Holograph Utility Token contract address per network.
    */
   async getUtilityTokenByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -262,13 +256,12 @@ export class Registry {
     return results
   }
 
-  /**** getHolographableContracts ****/
   /**
    * Get set length list, starting from index, for all holographable contracts
    * @param chainId The chainId of the network to get the result from
    * @param index The index to start enumeration from
    * @param length The length of returned results
-   * @return contracts address[] Returns a set length array of holographable contracts deployed in the chainId
+   * @returns contracts address[] Returns a set length array of holographable contracts deployed in the chainId
    */
   async getHolographableContracts(chainId: number, index: bigint, length: bigint) {
     return this._getContractFunction(chainId, 'getHolographableContracts', index, length)
@@ -280,7 +273,7 @@ export class Registry {
    * @param index The index to start enumeration from
    * @param length The length of returned results
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config
-   * @return contracts address[] Returns a set length array of holographable contracts deployed per chainId
+   * @returns contracts address[] Returns a set length array of holographable contracts deployed per chainId
    */
   async getHolographableContractsByNetworks(index: bigint, length: bigint, chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -298,7 +291,6 @@ export class Registry {
     return results
   }
 
-  /**** getHolographedHashAddress ****/
   //TODO: define `hash` better. Hash of what?
   /**
    * Returns the address for a holographed hash.
@@ -315,7 +307,7 @@ export class Registry {
    * Returns the address for a holographed hash per network.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the contract address for the provided hash per network.
+   * @returns the contract address for the provided hash per network.
    */
   async getHolographedHashAddressContractsByNetworks(hash: Address, chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
@@ -328,7 +320,6 @@ export class Registry {
     return results
   }
 
-  /**** getHolographableContractsLength ****/
   /**
    * Get total number of deployed holographable contracts.
    * @param chainId The chainId of the network to get the result from.
@@ -342,7 +333,7 @@ export class Registry {
    * @readonly
    * Get total number of deployed holographable contracts per network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @return the number of deployed holographable contracts per network.
+   * @returns the number of deployed holographable contracts per network.
    */
   async getHolographableContractsLengthByNetworks(chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}

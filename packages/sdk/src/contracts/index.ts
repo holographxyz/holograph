@@ -1,4 +1,5 @@
 export * from './holograph.contract'
+export * from './layer-zero-module.contract'
 export * from './operator.contract'
 export * from './registry.contract'
 export * from './treasury.contract'

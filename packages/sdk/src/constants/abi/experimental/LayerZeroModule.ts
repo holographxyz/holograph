@@ -136,9 +136,9 @@ export default narrow([
         type: 'uint256',
       },
       {
-        internalType: 'uint256',
-        name: 'payloadLength',
-        type: 'uint256',
+        internalType: 'bytes',
+        name: 'crossChainPayload',
+        type: 'bytes',
       },
     ],
     name: 'getHlgFee',
@@ -229,6 +229,19 @@ export default narrow([
       {
         internalType: 'address',
         name: 'operator',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'getOptimismGasPriceOracle',
+    outputs: [
+      {
+        internalType: 'address',
+        name: 'optimismGasPriceOracle',
         type: 'address',
       },
     ],
@@ -481,6 +494,19 @@ export default narrow([
       },
     ],
     name: 'setOperator',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address',
+        name: 'optimismGasPriceOracle',
+        type: 'address',
+      },
+    ],
+    name: 'setOptimismGasPriceOracle',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
