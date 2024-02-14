@@ -65,6 +65,10 @@ export function getSelectedNetworks(networks: Network[], chainIds?: number[]): N
 
 export function mapReturnType(returnValue: any | any[]): string | string[] {
   if (Array.isArray(returnValue) === false) {
+    if (typeof returnValue === 'object') {
+      return returnValue
+    }
+
     return returnValue.toString()
   }
 

@@ -59,15 +59,14 @@ describe('Contract class: LayerZeroModule', () => {
     const gasParametersByNetworks = await layerZeroModule.getGasParametersByNetworks()
     expect(Object.keys(gasParametersByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
 
-    Object.values(gasParametersByNetworks).forEach(item => {
-      const gasParameters = item as string[]
-      expect(gasParameters).toBeInstanceOf(Array)
-      expect(gasParameters).toHaveLength(6)
-      expect(
-        gasParameters.map(Number).forEach(value => {
-          expect(value).toBeGreaterThan(0)
-        }),
-      )
+    Object.values(gasParametersByNetworks).forEach(gasParameters => {
+      expect(gasParameters).toBeInstanceOf(Object)
+      expect(gasParameters).toHaveProperty('msgBaseGas')
+      expect(gasParameters).toHaveProperty('msgGasPerByte')
+      expect(gasParameters).toHaveProperty('jobBaseGas')
+      expect(gasParameters).toHaveProperty('jobGasPerByte')
+      expect(gasParameters).toHaveProperty('minGasPrice')
+      expect(gasParameters).toHaveProperty('maxGasLimit')
     })
   })
 

@@ -1,6 +1,8 @@
+import {config} from 'dotenv'
 import {Log, PublicClient, createPublicClient, http, parseAbi} from 'viem'
 import {HOLOGRAPH_EVENTS} from '../src/constants/events'
-require('dotenv').config()
+
+config()
 
 /**
  * Example usage of the 'getLogs' function in the CLI using Viem.

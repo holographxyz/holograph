@@ -1,9 +1,10 @@
+import {config} from 'dotenv'
 import {Config} from '../src/services/config.service'
 import {Holograph} from '../src/contracts/holograph.contract'
 
 import {HolographProtocol, Providers} from '../src/services'
 
-require('dotenv').config()
+config()
 
 async function main() {
   const networks = {
