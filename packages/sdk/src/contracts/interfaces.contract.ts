@@ -2,13 +2,13 @@ import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {Providers, HolographLogger, Config} from '../services'
 import {Holograph} from './index'
 
-type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI, 'view' | 'pure'>
+type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
 
 export enum ChainIdType {
   UNDEFINED, //  0
@@ -89,8 +89,11 @@ export class Interfaces {
 
     let result
     try {
-      /// @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographInterfacesABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -168,6 +171,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * TODO: describe it better
    * Get the prepend to use for tokenURI.
    * Provides the prepend to use with TokenUriType URI.
@@ -177,6 +181,30 @@ export class Interfaces {
    */
   async getUriPrepend(chainId: number, uriType: TokenUriType) {
     return this._getContractFunction(chainId, 'getUriPrepend', uriType)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the prepend string for a TokenUriType.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param uriType The TokenUriType to set for.
+   * @param prepend The prepend string.
+   * @returns A transaction.
+   */
+  async updateUriPrepend(chainId: number, uriType: TokenUriType, prepend: string) {
+    return this._getContractFunction(chainId, 'updateUriPrepend', uriType, prepend)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the prepends strings for an array of TokenUriTypes.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param uriType Array of TokenUriType to set for.
+   * @param prepend Array of prepends.
+   * @returns A transaction.
+   */
+  async updateUriPrepends(chainId: number, uriTypes: TokenUriType[], prepends: string[]) {
+    return this._getContractFunction(chainId, 'updateUriPrepends', uriTypes, prepends)
   }
 
   /**
@@ -240,6 +268,51 @@ export class Interfaces {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param interfaceType
+   * @param interfaceId
+   * @param toChainId
+   * @returns A transaction.
+   */
+  async updateChainIdMap(
+    chainId: number,
+    fromChainType: ChainIdType,
+    fromChainId: bigint,
+    toChainType: ChainIdType,
+    toChainId: bigint,
+  ) {
+    return this._getContractFunction(chainId, 'updateChainIdMap', fromChainType, fromChainId, toChainType, toChainId)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param interfaceTypes
+   * @param interfaceIds
+   * @param toChainIds
+   * @returns A transaction.
+   */
+  async updateChainIdMaps(
+    chainId: number,
+    fromChainTypes: ChainIdType[],
+    fromChainIds: bigint[],
+    toChainTypes: ChainIdType[],
+    toChainIds: bigint[],
+  ) {
+    return this._getContractFunction(
+      chainId,
+      'updateChainIdMaps',
+      fromChainTypes,
+      fromChainIds,
+      toChainTypes,
+      toChainIds,
+    )
   }
 
   /**
