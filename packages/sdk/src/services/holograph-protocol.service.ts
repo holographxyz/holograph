@@ -1,6 +1,6 @@
 import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
 import {Config} from './config.service'
-import {Holograph, Interfaces, LayerZeroModule, Operator, Registry, Treasury} from '../contracts'
+import {Factory, Holograph, Interfaces, LayerZeroModule, Operator, Registry, Treasury} from '../contracts'
 import {HolographLogger} from './logger.service'
 
 export class HolographProtocol {
@@ -12,8 +12,8 @@ export class HolographProtocol {
   private interfacesContract!: Interfaces
   private operatorContract!: Operator
   private layerZeroModuleContract!: LayerZeroModule
+  private factoryContract!: Factory
   // private bridgeContract!: Bridge
-  // private factoryContract!: Factory
 
   constructor(private readonly protocolConfig: Config) {
     this.logger = HolographLogger.createLogger({serviceName: HolographProtocol.name})
@@ -24,6 +24,7 @@ export class HolographProtocol {
     this.interfacesContract = new Interfaces(this.protocolConfig)
     this.operatorContract = new Operator(this.protocolConfig)
     this.layerZeroModuleContract = new LayerZeroModule(this.protocolConfig)
+    this.factoryContract = new Factory(this.protocolConfig)
   }
 
   get holograph(): Holograph {
@@ -48,5 +49,9 @@ export class HolographProtocol {
 
   get layerZeroModule(): LayerZeroModule {
     return this.layerZeroModuleContract
+  }
+
+  get factory(): Factory {
+    return this.factoryContract
   }
 }

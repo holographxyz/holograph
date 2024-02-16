@@ -231,7 +231,7 @@ export class LayerZeroModule {
    * @param msgSender The address of who is sending the message.
    * @param msgValue The amount in wei to send the message to the destination chain.
    * @param crossChainPayload The payload to send to the destination chain.
-   * @returns null.
+   * @returns A transaction.
    */
   async send(
     chainId: number,
@@ -258,7 +258,7 @@ export class LayerZeroModule {
    * @onlyAdmin
    * Updates the Holograph Interfaces module address.
    * @param interfaces The address of the Holograph Interfaces smart contract to use.
-   * @returns null.
+   * @returns A transaction.
    */
   async setInterfaces(chainId: number, interfaces: Address) {
     return this._getContractFunction(chainId, 'setInterfaces', interfaces)
@@ -268,7 +268,7 @@ export class LayerZeroModule {
    * @onlyAdmin
    * Updates the Holograph Operator module address.
    * @param operator The address of the Holograph Operator smart contract to use.
-   * @returns null.
+   * @returns A transaction.
    */
   async setOperator(chainId: number, operator: Address) {
     return this._getContractFunction(chainId, 'setOperator', operator)
@@ -278,7 +278,7 @@ export class LayerZeroModule {
    * @onlyAdmin
    * Updates the approved LayerZero Endpoint address.
    * @param lZEndpoint address of the LayerZero Endpoint to use.
-   * @returns null.
+   * @returns A transaction.
    */
   async setLZEndpoint(chainId: number, lZEndpoint: Address) {
     return this._getContractFunction(chainId, 'setLZEndpoint', lZEndpoint)
@@ -288,7 +288,7 @@ export class LayerZeroModule {
    * @onlyAdmin
    * Updates the Optimism Gas Price Oracle module address.
    * @param optimismGasPriceOracle address of the Optimism Gas Price Oracle smart contract to use
-   * @returns null.
+   * @returns A transaction.
    */
   async setOptimismGasPriceOracle(chainId: number, optimismGasPriceOracle: Address) {
     return this._getContractFunction(chainId, 'setOptimismGasPriceOracle', optimismGasPriceOracle)
@@ -299,7 +299,7 @@ export class LayerZeroModule {
    * Updates the default or chain-specific GasParameters.
    * @param chainId The Holograph ChainId to set gas parameters for, set to 0 for default.
    * @param gasParameters The struct of all the gas parameters to set.
-   * @returns null.
+   * @returns A transaction.
    */
   async setGasParameters(chainId: number, holographChainId: number, gasParameters: GasParameters) {
     return this._getContractFunction(chainId, 'setGasParameters', holographChainId, gasParameters)
@@ -310,7 +310,7 @@ export class LayerZeroModule {
    * Updates the default or chain-specific GasParameters by network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @param gasParametersArray The array of gas parameters to set.
-   * @returns null.
+   * @returns A transaction.
    */
   async setGasParametersByNetworks(
     chainIds: number[],
