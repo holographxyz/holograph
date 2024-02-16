@@ -2,13 +2,13 @@ import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {HolographTreasuryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
 
-type HolographTreasuryFunctionNames = ExtractAbiFunctionNames<typeof HolographTreasuryABI, 'view'>
+type HolographTreasuryFunctionNames = ExtractAbiFunctionNames<typeof HolographTreasuryABI>
 
 /**
  * @group Contracts
@@ -64,8 +64,11 @@ export class Treasury {
 
     let result
     try {
-      // @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographTreasuryABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -83,6 +86,7 @@ export class Treasury {
   }
 
   /**
+   * @readonly
    * Get the HolographBridge contract address according to the chainId.
    * @param chainId The chainId of the network to get the result from.
    * @returns The address of the HolographBridge module
@@ -109,6 +113,7 @@ export class Treasury {
   }
 
   /**
+   * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainId The chainId of the network to get the result from.
@@ -137,6 +142,7 @@ export class Treasury {
   }
 
   /**
+   * @readonly
    * Get the address of the Holograph Operator module.
    * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainId The chainId of the network to get the result from.
@@ -165,6 +171,7 @@ export class Treasury {
   }
 
   /**
+   * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
    * @param chainId The chainId of the network to get the result from.
