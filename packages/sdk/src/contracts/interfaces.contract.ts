@@ -11,11 +11,11 @@ import {Holograph} from './index'
 type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
 
 export enum ChainIdType {
-  UNDEFINED, //  0
-  EVM, //        1
-  HOLOGRAPH, //  2
-  LAYERZERO, //  3
-  HYPERLANE, //   4
+  UNDEFINED, // 0
+  EVM, //       1
+  HOLOGRAPH, // 2
+  LAYERZERO, // 3
+  HYPERLANE, // 4
 }
 
 export enum InterfaceType {
@@ -24,14 +24,14 @@ export enum InterfaceType {
   ERC721, //    2
   ERC1155, //   3
   ROYALTIES, // 4
-  GENERIC, //    5
+  GENERIC, //   5
 }
 
 export enum TokenUriType {
-  UNDEFINED, //   0
-  IPFS, //        1
-  HTTPS, //       2
-  ARWEAVE, //      3
+  UNDEFINED, // 0
+  IPFS, //      1
+  HTTPS, //     2
+  ARWEAVE, //   3
 }
 
 /**
@@ -111,6 +111,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * Get a base64 encoded contract URI JSON string.
    * Used to dynamically generate contract JSON payload.
    * @param chainId The chainId of the network to get the result from.
@@ -228,6 +229,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * It's used to convert between the different types of chainIds.
    * @param chainId The chainId of the network to get the result from.
    * @param fromChainType
@@ -316,6 +318,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * Helper to identify if a contract supports a particular interface.
    * @param chainId The chainId of the network to get the result from.
    * @param interfaceType
