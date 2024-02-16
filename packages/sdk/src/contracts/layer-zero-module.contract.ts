@@ -199,38 +199,56 @@ export class LayerZeroModule {
 
   /**
    * @readonly
+   * Get the fees associated with sending specific payload.
+   * Will provide exact costs on protocol and message side, combine the two to get total.
    * @param chainId The chainId of the network to send the transaction.
-   * @param toChain The destination chainId to get the message fee.
-   * @param gasLimit The gas limit for the transaction.
-   * @param gasPrice The gas price for the transaction.
-   * @returns The HLG fee, the fee to send a message to the destination chain and the destination gas price.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param crossChainPayload The entire packet being sent cross-chain.
+   * @returns stringifiedFeesArray The compound fees [hlfFee, msgFee, dstGasPrice]:
+   * hlgFee: The amount (in wei) of native gas token that will cost for finalizing job on destination chain.
+   * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
+   * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint) {
-    return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice)
+  async getMessageFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
   /**
    * @readonly
    * @param chainId The chainId of the network to send the transaction.
-   * @param toChain The destination chainId to get the message fee.
-   * @param gasLimit The gas limit for the transaction.
-   * @param gasPrice The gas price for the transaction.
-   * @param crossChainPayload The payload to send to the destination chain.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param crossChainPayload The entire packet being sent cross-chain.
    * @returns The HLG fee.
    */
-  async getHlgFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Buffer) {
+  async getHlgFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
     return this._getContractFunction(chainId, 'getHlgFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
   /**
    * Updates the prepends strings for an array of TokenUriTypes.
    * @param chainId The chainId of the network to send the transaction.
-   * @param gasLimit The gas limit for the transaction.
-   * @param gasPrice The gas price for the transaction.
-   * @param toChain The destination chainId to get the message fee.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param toChain The holograph chain id of destination chain for payload.
    * @param msgSender The address of who is sending the message.
    * @param msgValue The amount in wei to send the message to the destination chain.
-   * @param crossChainPayload The payload to send to the destination chain.
+   * @param crossChainPayload The entire packet being sent cross-chain.
    * @returns A transaction.
    */
   async send(
@@ -240,7 +258,7 @@ export class LayerZeroModule {
     toChain: number,
     msgSender: Address,
     msgValue: bigint,
-    crossChainPayload: Buffer,
+    crossChainPayload: string | Buffer,
   ) {
     return this._getContractFunction(
       chainId,
