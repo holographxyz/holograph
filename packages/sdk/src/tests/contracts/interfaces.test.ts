@@ -53,7 +53,7 @@ describe('Contract class: Interfaces', () => {
     expect(interfaces).toHaveProperty('getChainIdByNetworks')
   })
 
-  it('should be able to get the correct Interfaces contract address according to the environment and chainId', async () => {
+  it('getAddress(): should be able to get the correct Interfaces contract address according to the environment and chainId', async () => {
     const address = (await interfaces.getAddress(Number(chainIds[1]))).toLowerCase()
     expect(address).toBe(expectedValues.contractAddress)
   })
@@ -127,7 +127,7 @@ describe('Contract class: Interfaces', () => {
     })
   })
 
-  it('supportsInterface(): should be able to get the ...', async () => {
+  it('supportsInterface(): should be able to validate if an interface is supported', async () => {
     const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
 
     const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
@@ -135,11 +135,45 @@ describe('Contract class: Interfaces', () => {
     expect(supportsInterface).toBe('true')
   })
 
-  it('supportsInterfaceByNetworks(): should be able to get the ... per network', async () => {
+  it('supportsInterfaceByNetworks(): should be able to validate if an interface is supported per network', async () => {
     const supportsInterfaceByNetworks = await interfaces.supportsInterfaceByNetworks(InterfaceType.ERC721, EIP165_ID)
 
     Object.values(supportsInterfaceByNetworks).forEach(supportsInterface => {
       expect(supportsInterface).toBe('true')
     })
+  })
+
+  it.skip('updateInterface(): should be able to update if a interface is supported or nor', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+
+    const supportsInterface = await interfaces.updateInterface(chainId, InterfaceType.ERC721, EIP165_ID, false)
+
+    // expect(supportsInterface).toBe('true')
+  })
+
+  it.skip('updateInterfaces(): should be able to update if a list of supported interfaces', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+
+    const supportsInterface = await interfaces.updateInterfaces(chainId, InterfaceType.ERC721, [EIP165_ID], false)
+
+    // expect(supportsInterface).toBe('true')
+  })
+
+  it.skip('updateChainIdMap(): should be able to update the helper structure to convert between the different types of chainIds', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+
+    // await interfaces.updateChainIdMap()
+  })
+
+  it.skip('updateUriPrepend(): should be able to update the the prepend string for a TokenUriType', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+
+    //  await interfaces.updateUriPrepend()
+  })
+
+  it.skip('updateUriPrepends(): should be able to update the prepends strings for an array of TokenUriTypes', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+
+    //  await interfaces.updateUriPrepends()
   })
 })
