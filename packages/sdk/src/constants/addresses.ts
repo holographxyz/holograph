@@ -70,4 +70,32 @@ export class Addresses {
         throw new InvalidHolographEnvironmentError(this.holograph.name)
     }
   }
+
+  /**
+   * V2
+   */
+  static ovmGasPriceOracle(environment: Environment, chainId?: number) {
+    switch (environment) {
+      case Environment.develop: {
+        switch (chainId) {
+          default:
+            return '0xd17C85EE12114bE77Ed0451c42c701fb2aE77C6f'.toLowerCase() // V1
+        }
+      }
+      case Environment.testnet: {
+        switch (chainId) {
+          default:
+            return '0x5230210c2b4995fd5084b0f5fd0d7457aebb5010'.toLowerCase()
+        }
+      }
+      case Environment.mainnet: {
+        switch (chainId) {
+          default:
+            return '0x5230210c2b4995FD5084b0F5FD0D7457aebb5010'.toLowerCase()
+        }
+      }
+      default:
+        throw new InvalidHolographEnvironmentError(this.holograph.name)
+    }
+  }
 }
