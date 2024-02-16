@@ -2,13 +2,13 @@ import {Network} from '@holographxyz/networks'
 import {getContract} from 'viem'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {HolographOperatorABI} from '../constants/abi/develop'
 import {Holograph} from './index'
 
-type HolographOperatorFunctionNames = ExtractAbiFunctionNames<typeof HolographOperatorABI, 'view'>
+type HolographOperatorFunctionNames = ExtractAbiFunctionNames<typeof HolographOperatorABI>
 
 /**
  * @group Contracts
@@ -64,8 +64,11 @@ export class Operator {
 
     let result
     try {
-      // @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographOperatorABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -83,6 +86,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get the details for an available operator job.
    * @param chainId The chainId of the network to get the result from.
    * @param jobHash keccak256 hash of the job.
@@ -93,6 +97,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get number of pods available.
    * @param chainId The chainId of the network to get the result from.
    * @returns number of pods that have been opened via bonding.
@@ -102,6 +107,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get total number of operators in a pod.
    * @param chainId The chainId of the network to get the result from.
    * @param pod the pod to query.
@@ -112,6 +118,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get list of operators in a pod.
    * @param chainId The chainId of the network to get the result from.
    * @param pod the pod to query.
@@ -122,6 +129,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get paginated list of operators in a pod.
    * @param pod the pod to query.
    * @param index the array index to start from.
@@ -133,6 +141,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Check the base and current price for bonding to a particular pod.
    * @param pod the pod to get bonding amounts for.
    * @returns base the base bond amount required for a pod.
@@ -143,6 +152,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get an operator's currently bonded amount.
    * @param operator address of operator to check.
    * @returns amount total number of utility token bonded.
@@ -152,6 +162,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get an operator's currently bonded pod.
    * @param operator address of operator to check.
    * @returns pod number that operator is bonded on, returns zero if not bonded or selected for job.
@@ -161,6 +172,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get an operator's currently bonded pod index.
    * @param operator address of operator to check.
    * @returns index currently bonded pod's operator index, returns zero if not in pod or moved out for active job.
@@ -170,6 +182,7 @@ export class Operator {
   }
 
   /**
+   * @readonly
    * Get the Minimum Gas Price.
    * @returns The minimum value required to execute a job without it being marked as under priced.
    */

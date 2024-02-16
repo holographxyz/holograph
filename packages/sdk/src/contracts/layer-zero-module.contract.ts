@@ -2,13 +2,13 @@ import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {LayerZeroModuleABI} from '../constants/abi/develop'
 import {Addresses} from '../constants/addresses'
 
-type LayerZeroModuleFunctionNames = ExtractAbiFunctionNames<typeof LayerZeroModuleABI, 'view'>
+type LayerZeroModuleFunctionNames = ExtractAbiFunctionNames<typeof LayerZeroModuleABI>
 
 export type GasParameters = {
   msgBaseGas: bigint
@@ -68,8 +68,11 @@ export class LayerZeroModule {
 
     let result
     try {
-      /// @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(LayerZeroModuleABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -189,6 +192,160 @@ export class LayerZeroModule {
 
     for (const network of networks) {
       results[network.chain] = await this._getContractFunction(network.chain, 'getOperator')
+    }
+
+    return results
+  }
+
+  /**
+   * @readonly
+   * Get the fees associated with sending specific payload.
+   * Will provide exact costs on protocol and message side, combine the two to get total.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param crossChainPayload The entire packet being sent cross-chain.
+   * @returns stringifiedFeesArray The compound fees [hlfFee, msgFee, dstGasPrice]:
+   * hlgFee: The amount (in wei) of native gas token that will cost for finalizing job on destination chain.
+   * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
+   * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
+   */
+  async getMessageFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
+  }
+
+  /**
+   * @readonly
+   * @param chainId The chainId of the network to send the transaction.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param crossChainPayload The entire packet being sent cross-chain.
+   * @returns The HLG fee.
+   */
+  async getHlgFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(chainId, 'getHlgFee', toChain, gasLimit, gasPrice, crossChainPayload)
+  }
+
+  /**
+   * Updates the prepends strings for an array of TokenUriTypes.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param msgSender The address of who is sending the message.
+   * @param msgValue The amount in wei to send the message to the destination chain.
+   * @param crossChainPayload The entire packet being sent cross-chain.
+   * @returns A transaction.
+   */
+  async send(
+    chainId: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    toChain: number,
+    msgSender: Address,
+    msgValue: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(
+      chainId,
+      'send',
+      gasLimit,
+      gasPrice,
+      toChain,
+      msgSender,
+      msgValue,
+      crossChainPayload,
+    )
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Interfaces module address.
+   * @param interfaces The address of the Holograph Interfaces smart contract to use.
+   * @returns A transaction.
+   */
+  async setInterfaces(chainId: number, interfaces: Address) {
+    return this._getContractFunction(chainId, 'setInterfaces', interfaces)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Operator module address.
+   * @param operator The address of the Holograph Operator smart contract to use.
+   * @returns A transaction.
+   */
+  async setOperator(chainId: number, operator: Address) {
+    return this._getContractFunction(chainId, 'setOperator', operator)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the approved LayerZero Endpoint address.
+   * @param lZEndpoint address of the LayerZero Endpoint to use.
+   * @returns A transaction.
+   */
+  async setLZEndpoint(chainId: number, lZEndpoint: Address) {
+    return this._getContractFunction(chainId, 'setLZEndpoint', lZEndpoint)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Optimism Gas Price Oracle module address.
+   * @param optimismGasPriceOracle address of the Optimism Gas Price Oracle smart contract to use
+   * @returns A transaction.
+   */
+  async setOptimismGasPriceOracle(chainId: number, optimismGasPriceOracle: Address) {
+    return this._getContractFunction(chainId, 'setOptimismGasPriceOracle', optimismGasPriceOracle)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the default or chain-specific GasParameters.
+   * @param chainId The Holograph ChainId to set gas parameters for, set to 0 for default.
+   * @param gasParameters The struct of all the gas parameters to set.
+   * @returns A transaction.
+   */
+  async setGasParameters(chainId: number, holographChainId: number, gasParameters: GasParameters) {
+    return this._getContractFunction(chainId, 'setGasParameters', holographChainId, gasParameters)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the default or chain-specific GasParameters by network.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param gasParametersArray The array of gas parameters to set.
+   * @returns A transaction.
+   */
+  async setGasParametersByNetworks(
+    chainIds: number[],
+    gasParametersArray: GasParameters[],
+  ): Promise<HolographByNetworksResponse> {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+    let index = 0
+
+    for (const network of networks) {
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'setGasParameters',
+        network.holographId,
+        gasParametersArray[index],
+      )
+      index++
     }
 
     return results

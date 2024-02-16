@@ -2,13 +2,13 @@ import {getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {HolographLogger, Providers, Config} from '../services'
 import {HolographRegistryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
 
-type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI, 'view'>
+type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI>
 
 /**
  * @group Contracts
@@ -64,8 +64,11 @@ export class Registry {
 
     let result
     try {
-      // @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographRegistryABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -83,6 +86,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Checks if the contract it's aligned with the Holograph standard.
    * @param chainId The chainId of the network to get the result from.
    * @param contractAddress The contract address.
@@ -115,6 +119,7 @@ export class Registry {
 
   //TODO: add a better description! Hash of what?
   /**
+   * @readonly
    * Checks if the hash is deployed.
    * @param chainId The chainId of the network to get the result from.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
@@ -145,6 +150,7 @@ export class Registry {
 
   //TODO: add a better description!
   /**
+   * @readonly
    * Returns the contract address for a contract type.
    * @param chainId The chainId of the network to get the result from.
    * @param contractType The contract type bytes32.
@@ -173,6 +179,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainId The chainId of the network to get the result from.
@@ -201,6 +208,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Returns the hToken address for a given chain id.
    * @param chainId The chainId of the network to get the result from.
    * @returns the hToken contract address.
@@ -227,6 +235,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol
    * @param chainId The chainId of the network to get the result from.
@@ -255,6 +264,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Get set length list, starting from index, for all holographable contracts
    * @param chainId The chainId of the network to get the result from
    * @param index The index to start enumeration from
@@ -291,6 +301,7 @@ export class Registry {
 
   //TODO: define `hash` better. Hash of what?
   /**
+   * @readonly
    * Returns the address for a holographed hash.
    * @param chainId The chainId of the network to get the result from.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
@@ -319,6 +330,7 @@ export class Registry {
   }
 
   /**
+   * @readonly
    * Get total number of deployed holographable contracts.
    * @param chainId The chainId of the network to get the result from.
    * @returns the number of deployed holographable contracts.

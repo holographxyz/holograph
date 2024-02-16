@@ -37,6 +37,13 @@ export type DeploymentConfig = {
   readonly signer: Address
 }
 
+export type BridgeSettings = {
+  readonly value: bigint
+  readonly gasLimit: bigint
+  readonly gasPrice: bigint
+  readonly toChain: number
+}
+
 export type DecodedEvent = {
   logIndex: string
   values: any[]

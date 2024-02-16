@@ -10,28 +10,40 @@ import {Holograph} from './index'
 
 type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/ChainIdType.sol
+ */
 export enum ChainIdType {
-  UNDEFINED, //  0
-  EVM, //        1
-  HOLOGRAPH, //  2
-  LAYERZERO, //  3
-  HYPERLANE, //   4
+  UNDEFINED, // 0
+  EVM, //       1
+  HOLOGRAPH, // 2
+  LAYERZERO, // 3
+  HYPERLANE, // 4
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/InterfaceType.sol
+ */
 export enum InterfaceType {
   UNDEFINED, // 0
   ERC20, //     1
   ERC721, //    2
   ERC1155, //   3
   ROYALTIES, // 4
-  GENERIC, //    5
+  GENERIC, //   5
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/TokenUriType.sol
+ */
 export enum TokenUriType {
-  UNDEFINED, //   0
-  IPFS, //        1
-  HTTPS, //       2
-  ARWEAVE, //      3
+  UNDEFINED, // 0
+  IPFS, //      1
+  HTTPS, //     2
+  ARWEAVE, //   3
 }
 
 /**
@@ -235,6 +247,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * It's used to convert between the different types of chainIds.
    * @param chainId The chainId of the network to get the result from.
    * @param fromChainType The chain type of the source network.

@@ -6,9 +6,9 @@ import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
 import {HolographLogger, Config, Providers} from '../services'
 import {ViemError, HolographError, ContractRevertError, isCallException} from '../errors'
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 
-type HolographFunctionNames = ExtractAbiFunctionNames<typeof HolographABI, 'view'>
+type HolographFunctionNames = ExtractAbiFunctionNames<typeof HolographABI>
 
 /**
  * @group Contracts
@@ -61,8 +61,11 @@ export class Holograph {
 
     let result
     try {
-      // @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -80,6 +83,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the address of the Holograph Bridge module.
    * Used for bridging holographable assets cross-chain.
    * @param chainId The chainId of the network to get the result from.
@@ -109,6 +113,7 @@ export class Holograph {
 
   // TODO: if the value is the same for all networks, there's no need to check for a specific one
   /**
+   * @readonly
    * Get the chain ID that the Protocol was deployed on.
    * Useful for checking if/when a hard fork occurs.
    * @param chainId The chainId of the network to get the result from.
@@ -138,6 +143,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the address of the Holograph Factory module.
    * Used for deploying holographable smart contracts.
    * @param chainId The chainId of the network to get the result from.
@@ -166,6 +172,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the Holograph chain Id.
    * Holograph uses an internal chain id mapping.
    * @param chainId The chainId of the network to get the result from.
@@ -194,6 +201,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the address of the Holograph Interfaces module.
    * Holograph uses this contract to store data that needs to be accessed by a large portion of the modules.
    * @param chainId The chainId of the network to get the result from.
@@ -222,6 +230,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the address of the Holograph Operator module.
    * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
    * @param chainId The chainId of the network to get the result from.
@@ -250,6 +259,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
    * @param chainId The chainId of the network to get the result from.
@@ -278,6 +288,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the Holograph Treasury module.
    * All of the Holograph Protocol assets are stored and managed by this module.
    * @param chainId The chainId of the network to get the result from.
@@ -306,6 +317,7 @@ export class Holograph {
   }
 
   /**
+   * @readonly
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol.
    * @param chainId The chainId of the network to get the result from.
