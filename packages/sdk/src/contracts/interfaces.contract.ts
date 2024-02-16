@@ -10,6 +10,10 @@ import {Holograph} from './index'
 
 type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/ChainIdType.sol
+ */
 export enum ChainIdType {
   UNDEFINED, // 0
   EVM, //       1
@@ -18,6 +22,10 @@ export enum ChainIdType {
   HYPERLANE, // 4
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/InterfaceType.sol
+ */
 export enum InterfaceType {
   UNDEFINED, // 0
   ERC20, //     1
@@ -27,6 +35,10 @@ export enum InterfaceType {
   GENERIC, //   5
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/TokenUriType.sol
+ */
 export enum TokenUriType {
   UNDEFINED, // 0
   IPFS, //      1
