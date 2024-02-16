@@ -1,14 +1,14 @@
-import {getContract} from 'viem'
+import {Hex, getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, mapReturnType} from '../utils/contracts'
+import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {Providers, HolographLogger, Config} from '../services'
 import {Holograph} from './index'
 
-type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI, 'view' | 'pure'>
+type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
 
 export enum ChainIdType {
   UNDEFINED, //  0
@@ -89,8 +89,11 @@ export class Interfaces {
 
     let result
     try {
-      /// @ts-expect-error: ts(2345)
-      result = await contract.read[functionName](args)
+      if (isReadFunction(HolographInterfacesABI, functionName)) {
+        result = await contract.read[functionName](args)
+      } else {
+        result = await contract.write[functionName](args)
+      }
     } catch (error: any) {
       let holographError: HolographError
 
@@ -108,6 +111,7 @@ export class Interfaces {
   }
 
   /**
+   * @readonly
    * Get a base64 encoded contract URI JSON string.
    * Used to dynamically generate contract JSON payload.
    * @param chainId The chainId of the network to get the result from.
@@ -168,12 +172,20 @@ export class Interfaces {
   }
 
   /**
-   * TODO: describe it better
-   * Get the prepend to use for tokenURI.
+   * @readonly
+   * Get the prepend string to use for tokenURI.
    * Provides the prepend to use with TokenUriType URI.
    * @param chainId The chainId of the network to get the result from.
-   * @param uriType
-   * @returns
+   * @param uriType The TokenUriType to get the prepend from.
+   * @returns The prepend string
+   *
+   * @example
+   * ```ts
+   * ...
+   * const prepend = await interfaceContract.getUriPrepend(80001, TokenUriType.IPFS)
+   * console.log('The prepend string for IPFS token URIs is ', prepend)
+   * // expected value: The prepend string for IPFS token URIs is ipfs://
+   * ```
    */
   async getUriPrepend(chainId: number, uriType: TokenUriType) {
     return this._getContractFunction(chainId, 'getUriPrepend', uriType)
@@ -181,8 +193,7 @@ export class Interfaces {
 
   /**
    * @readonly
-   * TODO: describe it better
-   * Get the prepend to use for tokenURI.
+   * Get the prepend string to use for tokenURI.
    * Provides the prepend to use with TokenUriType URI.
    * @param uriType
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
@@ -200,11 +211,35 @@ export class Interfaces {
   }
 
   /**
+   * @onlyAdmin
+   * Updates the prepend string for a TokenUriType.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param uriType The TokenUriType to set for.
+   * @param prepend The prepend string.
+   * @returns A transaction.
+   */
+  async updateUriPrepend(chainId: number, uriType: TokenUriType, prepend: string) {
+    return this._getContractFunction(chainId, 'updateUriPrepend', uriType, prepend)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the prepends strings for an array of TokenUriTypes.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param uriType Array of TokenUriType to set for.
+   * @param prepend Array of prepends.
+   * @returns A transaction.
+   */
+  async updateUriPrepends(chainId: number, uriTypes: TokenUriType[], prepends: string[]) {
+    return this._getContractFunction(chainId, 'updateUriPrepends', uriTypes, prepends)
+  }
+
+  /**
    * It's used to convert between the different types of chainIds.
    * @param chainId The chainId of the network to get the result from.
-   * @param fromChainType
-   * @param fromChainId
-   * @param toChainType
+   * @param fromChainType The chain type of the source network.
+   * @param fromChainId The actual chain ID value of the source network.
+   * @param toChainType The chain type of the desired network.
    * @returns The Holograph chainId in the provided network.
    */
   async getChainId(chainId: number, fromChainType: ChainIdType, fromChainId: bigint, toChainType: ChainIdType) {
@@ -214,9 +249,9 @@ export class Interfaces {
   /**
    * @readonly
    * It's used to convert between the different types of chainIds.
-   * @param fromChainType
-   * @param fromChainId
-   * @param toChainType
+   * @param fromChainType The chain type of the source network.
+   * @param fromChainId The actual chain ID value of the source network.
+   * @param toChainType The chain type of the desired network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns The chaiIds per network.
    */
@@ -243,27 +278,75 @@ export class Interfaces {
   }
 
   /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param fromChainType The chain type of the source network.
+   * @param fromChainId The actual chain ID value of the source network.
+   * @param toChainType The chain type of the destine network.
+   * @param toChainId The actual chain ID value of the destine network.
+   * @returns A transaction.
+   */
+  async updateChainIdMap(
+    chainId: number,
+    fromChainType: ChainIdType,
+    fromChainId: bigint,
+    toChainType: ChainIdType,
+    toChainId: bigint,
+  ) {
+    return this._getContractFunction(chainId, 'updateChainIdMap', fromChainType, fromChainId, toChainType, toChainId)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param fromChainTypes The chain type of the source networks.
+   * @param fromChainIds The actual chain ID values of the source networks.
+   * @param toChainTypes The chain type of the destine networks.
+   * @param toChainIds The actual chain ID values of the destine networks.
+   * @returns A transaction.
+   */
+  async updateChainIdMaps(
+    chainId: number,
+    fromChainTypes: ChainIdType[],
+    fromChainIds: bigint[],
+    toChainTypes: ChainIdType[],
+    toChainIds: bigint[],
+  ) {
+    return this._getContractFunction(
+      chainId,
+      'updateChainIdMaps',
+      fromChainTypes,
+      fromChainIds,
+      toChainTypes,
+      toChainIds,
+    )
+  }
+
+  /**
+   * @readonly
    * Helper to identify if a contract supports a particular interface.
    * @param chainId The chainId of the network to get the result from.
-   * @param interfaceType
-   * @param interfaceId
-   * @returns true or false.
+   * @param interfaceType The InterfaceType.
+   * @param interfaceId The interface identifier, as specified in ERC-165.
+   * @returns `true` if the contract implements `interfaceID` and `interfaceID` is not 0xffffffff, `false` otherwise.
    */
-  async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Address) {
+  async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex) {
     return this._getContractFunction(chainId, 'supportsInterface', interfaceType, interfaceId)
   }
 
   /**
    * @readonly
-   * TODO: describe it better
-   * @param interfaceType
-   * @param interfaceId
+   * Helper to identify if a contract supports a particular interface by networks.
+   * @param interfaceType The InterfaceType.
+   * @param interfaceId The interface identifier, as specified in ERC-165.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @returns true or false per network.
+   * @returns `true` if the contract implements `interfaceID` and `interfaceID` is not 0xffffffff, `false` otherwise per network.
    */
   async supportsInterfaceByNetworks(
     interfaceType: InterfaceType,
-    interfaceId: Address,
+    interfaceId: Hex,
     chainIds?: number[],
   ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
@@ -279,5 +362,31 @@ export class Interfaces {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param interfaceType The InterfaceType.
+   * @param interfaceId The interface identifier, as specified in ERC-165.
+   * @param supported `true` if it's supported, `false` otherwise.
+   * @returns A transaction.
+   */
+  async updateInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex, supported: boolean) {
+    return this._getContractFunction(chainId, 'updateInterface', interfaceType, interfaceId, supported)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the helper structure to identify if a contract supports a particular interface.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param interfaceType The InterfaceType.
+   * @param interfaceIds An array of interface identifiers, as specified in ERC-165.
+   * @param supported `true` if it's supported, `false` otherwise.
+   * @returns A transaction.
+   */
+  async updateInterfaces(chainId: number, interfaceType: InterfaceType, interfaceIds: Hex[], supported: boolean) {
+    return this._getContractFunction(chainId, 'updateInterfaces', interfaceType, interfaceIds, supported)
   }
 }
