@@ -16,9 +16,9 @@ type OVMGasPriceOracleFunctionNames = ExtractAbiFunctionNames<typeof OVM_GasPric
  *
  * @remarks
  *
- * This contract exposes the current l2 gas price, a measure of how congested the network
+ * This contract exposes the current L2 gas price, a measure of how congested the network
  * currently is. This measure is used by the Sequencer to determine what fee to charge for
- * transactions. When the system is more congested, the l2 gas price will increase and fees
+ * transactions. When the system is more congested, the L2 gas price will increase and fees
  * will also increase as a result.
  *
  * All public variables are set while generating the initial L2 state. The
@@ -52,14 +52,14 @@ export class OVMGasPriceOracle {
    * @param chainId The chainId of the network to get the result from.
    * @returns The OVM_GasPriceOracle contract address in the provided network.
    */
-  async getAddress(chainId: number): Promise<Address> {
+  getAddress(chainId: number): Address {
     return Addresses.ovmGasPriceOracle(this.config.environment, Number(chainId)) as Address
   }
 
   private async _getContractFunction(chainId: number, functionName: OVMGasPriceOracleFunctionNames, ...args: any[]) {
     const logger = this._logger.addContext({functionName})
     const provider = this._providers.byChainId(chainId)
-    const address = await this.getAddress(chainId)
+    const address = this.getAddress(chainId)
 
     const contract = getContract({address, abi: OVM_GasPriceOracleABI, client: provider})
 
@@ -161,8 +161,8 @@ export class OVMGasPriceOracle {
 
   /**
    * @onlyAdmin
-   * Allows the owner to modify the l2 gas price.
-   * @param gasPrice The new l2 gas price.
+   * Allows the owner to modify the L2 gas price.
+   * @param gasPrice The new L2 gas price.
    * @returns A transaction.
    */
   async setGasPrice(chainId: number, gasPrice: bigint) {
@@ -171,8 +171,8 @@ export class OVMGasPriceOracle {
 
   /**
    * @onlyAdmin
-   * Allows the owner to modify the l1 base fee.
-   * @param baseFee The new l1 base fee.
+   * Allows the owner to modify the L1 base fee.
+   * @param baseFee The new L1 base fee.
    * @returns A transaction.
    */
   async setL1BaseFee(chainId: number, baseFee: bigint) {

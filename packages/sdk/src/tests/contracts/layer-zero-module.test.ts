@@ -49,6 +49,14 @@ describe('Contract class: LayerZeroModule', () => {
     expect(layerZeroModule).toHaveProperty('getBridgeByNetworks')
     expect(layerZeroModule).toHaveProperty('getInterfacesByNetworks')
     expect(layerZeroModule).toHaveProperty('getOperatorByNetworks')
+    expect(layerZeroModule).toHaveProperty('getMessageFee')
+    expect(layerZeroModule).toHaveProperty('getHlgFee')
+    expect(layerZeroModule).toHaveProperty('send')
+    expect(layerZeroModule).toHaveProperty('setInterfaces')
+    expect(layerZeroModule).toHaveProperty('setLZEndpoint')
+    expect(layerZeroModule).toHaveProperty('setOperator')
+    expect(layerZeroModule).toHaveProperty('setOptimismGasPriceOracle')
+    expect(layerZeroModule).toHaveProperty('setGasParameters')
   })
 
   it('should be able to get the correct LayerZeroModule contract address according to the environment and chainId', () => {
@@ -118,5 +126,38 @@ describe('Contract class: LayerZeroModule', () => {
       expect(operatorAddress).toMatch(REGEX.WALLET_ADDRESS)
       expect(operatorAddress).toBe(expectedValues.operatorAddress)
     })
+  })
+
+  // TODO: Finish the following tests
+  it.skip('getMessageFee(): should be able to get the correct message fee', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('getHlgFee(): should be able to get the correct HLG fee', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('send(): should be able to send a transaction', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setInterfaces(): should be able to set the HolographInterfaces address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setLZEndpoint(): should be able to set the LZ endpoint address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setOperator(): should be able to set the HolographOperator address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setOptimismGasPriceOracle(): should be able to set the Optimism gas price oracle address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setGasParameters(): should be able to set the gas parameters', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
   })
 })
