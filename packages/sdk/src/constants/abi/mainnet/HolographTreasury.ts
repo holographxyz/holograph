@@ -191,6 +191,13 @@ export default narrow([
     type: 'function',
   },
   {
+    inputs: [],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
     stateMutability: 'payable',
     type: 'receive',
   },

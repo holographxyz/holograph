@@ -113,6 +113,17 @@ export class Treasury {
   }
 
   /**
+   * @onlyAdmin
+   * Update the Holograph Bridge module address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param bridge address of the Holograph Bridge smart contract to use.
+   * @return A transaction.
+   */
+  async setBridge(chainId: number, bridge: Address) {
+    return this._getContractFunction(chainId, 'setBridge', bridge)
+  }
+
+  /**
    * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
@@ -139,6 +150,17 @@ export class Treasury {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Update the Holograph Protocol contract address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param holograph address of the Holograph Protocol smart contract to use.
+   * @return A transaction.
+   */
+  async setHolograph(chainId: number, holograph: Address) {
+    return this._getContractFunction(chainId, 'setHolograph', holograph)
   }
 
   /**
@@ -171,6 +193,17 @@ export class Treasury {
   }
 
   /**
+   * @onlyAdmin
+   * Update the Holograph Operator contract address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param operator address of the Holograph Operator smart contract to use.
+   * @return A transaction.
+   */
+  async setOperator(chainId: number, operator: Address) {
+    return this._getContractFunction(chainId, 'setOperator', operator)
+  }
+
+  /**
    * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
@@ -197,5 +230,77 @@ export class Treasury {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Update the Holograph Registry contract address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param operator address of the Holograph Registry smart contract to use.
+   * @return A transaction.
+   */
+  async setRegistry(chainId: number, registry: Address) {
+    return this._getContractFunction(chainId, 'setRegistry', registry)
+  }
+
+  /**
+   * @onlyAdmin
+   * Withdraws native tokens from the contract.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @return A transaction.
+   */
+  async withdraw(chainId: number) {
+    return this._getContractFunction(chainId, 'withdraw')
+  }
+
+  /**
+   * @onlyAdmin
+   * Withdraws native tokens from the contract to a specified address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param recipient The address to send the withdrawn funds to.
+   * @return A transaction.
+   */
+  async withdrawTo(chainId: number, recipient: Address) {
+    return this._getContractFunction(chainId, 'withdrawTo', recipient)
+  }
+
+  /**
+   * @readonly
+   * Get the Holograph Mint Fee.
+   * This fee is charged to mint holographable assets.
+   * @param chainId The chainId of the network to get the result from.
+   * @returns The mint fee.
+   */
+  async getHolographMintFee(chainId: number) {
+    return this._getContractFunction(chainId, 'getHolographMintFee')
+  }
+
+  /**
+   * @readonly
+   * Get the Holograph Mint Fee by network.
+   * This fee is charged to mint holographable assets.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @returns The mint fee per network.
+   */
+  async getHolographMintFeeByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+
+    for (const network of networks) {
+      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographMintFee')
+    }
+
+    return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Update the Holograph Mint Fee.
+   * @param fee new fee to charge for minting holographable assets.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @returns a transaction.
+   */
+  async setHolographMintFee(chainId: number, fee: bigint) {
+    return this._getContractFunction(chainId, 'setHolographMintFee', fee)
   }
 }

@@ -82,6 +82,19 @@ export default narrow([
   },
   {
     inputs: [],
+    name: 'getHolographMintFee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
     name: 'getOperator',
     outputs: [
       {
@@ -101,6 +114,19 @@ export default narrow([
         internalType: 'address',
         name: 'registry',
         type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'holographMintFee',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
       },
     ],
     stateMutability: 'view',
@@ -167,6 +193,19 @@ export default narrow([
   {
     inputs: [
       {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
+    ],
+    name: 'setHolographMintFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'operator',
         type: 'address',
@@ -186,6 +225,26 @@ export default narrow([
       },
     ],
     name: 'setRegistry',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'address payable',
+        name: 'recipient',
+        type: 'address',
+      },
+    ],
+    name: 'withdrawTo',
     outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
