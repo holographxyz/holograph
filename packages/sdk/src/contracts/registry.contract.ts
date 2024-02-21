@@ -494,7 +494,7 @@ export class Registry {
 
   /**
    * @onlyAdmin
-   * Allows admin to update or toggle reserved types.
+   * Allows admin to update or toggle multiple reserved types.
    * @param chainId The chainId of the network to send the transaction to.
    * @param hashes A bytes32 array for the contract typeS.
    * @param reserved A boolean array.
