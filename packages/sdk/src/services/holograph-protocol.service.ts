@@ -1,6 +1,15 @@
 import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
 import {Config} from './config.service'
-import {Factory, Holograph, Interfaces, LayerZeroModule, Operator, Registry, Treasury} from '../contracts'
+import {
+  Factory,
+  Holograph,
+  Interfaces,
+  LayerZeroModule,
+  Operator,
+  OVMGasPriceOracle,
+  Registry,
+  Treasury,
+} from '../contracts'
 import {HolographLogger} from './logger.service'
 
 export class HolographProtocol {
@@ -13,6 +22,7 @@ export class HolographProtocol {
   private operatorContract!: Operator
   private layerZeroModuleContract!: LayerZeroModule
   private factoryContract!: Factory
+  private ovmGasPriceOracleContract!: OVMGasPriceOracle
   // private bridgeContract!: Bridge
 
   constructor(private readonly protocolConfig: Config) {
@@ -25,6 +35,7 @@ export class HolographProtocol {
     this.operatorContract = new Operator(this.protocolConfig)
     this.layerZeroModuleContract = new LayerZeroModule(this.protocolConfig)
     this.factoryContract = new Factory(this.protocolConfig)
+    this.ovmGasPriceOracleContract = new OVMGasPriceOracle(this.protocolConfig)
   }
 
   get holograph(): Holograph {
@@ -53,5 +64,9 @@ export class HolographProtocol {
 
   get factory(): Factory {
     return this.factoryContract
+  }
+
+  get ovmGasPriceOracle(): OVMGasPriceOracle {
+    return this.ovmGasPriceOracleContract
   }
 }

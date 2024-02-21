@@ -43,7 +43,7 @@ export class Factory {
 
   /**
    * @readonly
-   * Get  the HolographFactory contract address according to environment and chainId module.
+   * Get the HolographFactory contract address according to environment and chainId module.
    * @param chainId The chainId of the network to get the result from.
    * @returns The HolographFactory contract address in the provided network.
    */

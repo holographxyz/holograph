@@ -51,7 +51,7 @@ export class LayerZeroModule {
 
   /**
    * @readonly
-   * Get  the LayerZeroModule contract address according to environment and chainId module.
+   * Get the LayerZeroModule contract address according to environment and chainId module.
    * @param chainId The chainId of the network to get the result from.
    * @returns The LayerZeroModule contract address in the provided network.
    */

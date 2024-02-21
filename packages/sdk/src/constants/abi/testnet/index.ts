@@ -104,6 +104,7 @@ export {default as MockHolographGenesisChildABI} from './MockHolographGenesisChi
 export {default as MockLZEndpointABI} from './MockLZEndpoint'
 export {default as NFTMetadataRendererABI} from './NFTMetadataRenderer'
 export {default as NonReentrantABI} from './NonReentrant'
+export {default as OVM_GasPriceOracleABI} from './OVM_GasPriceOracle'
 export {default as OwnableABI} from './Ownable'
 export {default as OwnerABI} from './Owner'
 export {default as SampleERC20ABI} from './SampleERC20'

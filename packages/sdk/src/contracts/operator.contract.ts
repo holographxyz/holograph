@@ -278,4 +278,216 @@ export class Operator {
 
     return results
   }
+
+  /**
+   * @readonly
+   * Get the fees associated with sending specific payload.
+   * Will provide exact costs on protocol and message side, combine the two to get total.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param toChain The holograph chain id of destination chain for payload.
+   * @param gasLimit The amount of gas to provide for executing payload on destination chain.
+   * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
+   * @param crossChainPayload The entire packet being sent cross-chain.
+   * @returns stringifiedFeesArray The compound fees [hlfFee, msgFee, dstGasPrice]:
+   * hlgFee: The amount (in wei) of native gas token that will cost for finalizing job on destination chain.
+   * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
+   * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
+   */
+  async getMessageFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
+  }
+
+  /**
+   * Sends cross chain bridge request message.
+   * This function is restricted to only be callable by Holograph Bridge.
+   * @param chainId The chainId of the network to send the transaction.
+   * @param gasLimit The maximum amount of gas to spend for executing the bridge on destination chain.
+   * @param gasPrice The maximum amount of gas price (in destination chain native gas token) to pay on destination chain.
+   * @param toChain The  Holograph Chain ID where the bridge is being sent to.
+   * @param nonce The incremented number used to ensure job hashes are unique.
+   * @param holographableContract The address of the contract for which the bridge request is being made.
+   * @param bridgeOutPayload The bytes made up of the bridgeOutRequest payload.
+   * @returns A transaction.
+   */
+  async send(
+    chainId: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    toChain: number,
+    nonce: bigint,
+    holographableContract: Address,
+    bridgeOutPayload: string | Buffer,
+  ) {
+    return this._getContractFunction(
+      chainId,
+      'send',
+      gasLimit,
+      gasPrice,
+      toChain,
+      nonce,
+      holographableContract,
+      bridgeOutPayload,
+    )
+  }
+
+  /**
+   * Recovers a failed job. If a job fails, it can be manually recovered.
+   * @param bridgeInRequestPayload The entire cross chain message payload.
+   * @returns A transaction.
+   */
+  async recoverJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+    return this._getContractFunction(chainId, 'recoverJob', bridgeInRequestPayload)
+  }
+
+  /**
+   * Executes an available operator job.
+   * When making this call, if operating criteria is not met, the call will revert.
+   * @param bridgeInRequestPayload The entire cross chain message payload.
+   * @returns A transaction.
+   */
+  async executeJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+    return this._getContractFunction(chainId, 'executeJob', bridgeInRequestPayload)
+  }
+
+  /**
+   * Purposefully made to be external so that Operator can call it during executeJob function.
+   * @param msgSender The address of who is sending the message.
+   * @param payload The entire cross chain message payload.
+   * @returns A transaction.
+   */
+  async nonRevertingBridgeCall(chainId: number, msgSender: Address, payload: string | Buffer) {
+    return this._getContractFunction(chainId, 'nonRevertingBridgeCall', msgSender, payload)
+  }
+
+  /**
+   * Receives a cross-chain message.
+   * This function is restricted for use by Holograph Messaging Module only.
+   * @param bridgeInRequestPayload The entire cross chain message payload.
+   * @returns A transaction.
+   */
+  async crossChainMessage(chainId: number, bridgeInRequestPayload: string | Buffer) {
+    return this._getContractFunction(chainId, 'crossChainMessage', bridgeInRequestPayload)
+  }
+
+  /**
+   * Calculates the amount of gas needed to execute a bridgeInRequest.
+   * Use this function to estimate the amount of gas that will be used by the bridgeInRequest function.
+   * Set a specific gas limit when making this call, subtract return value, to get total gas used.
+   * @param bridgeInRequestPayload The abi encoded bytes making up the bridgeInRequest payload.
+   * @returns The gas amount remaining after the static call is returned.
+   */
+  async jobEstimator(chainId: number, bridgeInRequestPayload: string | Buffer) {
+    return this._getContractFunction(chainId, 'jobEstimator', bridgeInRequestPayload)
+  }
+
+  /**
+   * Topup a bonded operator with more utility tokens.
+   * Useful function if an operator got slashed and wants to add a safety buffer to not get unbonded.
+   * This function will not work if operator has currently been selected for a job.
+   * @param operator The address of operator to topup.
+   * @param amount The utility token amount to add.
+   * @returns A transaction.
+   */
+  async topupUtilityToken(chainId: number, operator: Address, amount: bigint) {
+    return this._getContractFunction(chainId, 'topupUtilityToken', operator, amount)
+  }
+
+  /**
+   * Bonds utility tokens and become an operator.
+   * An operator can only bond to one pod at a time, per network.
+   * @param operator The address of operator to bond (can be an ownable smart contract).
+   * @param amount The utility token amount to bond (can be greater than minimum).
+   * @param pod The number of pod to bond to (can be for one that does not exist yet).
+   * @returns A transaction.
+   */
+  async bondUtilityToken(chainId: number, operator: Address, amount: bigint, pod: bigint) {
+    return this._getContractFunction(chainId, 'bondUtilityToken', operator, amount, pod)
+  }
+
+  /**
+   * Unbonds HLG utility tokens and stop being an operator.
+   * A bonded operator selected for a job cannot unbond until they complete the job, or are slashed.
+   * @param operator The address of operator to unbond.
+   * @param recipient The address where to send the bonded tokens.
+   * @returns A transaction.
+   */
+  async unbondUtilityToken(chainId: number, operator: Address, recipient: Address) {
+    return this._getContractFunction(chainId, 'unbondUtilityToken', operator, recipient)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Bridge module address.
+   * @param bridge The address of the Holograph Bridge smart contract to use.
+   * @returns A transaction.
+   */
+  async setBridge(chainId: number, bridge: Address) {
+    return this._getContractFunction(chainId, 'setBridge', bridge)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Protocol contract address.
+   * @param holograph The address of the Holograph Protocol smart contract to use.
+   * @returns A transaction.
+   */
+  async setHolograph(chainId: number, holograph: Address) {
+    return this._getContractFunction(chainId, 'setHolograph', holograph)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Interfaces module address.
+   * @param interfaces The address of the Holograph Interfaces smart contract to use.
+   * @returns A transaction.
+   */
+  async setInterfaces(chainId: number, interfaces: Address) {
+    return this._getContractFunction(chainId, 'setInterfaces', interfaces)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Messaging Module address.
+   * @param messagingModule The address of the LayerZero Endpoint to use.
+   * @returns A transaction.
+   */
+  async setMessagingModule(chainId: number, messagingModule: Address) {
+    return this._getContractFunction(chainId, 'setMessagingModule', messagingModule)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Registry module address.
+   * @param registry The address of the Holograph Registry smart contract to use.
+   * @returns A transaction.
+   */
+  async setRegistry(chainId: number, registry: Address) {
+    return this._getContractFunction(chainId, 'setRegistry', registry)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Holograph Utility Token address.
+   * @param utilityToken The address of the Holograph Utility Token smart contract to use.
+   * @returns A transaction.
+   */
+  async setUtilityToken(chainId: number, utilityToken: Address) {
+    return this._getContractFunction(chainId, 'setUtilityToken', utilityToken)
+  }
+
+  /**
+   * @onlyAdmin
+   * Updates the Minimum Gas Price.
+   * @param minGasPrice The amount to set for minimum gas price.
+   * @returns A transaction.
+   */
+  async setMinGasPrice(chainId: number, minGasPrice: bigint) {
+    return this._getContractFunction(chainId, 'setMinGasPrice', minGasPrice)
+  }
 }

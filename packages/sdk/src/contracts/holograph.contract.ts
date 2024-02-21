@@ -43,7 +43,7 @@ export class Holograph {
 
   /**
    * @readonly
-   * Get  the Holograph contract address according to environment and chainId module.
+   * Get the Holograph contract address according to environment and chainId module.
    * @param chainId The chainId of the network to get the result from.
    * @returns The Holograph contract address in the provided network.
    */

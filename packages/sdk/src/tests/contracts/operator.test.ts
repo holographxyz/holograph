@@ -52,6 +52,23 @@ describe('Contract class: Operator', () => {
     expect(operator).toHaveProperty('getRegistryByNetworks')
     expect(operator).toHaveProperty('getMessagingModuleByNetworks')
     expect(operator).toHaveProperty('getUtilityTokenByNetworks')
+    expect(operator).toHaveProperty('getMessageFee')
+    expect(operator).toHaveProperty('recoverJob')
+    expect(operator).toHaveProperty('executeJob')
+    expect(operator).toHaveProperty('nonRevertingBridgeCall')
+    expect(operator).toHaveProperty('crossChainMessage')
+    expect(operator).toHaveProperty('jobEstimator')
+    expect(operator).toHaveProperty('send')
+    expect(operator).toHaveProperty('topupUtilityToken')
+    expect(operator).toHaveProperty('bondUtilityToken')
+    expect(operator).toHaveProperty('unbondUtilityToken')
+    expect(operator).toHaveProperty('setBridge')
+    expect(operator).toHaveProperty('setHolograph')
+    expect(operator).toHaveProperty('setInterfaces')
+    expect(operator).toHaveProperty('setMessagingModule')
+    expect(operator).toHaveProperty('setRegistry')
+    expect(operator).toHaveProperty('setUtilityToken')
+    expect(operator).toHaveProperty('setMinGasPrice')
   })
 
   it('should be able to get the correct operator contract address according to the environment and chainId', async () => {
@@ -132,13 +149,92 @@ describe('Contract class: Operator', () => {
   })
 
   // TODO: We cannot create tests for the following methods until we can call bondUtilityToken() to become an operator.
-  it('getJobDetails(): should be able to get the correct job details', async () => {})
+  it.skip('getJobDetails(): should be able to get the correct job details', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
 
-  it('getPodOperatorsLength(): should be able to get the correct pod operators length', async () => {})
+  it.skip('getPodOperatorsLength(): should be able to get the correct pod operators length', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
 
-  it('getPodOperators(): should be able to get the correct pod operators', async () => {})
+  it.skip('getPodOperators(): should be able to get the correct pod operators', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
 
-  it('getPaginatedPodOperators(): should be able to get the correct paginated pod operators', async () => {})
+  it.skip('getPaginatedPodOperators(): should be able to get the correct paginated pod operators', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
 
-  it('getPodBondAmounts(): should be able to get the correct pod bond amounts', async () => {})
+  it.skip('getPodBondAmounts(): should be able to get the correct pod bond amounts', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('getMessageFee(): should be able to get the correct pod bond amounts', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  // TODO: Finish the following tests (write functions)
+  it.skip('recoverJob(): should be able to recover a job', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('executeJob(): should be able to execute a job', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('nonRevertingBridgeCall(): should be able to execute a non-reverting bridge call', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('crossChainMessage(): should be able to send a cross chain message', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('jobEstimator(): should be able to estimate a job', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('send(): should be able to send a message', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('topupUtilityToken(): should be able to topup the utility token', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('bondUtilityToken(): should be able to bond the utility token', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('unbondUtilityToken(): should be able to unbond the utility token', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setBridge(): should be able to set the bridge address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setHolograph(): should be able to set the holograph address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setInterfaces(): should be able to set the interfaces address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setMessagingModule(): should be able to set the messaging module address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setRegistry(): should be able to set the registry address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setUtilityToken(): should be able to set the utility token address', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
+
+  it.skip('setMinGasPrice(): should be able to set the minimum gas price', async () => {
+    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  })
 })
