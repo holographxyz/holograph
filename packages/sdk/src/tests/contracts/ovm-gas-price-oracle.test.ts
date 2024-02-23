@@ -33,6 +33,7 @@ describe('Contract class: OVMGasPriceOracle', () => {
   })
 
   it('should be able to get the OVMGasPriceOracle wrapper class', () => {
+    expect(ovmGasPriceOracle).toHaveProperty('getAddress')
     expect(ovmGasPriceOracle).toHaveProperty('getL1Fee')
     expect(ovmGasPriceOracle).toHaveProperty('getL1GasUsed')
     expect(ovmGasPriceOracle).toHaveProperty('setGasPrice')

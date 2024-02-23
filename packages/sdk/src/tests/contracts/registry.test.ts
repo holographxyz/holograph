@@ -47,6 +47,7 @@ describe('Contract class: Registry', () => {
   })
 
   it('should be able to get the Registry wrapper class', () => {
+    expect(registry).toHaveProperty('getAddress')
     expect(registry).toHaveProperty('isHolographedContract')
     expect(registry).toHaveProperty('isHolographedHashDeployed')
     expect(registry).toHaveProperty('getContractTypeAddress')

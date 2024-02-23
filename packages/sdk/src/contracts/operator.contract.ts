@@ -1,5 +1,5 @@
 import {Network} from '@holographxyz/networks'
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
@@ -42,7 +42,7 @@ export class Operator {
   /**
    * @readonly
    * Get the HolographOperator contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
   async getAddress(chainId: number): Promise<Address> {
@@ -88,7 +88,7 @@ export class Operator {
   /**
    * @readonly
    * Get the details for an available operator job.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param jobHash keccak256 hash of the job.
    * @returns an OperatorJob struct with details about a specific job.
    */
@@ -99,7 +99,7 @@ export class Operator {
   /**
    * @readonly
    * Get number of pods available.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns number of pods that have been opened via bonding.
    */
   async getTotalPods(chainId: number) {
@@ -109,7 +109,7 @@ export class Operator {
   /**
    * @readonly
    * Get total number of operators in a pod.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param pod the pod to query.
    * @returns total operators in a pod.
    */
@@ -120,7 +120,7 @@ export class Operator {
   /**
    * @readonly
    * Get list of operators in a pod.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param pod the pod to query.
    * @returns operators array list of operators in a pod.
    */
@@ -131,6 +131,7 @@ export class Operator {
   /**
    * @readonly
    * Get paginated list of operators in a pod.
+   * @param chainId The chain id of the network to get the result from.
    * @param pod the pod to query.
    * @param index the array index to start from.
    * @param length the length of result set to be (will be shorter if reached end of array).
@@ -143,6 +144,7 @@ export class Operator {
   /**
    * @readonly
    * Check the base and current price for bonding to a particular pod.
+   * @param chainId The chain id of the network to get the result from.
    * @param pod the pod to get bonding amounts for.
    * @returns base the base bond amount required for a pod.
    * @returns current the current bond amount required for a pod.
@@ -154,6 +156,7 @@ export class Operator {
   /**
    * @readonly
    * Get an operator's currently bonded amount.
+   * @param chainId The chain id of the network to get the result from.
    * @param operator address of operator to check.
    * @returns amount total number of utility token bonded.
    */
@@ -164,6 +167,7 @@ export class Operator {
   /**
    * @readonly
    * Get an operator's currently bonded pod.
+   * @param chainId The chain id of the network to get the result from.
    * @param operator address of operator to check.
    * @returns pod number that operator is bonded on, returns zero if not bonded or selected for job.
    */
@@ -174,6 +178,7 @@ export class Operator {
   /**
    * @readonly
    * Get an operator's currently bonded pod index.
+   * @param chainId The chain id of the network to get the result from.
    * @param operator address of operator to check.
    * @returns index currently bonded pod's operator index, returns zero if not in pod or moved out for active job.
    */
@@ -184,6 +189,7 @@ export class Operator {
   /**
    * @readonly
    * Get the Minimum Gas Price.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The minimum value required to execute a job without it being marked as under priced.
    */
   async getMinGasPrice(chainId: number) {
@@ -282,9 +288,9 @@ export class Operator {
   /**
    * @readonly
    * Get the fees associated with sending specific payload.
-   * Will provide exact costs on protocol and message side, combine the two to get total.
-   * @param chainId The chainId of the network to send the transaction.
-   * @param toChain The holograph chain id of destination chain for payload.
+   * It will provide exact costs on protocol and message side, combine the two to get total.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param toChain The Holograph chain id of destination chain for payload.
    * @param gasLimit The amount of gas to provide for executing payload on destination chain.
    * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
    * @param crossChainPayload The entire packet being sent cross-chain.
@@ -293,20 +299,14 @@ export class Operator {
    * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(
-    chainId: number,
-    toChain: number,
-    gasLimit: bigint,
-    gasPrice: bigint,
-    crossChainPayload: string | Buffer,
-  ) {
+  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
     return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
   /**
    * Sends cross chain bridge request message.
    * This function is restricted to only be callable by Holograph Bridge.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param gasLimit The maximum amount of gas to spend for executing the bridge on destination chain.
    * @param gasPrice The maximum amount of gas price (in destination chain native gas token) to pay on destination chain.
    * @param toChain The  Holograph Chain ID where the bridge is being sent to.
@@ -322,7 +322,7 @@ export class Operator {
     toChain: number,
     nonce: bigint,
     holographableContract: Address,
-    bridgeOutPayload: string | Buffer,
+    bridgeOutPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,
@@ -338,40 +338,44 @@ export class Operator {
 
   /**
    * Recovers a failed job. If a job fails, it can be manually recovered.
+   * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async recoverJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async recoverJob(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'recoverJob', bridgeInRequestPayload)
   }
 
   /**
    * Executes an available operator job.
    * When making this call, if operating criteria is not met, the call will revert.
+   * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async executeJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async executeJob(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'executeJob', bridgeInRequestPayload)
   }
 
   /**
    * Purposefully made to be external so that Operator can call it during executeJob function.
+   * @param chainId The chain id of the network to send the transaction.
    * @param msgSender The address of who is sending the message.
    * @param payload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async nonRevertingBridgeCall(chainId: number, msgSender: Address, payload: string | Buffer) {
+  async nonRevertingBridgeCall(chainId: number, msgSender: Address, payload: Hex) {
     return this._getContractFunction(chainId, 'nonRevertingBridgeCall', msgSender, payload)
   }
 
   /**
    * Receives a cross-chain message.
    * This function is restricted for use by Holograph Messaging Module only.
+   * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async crossChainMessage(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async crossChainMessage(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'crossChainMessage', bridgeInRequestPayload)
   }
 
@@ -379,10 +383,11 @@ export class Operator {
    * Calculates the amount of gas needed to execute a bridgeInRequest.
    * Use this function to estimate the amount of gas that will be used by the bridgeInRequest function.
    * Set a specific gas limit when making this call, subtract return value, to get total gas used.
+   * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The abi encoded bytes making up the bridgeInRequest payload.
    * @returns The gas amount remaining after the static call is returned.
    */
-  async jobEstimator(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async jobEstimator(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'jobEstimator', bridgeInRequestPayload)
   }
 
@@ -390,6 +395,7 @@ export class Operator {
    * Topup a bonded operator with more utility tokens.
    * Useful function if an operator got slashed and wants to add a safety buffer to not get unbonded.
    * This function will not work if operator has currently been selected for a job.
+   * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of operator to topup.
    * @param amount The utility token amount to add.
    * @returns A transaction.
@@ -401,6 +407,7 @@ export class Operator {
   /**
    * Bonds utility tokens and become an operator.
    * An operator can only bond to one pod at a time, per network.
+   * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of operator to bond (can be an ownable smart contract).
    * @param amount The utility token amount to bond (can be greater than minimum).
    * @param pod The number of pod to bond to (can be for one that does not exist yet).
@@ -413,6 +420,7 @@ export class Operator {
   /**
    * Unbonds HLG utility tokens and stop being an operator.
    * A bonded operator selected for a job cannot unbond until they complete the job, or are slashed.
+   * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of operator to unbond.
    * @param recipient The address where to send the bonded tokens.
    * @returns A transaction.
@@ -424,6 +432,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Bridge module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param bridge The address of the Holograph Bridge smart contract to use.
    * @returns A transaction.
    */
@@ -434,6 +443,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Protocol contract address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param holograph The address of the Holograph Protocol smart contract to use.
    * @returns A transaction.
    */
@@ -444,6 +454,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Interfaces module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param interfaces The address of the Holograph Interfaces smart contract to use.
    * @returns A transaction.
    */
@@ -454,6 +465,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Messaging Module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param messagingModule The address of the LayerZero Endpoint to use.
    * @returns A transaction.
    */
@@ -464,6 +476,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Registry module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param registry The address of the Holograph Registry smart contract to use.
    * @returns A transaction.
    */
@@ -474,6 +487,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Holograph Utility Token address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param utilityToken The address of the Holograph Utility Token smart contract to use.
    * @returns A transaction.
    */
@@ -484,6 +498,7 @@ export class Operator {
   /**
    * @onlyAdmin
    * Updates the Minimum Gas Price.
+   * @param chainId The chain id of the network to send the transaction.
    * @param minGasPrice The amount to set for minimum gas price.
    * @returns A transaction.
    */

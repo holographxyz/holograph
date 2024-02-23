@@ -1,4 +1,4 @@
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
@@ -44,7 +44,7 @@ export class Factory {
   /**
    * @readonly
    * Get the HolographFactory contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographFactory contract address in the provided network.
    */
   async getAddress(chainId: number): Promise<Address> {
@@ -91,7 +91,7 @@ export class Factory {
    * @readonly
    * Get the Holograph Protocol contract.
    * Used for storing a reference to all the primary modules and variables of the protocol.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The Holograph Protocol contract address in the provided network.
    */
   async getHolograph(chainId: number) {
@@ -120,7 +120,7 @@ export class Factory {
    * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The Holograph Registry contract address in the provided network.
    */
   async getRegistry(chainId: number) {
@@ -148,6 +148,7 @@ export class Factory {
   /**
    * @onlyAdmin
    * Updates the Holograph Protocol module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param holograph The address of the Holograph Protocol smart contract to use.
    * @returns A transaction.
    */
@@ -158,6 +159,7 @@ export class Factory {
   /**
    * @onlyAdmin
    * Updates the Holograph Registry module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param registry The address of the Holograph Registry smart contract to use.
    * @returns A transaction.
    */
@@ -168,6 +170,7 @@ export class Factory {
   /**
    * Deploy a holographable smart contract.
    * Using this function allows to deploy smart contracts that have the same address across all EVM chains.
+   * @param chainId The chain id of the network to send the transaction.
    * @param config The contract deployment configurations.
    * @param signature The signature which was created by the wallet that created the original payload.
    * @param signer The address of wallet that created the payload.
@@ -184,6 +187,7 @@ export class Factory {
 
   /**
    * Updates the Holograph Registry module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param config The contract deployment configurations.
    * @param signature The signature which was created by the wallet that created the original payload.
    * @param signer The address of wallet that created the payload.
@@ -214,11 +218,12 @@ export class Factory {
    * Deploy holographable contract via bridge request.
    * This function directly forwards the calldata to the deployHolographableContract function.
    * It is used to allow for Holograph Bridge to make cross-chain deployments.
-   * @param fromChain The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param fromChain The chain id of the network to get the result from.
    * @param payload The calldata to be used in the deployHolographableContract function.
    * @returns The function selector of the deployHolographableContract function.
    */
-  async bridgeIn(chainId: number, fromChain: number, payload: string | Buffer) {
+  async bridgeIn(chainId: number, fromChain: number, payload: Hex) {
     return this._getContractFunction(chainId, 'bridgeIn', fromChain, payload)
   }
 
@@ -226,12 +231,13 @@ export class Factory {
    * Deploy holographable contract via bridge request.
    * This function directly returns the calldata.
    * It is used to allow for Holograph Bridge to make cross-chain deployments.
-   * @param toChain The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param toChain The destination chain id.
    * @param sender The address of person making the request.
    * @param payload The payload of the request.
    * @returns The function selector, and its calldata.
    */
-  async bridgeOut(chainId: number, toChain: number, sender: Address, payload: string | Buffer) {
+  async bridgeOut(chainId: number, toChain: number, sender: Address, payload: Hex) {
     return this._getContractFunction(chainId, 'bridgeOut', toChain, sender, payload)
   }
 }

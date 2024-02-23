@@ -42,6 +42,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('should be able to get the Holograph wrapper class', () => {
+    expect(holograph).toHaveProperty('getAddress')
     expect(holograph).toHaveProperty('getBridge')
     expect(holograph).toHaveProperty('getBridgeByNetworks')
     expect(holograph).toHaveProperty('getRegistryByNetworks')
