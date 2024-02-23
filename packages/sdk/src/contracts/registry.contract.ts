@@ -42,7 +42,7 @@ export class Registry {
   /**
    * @readonly
    * Get the HolographRegistry contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographRegistry contract address in the provided network.
    */
   async getAddress(chainId: number): Promise<Address> {
@@ -88,7 +88,7 @@ export class Registry {
   /**
    * @readonly
    * Checks if the contract it's aligned with the Holograph standard.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param contractAddress The contract address.
    * @returns true if it's holographed, and false otherwise.
    */
@@ -121,7 +121,7 @@ export class Registry {
   /**
    * @readonly
    * Checks if the hash is deployed.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @returns true if it's deployed, and false otherwise.
    */
@@ -152,7 +152,7 @@ export class Registry {
   /**
    * @readonly
    * Returns the contract address for a contract type.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param contractType The contract type bytes32.
    * @returns the contract address for the provided contract type.
    */
@@ -194,7 +194,7 @@ export class Registry {
    * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
@@ -233,7 +233,7 @@ export class Registry {
   /**
    * @readonly
    * Returns the hToken address for a given chain id.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns the hToken contract address.
    */
   async getHToken(chainId: number) {
@@ -273,7 +273,7 @@ export class Registry {
    * @readonly
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns the Holograph Utility Token contract address.
    */
   async getUtilityToken(chainId: number) {
@@ -349,7 +349,7 @@ export class Registry {
   /**
    * @readonly
    * Returns the address for a holographed hash.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @returns a contract address for the provided hash.
    */
@@ -390,7 +390,7 @@ export class Registry {
   /**
    * @readonly
    * Get total number of deployed holographable contracts.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns the number of deployed holographable contracts.
    */
   async getHolographableContractsLength(chainId: number) {
@@ -417,7 +417,7 @@ export class Registry {
   /**
    * @readonly
    * Allows to reference a deployed smart contract, and use it's code as reference inside of Holographers.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param contractAddress the contract address.
    * @returns the bytes32 contract type.
    */
@@ -450,7 +450,7 @@ export class Registry {
   /**
    * @readonly
    * Returns the reserved contract address for a contract type.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param contractType The bytes32 for the contract type.
    * @returns the reserved contract address.
    */
@@ -486,7 +486,7 @@ export class Registry {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hashes The bytes32 for the contract typeS.
    * @param reserved A boolean.
-   * @return A transaction.
+   * @returns A transaction.
    */
   async setReservedContractTypeAddress(chainId: number, hash: Hex, reserved: boolean) {
     return this._getContractFunction(chainId, 'setReservedContractTypeAddress', hash, reserved)
@@ -498,7 +498,7 @@ export class Registry {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hashes A bytes32 array for the contract typeS.
    * @param reserved A boolean array.
-   * @return A transaction.
+   * @returns A transaction.
    */
   async setReservedContractTypeAddresses(chainId: number, hashes: Hex[], reserved: boolean[]) {
     return this._getContractFunction(chainId, 'setReservedContractTypeAddresses', hashes, reserved)

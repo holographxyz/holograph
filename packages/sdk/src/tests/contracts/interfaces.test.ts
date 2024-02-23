@@ -48,6 +48,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('should be able to get the Interfaces wrapper class', () => {
+    expect(interfaces).toHaveProperty('getAddress')
     expect(interfaces).toHaveProperty('contractURI')
     expect(interfaces).toHaveProperty('getUriPrepend')
     expect(interfaces).toHaveProperty('getChainIdByNetworks')

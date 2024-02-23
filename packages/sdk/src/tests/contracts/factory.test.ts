@@ -35,6 +35,7 @@ describe('Contract class: Factory', () => {
   })
 
   it('should be able to get the Factory wrapper class', () => {
+    expect(factory).toHaveProperty('getAddress')
     expect(factory).toHaveProperty('getHolograph')
     expect(factory).toHaveProperty('getRegistry')
     expect(factory).toHaveProperty('setHolograph')

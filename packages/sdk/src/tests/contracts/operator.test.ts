@@ -102,12 +102,12 @@ describe('Contract class: Operator', () => {
   })
 
   it('getHolographByNetworks(): should be able to get the correct Holograph address per network', async () => {
-    const bridgeAddressByNetworks = await operator.getHolographByNetworks()
-    expect(Object.keys(bridgeAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    const holographAddressByNetworks = await operator.getHolographByNetworks()
+    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
 
-    Object.values(bridgeAddressByNetworks).forEach(bridgeAddress => {
-      expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
-      expect(bridgeAddress).toBe(expectedValues.holographAddress)
+    Object.values(holographAddressByNetworks).forEach(holographAddress => {
+      expect(holographAddress).toMatch(REGEX.WALLET_ADDRESS)
+      expect(holographAddress).toBe(expectedValues.holographAddress)
     })
   })
 

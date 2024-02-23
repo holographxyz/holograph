@@ -52,7 +52,7 @@ export class LayerZeroModule {
   /**
    * @readonly
    * Get the LayerZeroModule contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The LayerZeroModule contract address in the provided network.
    */
   getAddress(chainId?: number | string): Address {
@@ -200,9 +200,9 @@ export class LayerZeroModule {
   /**
    * @readonly
    * Get the fees associated with sending specific payload.
-   * Will provide exact costs on protocol and message side, combine the two to get total.
-   * @param chainId The chainId of the network to send the transaction.
-   * @param toChain The holograph chain id of destination chain for payload.
+   * It will provide exact costs on protocol and message side, combine the two to get total.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param toChain The Holograph chain id of destination chain for payload.
    * @param gasLimit The amount of gas to provide for executing payload on destination chain.
    * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
    * @param crossChainPayload The entire packet being sent cross-chain.
@@ -223,8 +223,8 @@ export class LayerZeroModule {
 
   /**
    * @readonly
-   * @param chainId The chainId of the network to send the transaction.
-   * @param toChain The holograph chain id of destination chain for payload.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param toChain The Holograph chain id of destination chain for payload.
    * @param gasLimit The amount of gas to provide for executing payload on destination chain.
    * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
    * @param crossChainPayload The entire packet being sent cross-chain.
@@ -242,10 +242,10 @@ export class LayerZeroModule {
 
   /**
    * Updates the prepends strings for an array of TokenUriTypes.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param gasLimit The amount of gas to provide for executing payload on destination chain.
    * @param gasPrice The maximum amount to pay for gas price, can be set to 0 and will be chose automatically.
-   * @param toChain The holograph chain id of destination chain for payload.
+   * @param toChain The Holograph chain id of destination chain for payload.
    * @param msgSender The address of who is sending the message.
    * @param msgValue The amount in wei to send the message to the destination chain.
    * @param crossChainPayload The entire packet being sent cross-chain.
@@ -275,6 +275,7 @@ export class LayerZeroModule {
   /**
    * @onlyAdmin
    * Updates the Holograph Interfaces module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param interfaces The address of the Holograph Interfaces smart contract to use.
    * @returns A transaction.
    */
@@ -285,6 +286,7 @@ export class LayerZeroModule {
   /**
    * @onlyAdmin
    * Updates the Holograph Operator module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of the Holograph Operator smart contract to use.
    * @returns A transaction.
    */
@@ -295,6 +297,7 @@ export class LayerZeroModule {
   /**
    * @onlyAdmin
    * Updates the approved LayerZero Endpoint address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param lZEndpoint address of the LayerZero Endpoint to use.
    * @returns A transaction.
    */
@@ -305,6 +308,7 @@ export class LayerZeroModule {
   /**
    * @onlyAdmin
    * Updates the Optimism Gas Price Oracle module address.
+   * @param chainId The chain id of the network to send the transaction.
    * @param optimismGasPriceOracle address of the Optimism Gas Price Oracle smart contract to use
    * @returns A transaction.
    */
@@ -315,7 +319,8 @@ export class LayerZeroModule {
   /**
    * @onlyAdmin
    * Updates the default or chain-specific GasParameters.
-   * @param chainId The Holograph ChainId to set gas parameters for, set to 0 for default.
+   * @param chainId The chain id of the network to send the transaction.
+   * @param holographChainId The Holograph chain id to set gas parameters for, set to 0 for default.
    * @param gasParameters The struct of all the gas parameters to set.
    * @returns A transaction.
    */

@@ -79,7 +79,7 @@ export class Interfaces {
   /**
    * @readonly
    * Get the HolographInterfaces contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographInterfaces contract address in the provided network.
    */
   async getAddress(chainId: number): Promise<Address> {
@@ -126,7 +126,7 @@ export class Interfaces {
    * @readonly
    * Get a base64 encoded contract URI JSON string.
    * Used to dynamically generate contract JSON payload.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param name the name of the smart contract.
    * @param imageURL string pointing to the primary contract image, can be: https, ipfs, or ar (arweave).
    * @param externalLink url to website/page related to smart contract.
@@ -187,7 +187,7 @@ export class Interfaces {
    * @readonly
    * Get the prepend string to use for tokenURI.
    * Provides the prepend to use with TokenUriType URI.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param uriType The TokenUriType to get the prepend from.
    * @returns The prepend string
    *
@@ -225,7 +225,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the prepend string for a TokenUriType.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param uriType The TokenUriType to set for.
    * @param prepend The prepend string.
    * @returns A transaction.
@@ -237,7 +237,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the prepends strings for an array of TokenUriTypes.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param uriType Array of TokenUriType to set for.
    * @param prepend Array of prepends.
    * @returns A transaction.
@@ -249,7 +249,7 @@ export class Interfaces {
   /**
    * @readonly
    * It's used to convert between the different types of chainIds.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param fromChainType The chain type of the source network.
    * @param fromChainId The actual chain ID value of the source network.
    * @param toChainType The chain type of the desired network.
@@ -266,7 +266,7 @@ export class Interfaces {
    * @param fromChainId The actual chain ID value of the source network.
    * @param toChainType The chain type of the desired network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
-   * @returns The chaiIds per network.
+   * @returns The chainIds per network.
    */
   async getChainIdByNetworks(
     fromChainType: ChainIdType,
@@ -293,7 +293,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the helper structure to identify if a contract supports a particular interface.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param fromChainType The chain type of the source network.
    * @param fromChainId The actual chain ID value of the source network.
    * @param toChainType The chain type of the destine network.
@@ -313,7 +313,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the helper structure to identify if a contract supports a particular interface.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param fromChainTypes The chain type of the source networks.
    * @param fromChainIds The actual chain ID values of the source networks.
    * @param toChainTypes The chain type of the destine networks.
@@ -340,7 +340,7 @@ export class Interfaces {
   /**
    * @readonly
    * Helper to identify if a contract supports a particular interface.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param interfaceType The InterfaceType.
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @returns `true` if the contract implements `interfaceID` and `interfaceID` is not 0xffffffff, `false` otherwise.
@@ -380,7 +380,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the helper structure to identify if a contract supports a particular interface.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param interfaceType The InterfaceType.
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @param supported `true` if it's supported, `false` otherwise.
@@ -393,7 +393,7 @@ export class Interfaces {
   /**
    * @onlyAdmin
    * Updates the helper structure to identify if a contract supports a particular interface.
-   * @param chainId The chainId of the network to send the transaction.
+   * @param chainId The chain id of the network to send the transaction.
    * @param interfaceType The InterfaceType.
    * @param interfaceIds An array of interface identifiers, as specified in ERC-165.
    * @param supported `true` if it's supported, `false` otherwise.

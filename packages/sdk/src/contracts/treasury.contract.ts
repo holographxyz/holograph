@@ -42,7 +42,7 @@ export class Treasury {
   /**
    * @readonly
    * Get the HolographTreasury contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographTreasury contract address in the provided network.
    */
   async getAddress(chainId: number): Promise<Address> {
@@ -88,7 +88,7 @@ export class Treasury {
   /**
    * @readonly
    * Get the HolographBridge contract address according to the chainId.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The address of the HolographBridge module
    */
   getBridge(chainId: number) {
@@ -127,7 +127,7 @@ export class Treasury {
    * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
@@ -167,7 +167,7 @@ export class Treasury {
    * @readonly
    * Get the address of the Holograph Operator module.
    * All cross-chain Holograph Bridge bridges are handled by the Holograph Operator module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
   async getOperator(chainId: number) {
@@ -207,7 +207,7 @@ export class Treasury {
    * @readonly
    * Get the Holograph Registry module.
    * This module stores a reference for all deployed holographable smart contracts.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The HolographRegistry contract address in the provided network.
    */
   async getRegistry(chainId: number) {

@@ -1,3 +1,4 @@
+export * from './bridge.contract'
 export * from './factory.contract'
 export * from './holograph.contract'
 export * from './layer-zero-module.contract'

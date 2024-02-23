@@ -32,6 +32,7 @@ describe('Contract class: Treasury', () => {
   })
 
   it('should be able to get the Treasury wrapper class', () => {
+    expect(treasury).toHaveProperty('getAddress')
     expect(treasury).toHaveProperty('getOperator')
     expect(treasury).toHaveProperty('getBridge')
     expect(treasury).toHaveProperty('getHolographByNetworks')

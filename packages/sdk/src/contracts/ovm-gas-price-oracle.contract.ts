@@ -49,7 +49,7 @@ export class OVMGasPriceOracle {
   /**
    * @readonly
    * Get the OVM_GasPriceOracle contract address according to environment and chainId module.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @returns The OVM_GasPriceOracle contract address in the provided network.
    */
   getAddress(chainId: number): Address {
@@ -89,7 +89,7 @@ export class OVMGasPriceOracle {
   /**
    * @readonly
    * Computes the L1 portion of the fee based on the size of the RLP encoded tx and the current l1BaseFee.
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param data Unsigned RLP encoded tx, 6 elements.
    * @returns The L1 fee that should be paid for the tx.
    */
@@ -133,7 +133,7 @@ export class OVMGasPriceOracle {
    * 1 byte for RLP S prefix
    * 32 bytes for S
    * Total: 68 bytes of padding
-   * @param chainId The chainId of the network to get the result from.
+   * @param chainId The chain id of the network to get the result from.
    * @param data Unsigned RLP encoded tx, 6 elements
    * @returns The amount of L1 gas used for a transaction.
    */
@@ -162,6 +162,7 @@ export class OVMGasPriceOracle {
   /**
    * @onlyAdmin
    * Allows the owner to modify the L2 gas price.
+   * @param chainId The chain id of the network to send the transaction.
    * @param gasPrice The new L2 gas price.
    * @returns A transaction.
    */
@@ -172,6 +173,7 @@ export class OVMGasPriceOracle {
   /**
    * @onlyAdmin
    * Allows the owner to modify the L1 base fee.
+   * @param chainId The chain id of the network to send the transaction.
    * @param baseFee The new L1 base fee.
    * @returns A transaction.
    */
@@ -182,6 +184,7 @@ export class OVMGasPriceOracle {
   /**
    * @onlyAdmin
    * Allows the owner to modify the overhead.
+   * @param chainId The chain id of the network to send the transaction.
    * @param overhead The new overhead.
    * @returns A transaction.
    */
@@ -192,6 +195,7 @@ export class OVMGasPriceOracle {
   /**
    * @onlyAdmin
    * Allows the owner to modify the scalar.
+   * @param chainId The chain id of the network to send the transaction.
    * @param scalar The new scalar.
    * @returns A transaction.
    */
@@ -202,6 +206,7 @@ export class OVMGasPriceOracle {
   /**
    * @onlyAdmin
    * Allows the owner to modify the decimals.
+   * @param chainId The chain id of the network to send the transaction.
    * @param decimals The new decimals.
    * @returns A transaction.
    */
