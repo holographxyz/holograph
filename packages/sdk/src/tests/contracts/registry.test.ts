@@ -298,4 +298,43 @@ describe('Contract class: Registry', () => {
       expect(BigInt(deployedHolographableContracts as string)).toBeGreaterThan(1)
     })
   })
+
+  describe.skip('referenceContractTypeAddress():', () => {
+    it('Should be able to add a reference to a deployed smart contract.', () => {})
+  })
+
+  describe.skip('setHolograph():', () => {
+    it('Should allow the admin to update the Holograph module contract address.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setHToken():', () => {
+    it('Should allow the admin to sets the hToken address for a specific chain id.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setHolographedHashAddress():', () => {
+    it('Should allow the admin to register a deployed contract in the Factory module.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setContractTypeAddress():', () => {
+    it('Should allow the admin to sets the contract address for a contract type.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setReservedContractTypeAddress():', () => {
+    it('Should allow the admin to update or toggle reserved types.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setReservedContractTypeAddresses():', () => {
+    it('Should allow the admin to update or toggle multiple reserved types.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
+
+  describe.skip('setUtilityToken():', () => {
+    it('Should allow the admin to update the Holograph Utility Token address.', () => {})
+    it('Should revert if it is not the admin who is calling the function.', () => {})
+  })
 })

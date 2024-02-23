@@ -1,6 +1,6 @@
-import {getContract} from 'viem'
+import {AbiParameterToPrimitiveType, Hex, getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {AbiParametersToPrimitiveTypes, Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
@@ -179,6 +179,18 @@ export class Registry {
   }
 
   /**
+   * @onlyAdmin
+   * Sets the contract address for a contract type.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param contractType The contract type bytes32.
+   * @param contractAddress The contract address for the provided contract type.
+   * @returns A transaction
+   */
+  async setContractTypeAddress(chainId: number, contractType: Hex, contractAddress: Address) {
+    return this._getContractFunction(chainId, 'setContractTypeAddress', contractType, contractAddress)
+  }
+
+  /**
    * @readonly
    * Get the Holograph Protocol contract.
    * This contract stores a reference to all the primary modules and variables of the protocol.
@@ -205,6 +217,17 @@ export class Registry {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Sets the Holograph module contract address.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param address The Holograph module contract address.
+   * @returns A transaction.
+   */
+  async setHolograph(chainId: number, address: Address) {
+    return this._getContractFunction(chainId, 'setHolograph', address)
   }
 
   /**
@@ -235,6 +258,18 @@ export class Registry {
   }
 
   /**
+   * @onlyAdmin
+   * Sets the hToken address for a specific chain id.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param hTokenChainId the hToken address chain id.
+   * @param hToken The hToken contract address.
+   * @returns A transaction.
+   */
+  async setHToken(chainId: number, hTokenChainId: number, hToken: Address) {
+    return this._getContractFunction(chainId, 'setHToken', hTokenChainId, hToken)
+  }
+
+  /**
    * @readonly
    * Get the Holograph Utility Token address.
    * This is the official utility token of the Holograph Protocol
@@ -261,6 +296,17 @@ export class Registry {
     }
 
     return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Update the Holograph Utility Token address
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param utilityToken The address of the Holograph Utility Token smart contract to use
+   * @returns A transaction.
+   */
+  async setUtilityToken(chainId: number, utilityToken: Address) {
+    return this._getContractFunction(chainId, 'setUtilityToken', utilityToken)
   }
 
   /**
@@ -330,6 +376,18 @@ export class Registry {
   }
 
   /**
+   * @onlyAdmin
+   * Allows Holograph Factory to register a deployed contract, referenced with deployment hash
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
+   * @param contractAddress the contract address for the provided hash.
+   * @returns A transaction.
+   */
+  async setHolographedHashAddress(chainId: number, hash: Hex, contractAddress: Address) {
+    return this._getContractFunction(chainId, 'setHolographedHashAddress', hash, contractAddress)
+  }
+
+  /**
    * @readonly
    * Get total number of deployed holographable contracts.
    * @param chainId The chainId of the network to get the result from.
@@ -354,5 +412,95 @@ export class Registry {
     }
 
     return results
+  }
+
+  /**
+   * @readonly
+   * Allows to reference a deployed smart contract, and use it's code as reference inside of Holographers.
+   * @param chainId The chainId of the network to get the result from.
+   * @param contractAddress the contract address.
+   * @returns the bytes32 contract type.
+   */
+  async referenceContractTypeAddress(chainId: number, contractAddress: Address) {
+    return this._getContractFunction(chainId, 'referenceContractTypeAddress', contractAddress)
+  }
+
+  /**
+   * @readonly
+   * Allows to reference a deployed smart contract, and use it's code as reference inside of Holographers.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param contractAddress the contract address.
+   * @returns the bytes32 contract type per network.
+   */
+  async referenceContractTypeAddressByNetworks(contractAddress: Address, chainIds?: number[]) {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+
+    for (const network of networks) {
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'referenceContractTypeAddress',
+        contractAddress,
+      )
+    }
+
+    return results
+  }
+
+  /**
+   * @readonly
+   * Returns the reserved contract address for a contract type.
+   * @param chainId The chainId of the network to get the result from.
+   * @param contractType The bytes32 for the contract type.
+   * @returns the reserved contract address.
+   */
+  async getReservedContractTypeAddress(chainId: number, contractType: Hex) {
+    return this._getContractFunction(chainId, 'getReservedContractTypeAddress', contractType)
+  }
+
+  /**
+   * @readonly
+   * Returns the reserved contract address for a contract type per network.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param contractType The bytes32 for the contract type.
+   * @returns the reserved contract address per network.
+   */
+  async getReservedContractTypeAddressByNetworks(contractType: Hex, chainIds?: number[]) {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+
+    for (const network of networks) {
+      results[network.chain] = await this._getContractFunction(
+        network.chain,
+        'getReservedContractTypeAddress',
+        contractType,
+      )
+    }
+
+    return results
+  }
+
+  /**
+   * @onlyAdmin
+   * Allows admin to update or toggle reserved types.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param hashes The bytes32 for the contract typeS.
+   * @param reserved A boolean.
+   * @return A transaction.
+   */
+  async setReservedContractTypeAddress(chainId: number, hash: Hex, reserved: boolean) {
+    return this._getContractFunction(chainId, 'setReservedContractTypeAddress', hash, reserved)
+  }
+
+  /**
+   * @onlyAdmin
+   * Allows admin to update or toggle multiple reserved types.
+   * @param chainId The chainId of the network to send the transaction to.
+   * @param hashes A bytes32 array for the contract typeS.
+   * @param reserved A boolean array.
+   * @return A transaction.
+   */
+  async setReservedContractTypeAddresses(chainId: number, hashes: Hex[], reserved: boolean[]) {
+    return this._getContractFunction(chainId, 'setReservedContractTypeAddresses', hashes, reserved)
   }
 }
