@@ -58,3 +58,7 @@ export function lowerCaseAllStrings(input: any[], add?: string): any[] {
 export const REGEX = {
   WALLET_ADDRESS: /^0x[a-fA-F0-9]{40}$/,
 }
+
+export function baseClassSimulacrum<T>(): new () => Pick<T, keyof T> {
+  return class {} as any
+}
