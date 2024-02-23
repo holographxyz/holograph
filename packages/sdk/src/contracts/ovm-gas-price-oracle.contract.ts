@@ -1,4 +1,4 @@
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
@@ -93,7 +93,7 @@ export class OVMGasPriceOracle {
    * @param data Unsigned RLP encoded tx, 6 elements.
    * @returns The L1 fee that should be paid for the tx.
    */
-  async getL1Fee(chainId: number, data: string | Buffer) {
+  async getL1Fee(chainId: number, data: Hex) {
     return this._getContractFunction(chainId, 'getL1Fee', data)
   }
 
@@ -104,7 +104,7 @@ export class OVMGasPriceOracle {
    * @param data Unsigned RLP encoded tx, 6 elements.
    * @returns The L1 fee that should be paid for the tx  per network.
    */
-  async getL1FeeByNetworks(chainIds: number[], data: string | Buffer): Promise<HolographByNetworksResponse> {
+  async getL1FeeByNetworks(chainIds: number[], data: Hex): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
@@ -137,7 +137,7 @@ export class OVMGasPriceOracle {
    * @param data Unsigned RLP encoded tx, 6 elements
    * @returns The amount of L1 gas used for a transaction.
    */
-  async getL1GasUsed(chainId: number, data: string | Buffer) {
+  async getL1GasUsed(chainId: number, data: Hex) {
     return this._getContractFunction(chainId, 'getL1GasUsed', data)
   }
 
@@ -148,7 +148,7 @@ export class OVMGasPriceOracle {
    * @param data Unsigned RLP encoded tx, 6 elements.
    * @returns The amount of L1 gas used for a transaction per network.
    */
-  async getL1GasUsedByNetworks(chainIds: number[], data: string | Buffer): Promise<HolographByNetworksResponse> {
+  async getL1GasUsedByNetworks(chainIds: number[], data: Hex): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 

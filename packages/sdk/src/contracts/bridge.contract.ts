@@ -1,4 +1,4 @@
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
@@ -245,13 +245,7 @@ export class Bridge {
    * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(
-    chainId: number,
-    toChain: number,
-    gasLimit: bigint,
-    gasPrice: bigint,
-    crossChainPayload: string | Buffer,
-  ) {
+  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
     return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
@@ -271,7 +265,7 @@ export class Bridge {
     holographableContract: Address,
     gasLimit: bigint,
     gasPrice: bigint,
-    bridgeOutPayload: string | Buffer,
+    bridgeOutPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,
@@ -344,14 +338,14 @@ export class Bridge {
    */
   async bridgeInRequest(
     chainId: number,
-    nonce: number,
+    nonce: bigint,
     fromChain: number,
     holographableContract: Address,
     hToken: Address,
     hTokenRecipient: Address,
     hTokenValue: bigint,
     doNotRevert: boolean,
-    bridgeInPayload: string | Buffer,
+    bridgeInPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,
@@ -384,7 +378,7 @@ export class Bridge {
     holographableContract: Address,
     gasLimit: bigint,
     gasPrice: bigint,
-    bridgeOutPayload: string | Buffer,
+    bridgeOutPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,
@@ -413,7 +407,7 @@ export class Bridge {
     sender: Address,
     toChain: number,
     holographableContract: Address,
-    bridgeOutPayload: string | Buffer,
+    bridgeOutPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,

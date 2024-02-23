@@ -1,4 +1,4 @@
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
@@ -223,7 +223,7 @@ export class Factory {
    * @param payload The calldata to be used in the deployHolographableContract function.
    * @returns The function selector of the deployHolographableContract function.
    */
-  async bridgeIn(chainId: number, fromChain: number, payload: string | Buffer) {
+  async bridgeIn(chainId: number, fromChain: number, payload: Hex) {
     return this._getContractFunction(chainId, 'bridgeIn', fromChain, payload)
   }
 
@@ -237,7 +237,7 @@ export class Factory {
    * @param payload The payload of the request.
    * @returns The function selector, and its calldata.
    */
-  async bridgeOut(chainId: number, toChain: number, sender: Address, payload: string | Buffer) {
+  async bridgeOut(chainId: number, toChain: number, sender: Address, payload: Hex) {
     return this._getContractFunction(chainId, 'bridgeOut', toChain, sender, payload)
   }
 }

@@ -1,4 +1,4 @@
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
@@ -211,13 +211,7 @@ export class LayerZeroModule {
    * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(
-    chainId: number,
-    toChain: number,
-    gasLimit: bigint,
-    gasPrice: bigint,
-    crossChainPayload: string | Buffer,
-  ) {
+  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
     return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
@@ -230,13 +224,7 @@ export class LayerZeroModule {
    * @param crossChainPayload The entire packet being sent cross-chain.
    * @returns The HLG fee.
    */
-  async getHlgFee(
-    chainId: number,
-    toChain: number,
-    gasLimit: bigint,
-    gasPrice: bigint,
-    crossChainPayload: string | Buffer,
-  ) {
+  async getHlgFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
     return this._getContractFunction(chainId, 'getHlgFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
@@ -258,7 +246,7 @@ export class LayerZeroModule {
     toChain: number,
     msgSender: Address,
     msgValue: bigint,
-    crossChainPayload: string | Buffer,
+    crossChainPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,

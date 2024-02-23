@@ -1,5 +1,5 @@
 import {Network} from '@holographxyz/networks'
-import {getContract} from 'viem'
+import {getContract, Hex} from 'viem'
 import {Address, ExtractAbiFunctionNames} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
@@ -299,13 +299,7 @@ export class Operator {
    * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(
-    chainId: number,
-    toChain: number,
-    gasLimit: bigint,
-    gasPrice: bigint,
-    crossChainPayload: string | Buffer,
-  ) {
+  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
     return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
   }
 
@@ -328,7 +322,7 @@ export class Operator {
     toChain: number,
     nonce: bigint,
     holographableContract: Address,
-    bridgeOutPayload: string | Buffer,
+    bridgeOutPayload: Hex,
   ) {
     return this._getContractFunction(
       chainId,
@@ -348,7 +342,7 @@ export class Operator {
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async recoverJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async recoverJob(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'recoverJob', bridgeInRequestPayload)
   }
 
@@ -359,7 +353,7 @@ export class Operator {
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async executeJob(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async executeJob(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'executeJob', bridgeInRequestPayload)
   }
 
@@ -370,7 +364,7 @@ export class Operator {
    * @param payload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async nonRevertingBridgeCall(chainId: number, msgSender: Address, payload: string | Buffer) {
+  async nonRevertingBridgeCall(chainId: number, msgSender: Address, payload: Hex) {
     return this._getContractFunction(chainId, 'nonRevertingBridgeCall', msgSender, payload)
   }
 
@@ -381,7 +375,7 @@ export class Operator {
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async crossChainMessage(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async crossChainMessage(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'crossChainMessage', bridgeInRequestPayload)
   }
 
@@ -393,7 +387,7 @@ export class Operator {
    * @param bridgeInRequestPayload The abi encoded bytes making up the bridgeInRequest payload.
    * @returns The gas amount remaining after the static call is returned.
    */
-  async jobEstimator(chainId: number, bridgeInRequestPayload: string | Buffer) {
+  async jobEstimator(chainId: number, bridgeInRequestPayload: Hex) {
     return this._getContractFunction(chainId, 'jobEstimator', bridgeInRequestPayload)
   }
 
