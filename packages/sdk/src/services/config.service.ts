@@ -1,8 +1,12 @@
 import {Environment, setEnvironment} from '@holographxyz/environment'
 import {getNetworkByChainId, Network} from '@holographxyz/networks'
+
 import {HolographLogger} from './logger.service'
 import {HolographAccount} from './wallet.service'
 import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
+import {getEnv} from '../config/env.validation'
+import {CHAIN_ID_BY_RPC_URL} from '../constants/rpcs'
+import {isFrontEnd} from '../utils/helpers'
 
 export type ChainsRpc = Record<number, string>
 export type AccountsConfig = {
@@ -12,7 +16,7 @@ export type AccountsConfig = {
 
 export type HolographConfig = {
   accounts?: AccountsConfig
-  networks: ChainsRpc
+  networks?: ChainsRpc
   environment?: Environment
   logLevel?: string
 }
@@ -30,7 +34,7 @@ export class Config {
     this._environment = setEnvironment(holographConfig.environment)
     this._accounts = holographConfig.accounts
 
-    this.setNetworks(holographConfig.networks)
+    this.setNetworks(holographConfig?.networks)
   }
 
   static getInstance(holographConfig: HolographConfig): Config {

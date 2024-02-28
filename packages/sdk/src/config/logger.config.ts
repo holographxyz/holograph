@@ -1,15 +1,12 @@
-import Joi from 'joi'
+import * as z from 'zod'
 
-import {maybeGetResult} from './env.validation'
+import {logLevelSchema} from './env.validation'
 
-const LoggerSchema = Joi.object({
-  level: Joi.string().default('info'),
+const loggerSchema = z.object({
+  level: logLevelSchema,
 })
 
 export function getLoggerConfigs() {
-  const result = LoggerSchema.validate({
-    level: process.env.LOG_LEVEL,
-  })
-  const config: {readonly level: string} = maybeGetResult(result)
-  return config
+  const result = loggerSchema.parse({level: process.env.LOG_LEVEL})
+  return result
 }

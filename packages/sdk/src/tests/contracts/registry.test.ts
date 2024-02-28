@@ -30,7 +30,11 @@ describe('Contract class: Registry', () => {
   const chainIds = Object.keys(configObject.networks)
 
   beforeAll(() => {
+<<<<<<< HEAD
     config = Config.getInstance(configObject)
+=======
+    config = Config.getInstance({networks: NETWORKS_MOCK})
+>>>>>>> 8c6fb4e (improvement: Update network config logic)
     providersWrapper = new Providers(config)
     registry = new Registry(config)
   })

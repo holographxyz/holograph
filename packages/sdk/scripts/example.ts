@@ -14,8 +14,8 @@ async function main() {
 
   const protocolConfig: HolographConfig = {
     networks: {
-      5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-      80001: process.env.POLYGON_TESTNET_RPC ?? '',
+      5: process.env.ETHEREUM_TESTNET_GOERLI_RPC_URL ?? '',
+      80001: process.env.POLYGON_TESTNET_RPC_URL ?? '',
     },
     environment: Environment.develop,
     accounts: {
