@@ -2,11 +2,12 @@ import {AbiParameterToPrimitiveType, Hex, getContract} from 'viem'
 import {Network} from '@holographxyz/networks'
 import {AbiParametersToPrimitiveTypes, Address, ExtractAbiFunctionNames} from 'abitype'
 
+import {Holograph} from './index'
+import {HolographRegistryABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {HolographLogger, Providers, Config} from '../services'
-import {HolographRegistryABI} from '../constants/abi/develop'
-import {Holograph} from './index'
+import {HolographLogger, Providers, Config, HolographWallet} from '../services'
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
 
 type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI>
 
@@ -19,24 +20,17 @@ type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRe
  * Registry is a central on-chain location where all Holograph data is stored. Registry keeps a record of all currently supported standards. New standards can be introduced and enabled as well. Any properly deployed Holographed contracts are also stored as reference. This allows for a definitive way to identify whether a smart contract is secure and properly Holographed. Verifying entities will be able to identify a Holographed contract to ensure the highest level of security and standards.
  *
  */
-export class Registry {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-
-  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(config)
+export class Registry extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: Registry.name})
+      logger = parentLogger.addContext({className: Registry.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: Registry.name})
+      logger = HolographLogger.createLogger({className: Registry.name})
     }
 
-    this.networks = this.config.networks
+    super(_config, logger, HolographRegistryABI, 'HolographRegistry')
   }
 
   /**
@@ -47,7 +41,7 @@ export class Registry {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this.config)
+      const holograph = new Holograph(this._config)
       const add = (await holograph.getRegistry(chainId)) as Address
       this._addresses[chainId] = add
     }
@@ -55,34 +49,14 @@ export class Registry {
     return this._addresses[chainId]
   }
 
-  private async _getContractFunction(chainId: number, functionName: HolographRegistryFunctionNames, ...args: any[]) {
-    const logger = this._logger.addContext({functionName})
-    const provider = this._providers.byChainId(chainId)
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof HolographRegistryABI>) {
     const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographRegistryABI, client: provider})
-
-    let result
-    try {
-      if (isReadFunction(HolographRegistryABI, functionName)) {
-        result = await contract.read[functionName](args)
-      } else {
-        result = await contract.write[functionName](args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('HolographRegistry', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -93,7 +67,7 @@ export class Registry {
    * @returns true if it's holographed, and false otherwise.
    */
   async isHolographedContract(chainId: number, contractAddress: Address) {
-    return this._getContractFunction(chainId, 'isHolographedContract', contractAddress)
+    return this._getContractFunction({chainId, functionName: 'isHolographedContract', args: [contractAddress]})
   }
 
   /**
@@ -111,7 +85,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'isHolographedContract', contractAddress)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'isHolographedContract',
+        args: [contractAddress],
+      })
     }
 
     return results
@@ -126,7 +104,7 @@ export class Registry {
    * @returns true if it's deployed, and false otherwise.
    */
   async isHolographedHashDeployed(chainId: number, hash: Address) {
-    return this._getContractFunction(chainId, 'isHolographedHashDeployed', hash)
+    return this._getContractFunction({chainId, functionName: 'isHolographedHashDeployed', args: [hash]})
   }
 
   //TODO: add a better description! Hash of what?
@@ -142,7 +120,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'isHolographedHashDeployed', hash)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'isHolographedHashDeployed',
+        args: [hash],
+      })
     }
 
     return results
@@ -157,7 +139,7 @@ export class Registry {
    * @returns the contract address for the provided contract type.
    */
   async getContractTypeAddress(chainId: number, contractType: Address) {
-    return this._getContractFunction(chainId, 'getContractTypeAddress', contractType)
+    return this._getContractFunction({chainId, functionName: 'getContractTypeAddress', args: [contractType]})
   }
 
   /**
@@ -172,7 +154,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getContractTypeAddress', contractType)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getContractTypeAddress',
+        args: [contractType],
+      })
     }
 
     return results
@@ -186,8 +172,18 @@ export class Registry {
    * @param contractAddress The contract address for the provided contract type.
    * @returns A transaction
    */
-  async setContractTypeAddress(chainId: number, contractType: Hex, contractAddress: Address) {
-    return this._getContractFunction(chainId, 'setContractTypeAddress', contractType, contractAddress)
+  async setContractTypeAddress(
+    chainId: number,
+    contractType: Hex,
+    contractAddress: Address,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setContractTypeAddress',
+      args: [contractType, contractAddress],
+      wallet,
+    })
   }
 
   /**
@@ -198,7 +194,7 @@ export class Registry {
    * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
-    return this._getContractFunction(chainId, 'getHolograph')
+    return this._getContractFunction({chainId, functionName: 'getHolograph'})
   }
 
   /**
@@ -213,7 +209,7 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHolograph')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getHolograph'})
     }
 
     return results
@@ -226,8 +222,8 @@ export class Registry {
    * @param address The Holograph module contract address.
    * @returns A transaction.
    */
-  async setHolograph(chainId: number, address: Address) {
-    return this._getContractFunction(chainId, 'setHolograph', address)
+  async setHolograph(chainId: number, address: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [address], wallet})
   }
 
   /**
@@ -237,7 +233,7 @@ export class Registry {
    * @returns the hToken contract address.
    */
   async getHToken(chainId: number) {
-    return this._getContractFunction(chainId, 'getHToken', chainId)
+    return this._getContractFunction({chainId, functionName: 'getHToken', args: [chainId]})
   }
 
   /**
@@ -251,7 +247,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHToken', network.chain)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getHToken',
+        args: [network.chain],
+      })
     }
 
     return results
@@ -265,8 +265,13 @@ export class Registry {
    * @param hToken The hToken contract address.
    * @returns A transaction.
    */
-  async setHToken(chainId: number, hTokenChainId: number, hToken: Address) {
-    return this._getContractFunction(chainId, 'setHToken', hTokenChainId, hToken)
+  async setHToken(
+    chainId: number,
+    hTokenChainId: number,
+    hToken: Address,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({chainId, functionName: 'setHToken', args: [hTokenChainId, hToken], wallet})
   }
 
   /**
@@ -277,7 +282,7 @@ export class Registry {
    * @returns the Holograph Utility Token contract address.
    */
   async getUtilityToken(chainId: number) {
-    return this._getContractFunction(chainId, 'getUtilityToken')
+    return this._getContractFunction({chainId, functionName: 'getUtilityToken'})
   }
 
   /**
@@ -292,7 +297,10 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getUtilityToken')
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getUtilityToken',
+      })
     }
 
     return results
@@ -305,8 +313,8 @@ export class Registry {
    * @param utilityToken The address of the Holograph Utility Token smart contract to use
    * @returns A transaction.
    */
-  async setUtilityToken(chainId: number, utilityToken: Address) {
-    return this._getContractFunction(chainId, 'setUtilityToken', utilityToken)
+  async setUtilityToken(chainId: number, utilityToken: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setUtilityToken', args: [utilityToken], wallet})
   }
 
   /**
@@ -318,7 +326,7 @@ export class Registry {
    * @returns contracts address[] Returns a set length array of holographable contracts deployed in the chainId
    */
   async getHolographableContracts(chainId: number, index: bigint, length: bigint) {
-    return this._getContractFunction(chainId, 'getHolographableContracts', index, length)
+    return this._getContractFunction({chainId, functionName: 'getHolographableContracts', args: [index, length]})
   }
 
   /**
@@ -334,12 +342,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'getHolographableContracts',
-        index,
-        length,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getHolographableContracts',
+        args: [index, length],
+      })
     }
 
     return results
@@ -354,7 +361,7 @@ export class Registry {
    * @returns a contract address for the provided hash.
    */
   async getHolographedHashAddress(chainId: number, hash: Address) {
-    return this._getContractFunction(chainId, 'getHolographedHashAddress', hash)
+    return this._getContractFunction({chainId, functionName: 'getHolographedHashAddress', args: [hash]})
   }
 
   /**
@@ -369,7 +376,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographedHashAddress', hash)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getHolographedHashAddress',
+        args: [hash],
+      })
     }
 
     return results
@@ -383,8 +394,18 @@ export class Registry {
    * @param contractAddress the contract address for the provided hash.
    * @returns A transaction.
    */
-  async setHolographedHashAddress(chainId: number, hash: Hex, contractAddress: Address) {
-    return this._getContractFunction(chainId, 'setHolographedHashAddress', hash, contractAddress)
+  async setHolographedHashAddress(
+    chainId: number,
+    hash: Hex,
+    contractAddress: Address,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setHolographedHashAddress',
+      args: [hash, contractAddress],
+      wallet,
+    })
   }
 
   /**
@@ -394,7 +415,7 @@ export class Registry {
    * @returns the number of deployed holographable contracts.
    */
   async getHolographableContractsLength(chainId: number) {
-    return this._getContractFunction(chainId, 'getHolographableContractsLength')
+    return this._getContractFunction({chainId, functionName: 'getHolographableContractsLength'})
   }
 
   /**
@@ -408,7 +429,10 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographableContractsLength')
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getHolographableContractsLength',
+      })
     }
 
     return results
@@ -422,7 +446,11 @@ export class Registry {
    * @returns the bytes32 contract type.
    */
   async referenceContractTypeAddress(chainId: number, contractAddress: Address) {
-    return this._getContractFunction(chainId, 'referenceContractTypeAddress', contractAddress)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'referenceContractTypeAddress',
+      args: [contractAddress],
+    })
   }
 
   /**
@@ -437,11 +465,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'referenceContractTypeAddress',
-        contractAddress,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'referenceContractTypeAddress',
+        args: [contractAddress],
+      })
     }
 
     return results
@@ -455,7 +483,11 @@ export class Registry {
    * @returns the reserved contract address.
    */
   async getReservedContractTypeAddress(chainId: number, contractType: Hex) {
-    return this._getContractFunction(chainId, 'getReservedContractTypeAddress', contractType)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'getReservedContractTypeAddress',
+      args: [contractType],
+    })
   }
 
   /**
@@ -470,11 +502,11 @@ export class Registry {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'getReservedContractTypeAddress',
-        contractType,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getReservedContractTypeAddress',
+        args: [contractType],
+      })
     }
 
     return results
@@ -488,8 +520,18 @@ export class Registry {
    * @param reserved A boolean.
    * @returns A transaction.
    */
-  async setReservedContractTypeAddress(chainId: number, hash: Hex, reserved: boolean) {
-    return this._getContractFunction(chainId, 'setReservedContractTypeAddress', hash, reserved)
+  async setReservedContractTypeAddress(
+    chainId: number,
+    hash: Hex,
+    reserved: boolean,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setReservedContractTypeAddress',
+      args: [hash, reserved],
+      wallet,
+    })
   }
 
   /**
@@ -500,7 +542,17 @@ export class Registry {
    * @param reserved A boolean array.
    * @returns A transaction.
    */
-  async setReservedContractTypeAddresses(chainId: number, hashes: Hex[], reserved: boolean[]) {
-    return this._getContractFunction(chainId, 'setReservedContractTypeAddresses', hashes, reserved)
+  async setReservedContractTypeAddresses(
+    chainId: number,
+    hashes: Hex[],
+    reserved: boolean[],
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setReservedContractTypeAddresses',
+      args: [hashes, reserved],
+      wallet,
+    })
   }
 }

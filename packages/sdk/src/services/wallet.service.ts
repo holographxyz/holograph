@@ -12,12 +12,19 @@ import {
   publicActions,
   isAddress,
 } from 'viem'
+import {Network} from '@holographxyz/networks'
 import {privateKeyToAccount, mnemonicToAccount, Account, toAccount} from 'viem/accounts'
 
+import {
+  AccountNameAlreadyExistsError,
+  MissingDefaultWalletError,
+  MissingNetworkInformationError,
+  UnavailableNetworkError,
+  WalletNotFoundError,
+} from '../errors'
 import {ChainsRpc, Config} from './config.service'
 import {HolographLogger} from './logger.service'
-import {Network, getNetworkByChainId} from '@holographxyz/networks'
-import {UnavailableNetworkError} from '../errors'
+import {holographToViemChain} from '../utils/transformers'
 
 export type HolographAccountsMap = {
   default: HolographAccount | undefined
@@ -25,6 +32,12 @@ export type HolographAccountsMap = {
 }
 
 export type HolographAccount = Account
+
+export type HolographWalletArgs = {
+  account: HolographAccount
+  networks?: Network[]
+  chainsRpc?: ChainsRpc
+}
 
 /**
  * HolographAccountFactory
@@ -73,26 +86,31 @@ export class HolographAccountFactory {
  */
 export class HolographWallet {
   private readonly _logger: HolographLogger
+  private _account: HolographAccount
+  private _networks?: Network[]
   private _multiChainWalletClient: Record<number, WalletClient> = {}
 
-  constructor(private _account: HolographAccount, private readonly _networks?: Network[], _chainsRpc?: ChainsRpc) {
+  constructor({account, networks, chainsRpc}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
+    this._account = account
 
-    if (_networks === undefined && _chainsRpc === undefined) {
-      throw new Error('The networks information is missing')
+    if (networks === undefined && chainsRpc === undefined) {
+      throw new MissingNetworkInformationError(HolographWallet.name)
     }
 
-    if (_networks === undefined && _chainsRpc !== undefined) {
-      for (const [chainId, rpc] of Object.entries(_chainsRpc)) {
+    if (networks === undefined && chainsRpc !== undefined) {
+      for (const [chainId, rpc] of Object.entries(chainsRpc)) {
         this._multiChainWalletClient[chainId] = createWalletClient({
+          chain: holographToViemChain(Number(chainId)),
           account: this._account,
           transport: http(rpc),
         }).extend(publicActions)
       }
-    } else if (_networks !== undefined) {
-      this._networks = _networks
+    } else if (networks !== undefined) {
+      this._networks = networks
       this._networks.forEach((network: Network) => {
         this._multiChainWalletClient[network.chain] = createWalletClient({
+          chain: holographToViemChain(network.chain),
           account: this._account,
           transport: http(network.rpc),
         }).extend(publicActions)
@@ -136,13 +154,13 @@ export class HolographWalletManager {
     this._logger = HolographLogger.createLogger({serviceName: HolographWalletManager.name})
 
     if (this.protocolConfig.accounts?.default === undefined) {
-      throw new Error('No default wallet configured')
+      throw new MissingDefaultWalletError(HolographWalletManager.name)
     }
 
     this._networks = this.protocolConfig.networks
 
     for (const [accountName, account] of Object.entries(this.protocolConfig.accounts)) {
-      this._wallets[accountName] = new HolographWallet(account, this._networks)
+      this._wallets[accountName] = new HolographWallet({account, networks: this._networks})
       this._addressToAccountName[account.address] = accountName
     }
   }
@@ -162,7 +180,7 @@ export class HolographWalletManager {
       return this._wallets[accountName]
     }
 
-    throw new Error(`No wallet was found for ${account}.`)
+    throw new WalletNotFoundError(account, this.getWallet.name)
   }
 
   getAccountNameToAddressMap(): {[accountName: string]: Address} {
@@ -187,10 +205,10 @@ export class HolographWalletManager {
     const notAllowed = Object.keys(this._wallets)
 
     if (notAllowed.includes(accountName)) {
-      throw new Error('The chosen account name is already in use.')
+      throw new AccountNameAlreadyExistsError(accountName, this.addAccount.name)
     }
 
-    this._wallets[name] = new HolographWallet(account, this._networks)
+    this._wallets[name] = new HolographWallet({account, networks: this._networks})
     return this._wallets[name]
   }
 
@@ -199,13 +217,13 @@ export class HolographWalletManager {
 
     const accountsNames = Object.keys(this._wallets)
     if (!accountsNames.includes(accountName)) {
-      throw new Error('No account for this account name.')
+      throw new WalletNotFoundError(accountName, this.updateAccount.name)
     }
 
-    logger.warn(`WARN: "${accountName}" account is being override`)
+    logger.warn(`WARN: "${accountName}" account is being overridden`)
 
     // Update wallet clients
-    this._wallets[accountName] = new HolographWallet(account, this._networks)
+    this._wallets[accountName] = new HolographWallet({account, networks: this._networks})
     return this._wallets[accountName]
   }
 }

@@ -1,14 +1,10 @@
+import {Address} from 'abitype'
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Config} from '../../services/config.service'
-import {Providers} from '../../services'
+import {Providers, Config} from '../../services'
 import {ChainIdType, InterfaceType, Interfaces, TokenUriType} from '../../contracts'
-import {Address} from 'abitype'
 
-const NETWORKS_MOCK = {
-  5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-  80001: process.env.POLYGON_TESTNET_RPC ?? '',
-}
+import {configObject} from './utils'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -39,10 +35,10 @@ describe('Contract class: Interfaces', () => {
   let config: Config
   let providersWrapper: Providers
   let interfaces: Interfaces
-  const chainIds = Object.keys(NETWORKS_MOCK)
+  const chainIds = Object.keys(configObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(NETWORKS_MOCK)
+    config = Config.getInstance(configObject)
     providersWrapper = new Providers(config)
     interfaces = new Interfaces(config)
   })
@@ -60,7 +56,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('contractURI(): should be able to get the base64 encoded contract URI JSON string', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const contractUri = await interfaces.contractURI(
       chainId,
       expectedValues.nameExample,
@@ -88,7 +84,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('getUriPrepend(): should be able to get the prepend to use for tokenURI', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     const uriPrepend = await interfaces.getUriPrepend(chainId, supportedPrepends[2].type)
 
@@ -104,7 +100,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('getChainId(): should be able to convert from EVM chainId to Holograph chainId', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     const toChainIdValue = await interfaces.getChainId(
       chainId,
@@ -129,7 +125,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('supportsInterface(): should be able to validate if an interface is supported', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
 
@@ -145,7 +141,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it.skip('updateInterface(): should be able to update if a interface is supported or nor', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     const supportsInterface = await interfaces.updateInterface(chainId, InterfaceType.ERC721, EIP165_ID, false)
 
@@ -153,7 +149,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it.skip('updateInterfaces(): should be able to update if a list of supported interfaces', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     const supportsInterface = await interfaces.updateInterfaces(chainId, InterfaceType.ERC721, [EIP165_ID], false)
 
@@ -161,19 +157,19 @@ describe('Contract class: Interfaces', () => {
   })
 
   it.skip('updateChainIdMap(): should be able to update the helper structure to convert between the different types of chainIds', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     // await interfaces.updateChainIdMap()
   })
 
   it.skip('updateUriPrepend(): should be able to update the the prepend string for a TokenUriType', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     //  await interfaces.updateUriPrepend()
   })
 
   it.skip('updateUriPrepends(): should be able to update the prepends strings for an array of TokenUriTypes', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
 
     //  await interfaces.updateUriPrepends()
   })

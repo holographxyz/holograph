@@ -1,22 +1,12 @@
-import {Client, GetContractReturnType, getContract} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Address} from 'abitype'
 
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {Providers, HolographLogger, Config, HolographWallet, HolographWalletManager} from '../services'
-import {HolographFactoryABI} from '../constants/abi/develop'
 import {Holograph} from '.'
+import {HolographFactoryABI} from '../constants/abi/develop'
 import {BridgeSettings, DeploymentConfig} from '../utils/decoders'
-
-type HolographFactoryFunctionNames = ExtractAbiFunctionNames<typeof HolographFactoryABI>
-
-type GetContractFunctionArgs = {
-  chainId: number
-  functionName: HolographFactoryFunctionNames
-  wallet?: {account: string | HolographWallet}
-  args?: any[]
-}
+import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
+import {Hex} from 'viem'
 
 /**
  * @group Contracts
@@ -28,29 +18,17 @@ type GetContractFunctionArgs = {
  * The contract provides methods that allow for the creation of Holograph Protocol compliant smart contracts, that are capable of minting holographable assets.
  *
  */
-export class Factory {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-  private _walletManager?: HolographWalletManager
-
-  constructor(private readonly _config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(_config)
-
-    if (_config.accounts !== undefined) {
-      this._walletManager = new HolographWalletManager(_config)
-    }
+export class Factory extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: Factory.name})
+      logger = parentLogger.addContext({className: Factory.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: Factory.name})
+      logger = HolographLogger.createLogger({className: Factory.name})
     }
 
-    this.networks = this._config.networks
+    super(_config, logger, HolographFactoryABI, 'HolographFactory')
   }
 
   /**
@@ -69,74 +47,14 @@ export class Factory {
     return this._addresses[chainId]
   }
 
-  private async _writeContract(
-    chainId: number,
-    address: Address,
-    functionName: HolographFactoryFunctionNames,
-    wallet?: {account: string | HolographWallet},
-    args?: any[],
-  ) {
-    let walletClient: HolographWallet
-
-    if (wallet === undefined && this._walletManager !== undefined) {
-      walletClient = this._walletManager.getWallet()
-    } else if (wallet !== undefined && this._walletManager !== undefined && typeof wallet.account === 'string') {
-      walletClient = this._walletManager.getWallet(wallet.account as string)
-    } else if (wallet !== undefined && typeof wallet.account !== 'string') {
-      walletClient = wallet.account as HolographWallet
-    } else {
-      throw new Error(
-        'Missing wallet or wallet manager to call read functions. Please provide a valid wallet or configure a wallet manager.',
-      )
-    }
-
-    let client = {wallet: walletClient.onChain(chainId)}
-    const contract = getContract({address, abi: HolographFactoryABI, client})
-
-    return await contract.write[functionName](args)
-  }
-
-  private async _readContract(
-    chainId: number,
-    address: Address,
-    functionName: HolographFactoryFunctionNames,
-    args?: any[],
-  ) {
-    const provider = this._providers.byChainId(chainId)
-
-    let client = {public: provider}
-    const contract = getContract({address, abi: HolographFactoryABI, client})
-
-    return await contract.read[functionName](args)
-  }
-
-  private async _getContractFunction(
-    {chainId, functionName, wallet, args}: GetContractFunctionArgs, // chainId: number, // functionName: HolographFactoryFunctionNames, // wallet?: {account: string | HolographWallet}, // ...args: any[]
-  ) {
-    const logger = this._logger.addContext({functionName})
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof HolographFactoryABI>) {
     const address = await this.getAddress(chainId)
-
-    let result
-    try {
-      if (isReadFunction(HolographFactoryABI, functionName)) {
-        result = await this._readContract(chainId, address, functionName, args)
-      } else {
-        result = await this._writeContract(chainId, address, functionName, wallet, args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('HolographFactory', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -279,12 +197,7 @@ export class Factory {
    * @param payload The calldata to be used in the deployHolographableContract function.
    * @returns The function selector of the deployHolographableContract function.
    */
-  async bridgeIn(
-    chainId: number,
-    fromChain: number,
-    payload: string | Buffer,
-    wallet?: {account: string | HolographWallet},
-  ) {
+  async bridgeIn(chainId: number, fromChain: number, payload: Hex, wallet?: {account: string | HolographWallet}) {
     return this._getContractFunction({chainId, wallet, functionName: 'bridgeIn', args: [fromChain, payload]})
   }
 
@@ -302,7 +215,7 @@ export class Factory {
     chainId: number,
     toChain: number,
     sender: Address,
-    payload: string | Buffer,
+    payload: Hex,
     wallet?: {account: string | HolographWallet},
   ) {
     return this._getContractFunction({chainId, wallet, functionName: 'bridgeOut', args: [toChain, sender, payload]})

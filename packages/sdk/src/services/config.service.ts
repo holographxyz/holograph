@@ -1,10 +1,8 @@
-import {BigNumberish} from 'ethers'
 import {Environment, setEnvironment} from '@holographxyz/environment'
 import {getNetworkByChainId, Network} from '@holographxyz/networks'
 import {HolographLogger} from './logger.service'
+import {HolographAccount} from './wallet.service'
 import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
-import {HolographAccount, HolographWalletManager} from './wallet.service'
-import {Providers} from './providers.service'
 
 export type ChainsRpc = Record<number, string>
 export type AccountsConfig = {

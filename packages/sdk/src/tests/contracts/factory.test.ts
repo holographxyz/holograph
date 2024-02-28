@@ -1,20 +1,9 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Config, HolographConfig} from '../../services/config.service'
 import {Factory} from '../../contracts'
-import {HolographAccountFactory, Providers} from '../../services'
-import {Environment} from '@holographxyz/environment'
+import {Providers, Config} from '../../services'
 
-const configObject: HolographConfig = {
-  networks: {
-    5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-    80001: process.env.POLYGON_TESTNET_RPC ?? '',
-  },
-  accounts: {
-    default: HolographAccountFactory.createAccountUsingPrivateKey(''),
-  },
-  environment: Environment.develop,
-}
+import {ONLY_ADMIN_ERROR_MESSAGE, configObject} from './utils'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
@@ -72,13 +61,28 @@ describe('Contract class: Factory', () => {
   })
 
   // TODO: Finish the following tests
-  it.only('setHolograph(): should be able to set the correct Holograph Protocol address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
-    const tx = await factory.setHolograph(chainId, '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97')
+  describe('setHolograph()', () => {
+    it.skip('The admin should be able to set the Holograph Protocol address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+    })
+    it('should revert if it is not the admin who is setting the Holograph Protocol address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+      await expect(() =>
+        factory.setHolograph(chainId, '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'),
+      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+    })
   })
 
-  it.skip('setRegistry(): should be able to set the correct Registry address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+  describe('setRegistry()', () => {
+    it.skip('The admin should be able to set the Registry address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+    })
+    it('should revert if it is not the admin who is setting the Registry address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+      await expect(() =>
+        factory.setRegistry(chainId, '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB'),
+      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+    })
   })
 
   it.skip('deployHolographableContract(): should be able to deploy a holographable contract', async () => {

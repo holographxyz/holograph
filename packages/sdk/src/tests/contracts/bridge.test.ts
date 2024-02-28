@@ -1,14 +1,9 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Config} from '../../services/config.service'
 import {Bridge} from '../../contracts'
-import {Providers} from '../../services'
+import {Providers, Config} from '../../services'
 import {REGEX} from '../../utils/transformers'
-
-const NETWORKS_MOCK = {
-  5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-  80001: process.env.POLYGON_TESTNET_RPC ?? '',
-}
+import {configObject} from './utils'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
@@ -29,14 +24,14 @@ describe('Contract class: Bridge', () => {
   let bridge: Bridge
 
   beforeAll(() => {
-    config = Config.getInstance(NETWORKS_MOCK)
+    config = Config.getInstance(configObject)
     providersWrapper = new Providers(config)
     bridge = new Bridge(config)
   })
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(NETWORKS_MOCK)
+    const chainIds = Object.keys(configObject.networks)
     expect(multiProviders).toHaveProperty(chainIds[0])
     expect(multiProviders).toHaveProperty(chainIds[1])
   })
@@ -65,44 +60,44 @@ describe('Contract class: Bridge', () => {
   })
 
   it('should be able to get the correct bridge contract address according to the environment and chainId', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const bridgeAddress = await bridge.getAddress(chainId)
     expect(bridgeAddress).toBe(expectedValues.bridgeAddress)
   })
 
   it('getHolograph(): should be able to get the correct Holograph Protocol address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const holographAddress = await bridge.getHolograph(chainId)
     expect(holographAddress).toBe(expectedValues.holographAddress)
   })
 
   it('getFactory(): should be able to get the correct Factory address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const factoryAddress = await bridge.getFactory(chainId)
     expect(factoryAddress).toBe(expectedValues.factoryAddress)
   })
 
   it('getJobNonce(): should be able to get the correct job nonce', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const jobNonce = await bridge.getJobNonce(chainId)
     expect(jobNonce).toBe(expectedValues.jobNonce[chainId])
   })
 
   it('getOperator(): should be able to get the correct Operator address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const operatorAddress = await bridge.getOperator(chainId)
     expect(operatorAddress).toBe(expectedValues.operatorAddress)
   })
 
   it('getRegistry(): should be able to get the correct Registry address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const registryAddress = await bridge.getRegistry(chainId)
     expect(registryAddress).toBe(expectedValues.registryAddress)
   })
 
   it('getHolographByNetworks(): should be able to get the correct Holograph address per network', async () => {
     const holographAddressByNetworks = await bridge.getHolographByNetworks()
-    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(holographAddressByNetworks).forEach(holographAddress => {
       expect(holographAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -112,7 +107,7 @@ describe('Contract class: Bridge', () => {
 
   it('getFactoryByNetworks(): should be able to get the correct Factory address per network', async () => {
     const factoryAddressByNetworks = await bridge.getFactoryByNetworks()
-    expect(Object.keys(factoryAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(factoryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(factoryAddressByNetworks).forEach(factoryAddress => {
       expect(factoryAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -122,7 +117,7 @@ describe('Contract class: Bridge', () => {
 
   it('getJobNonceByNetworks(): should be able to get the correct job nonce per network', async () => {
     const jobNonceByNetworks = await bridge.getJobNonceByNetworks()
-    const networksArray = Object.keys(NETWORKS_MOCK)
+    const networksArray = Object.keys(configObject.networks)
     expect(Object.keys(jobNonceByNetworks)).toEqual(networksArray)
 
     Object.values(jobNonceByNetworks).forEach((jobNonce, index) => {
@@ -133,7 +128,7 @@ describe('Contract class: Bridge', () => {
 
   it('getOperatorByNetworks(): should be able to get the correct Operator address per network', async () => {
     const operatorAddressByNetworks = await bridge.getOperatorByNetworks()
-    expect(Object.keys(operatorAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(operatorAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(operatorAddressByNetworks).forEach(operatorAddress => {
       expect(operatorAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -143,7 +138,7 @@ describe('Contract class: Bridge', () => {
 
   it('getRegistryByNetworks(): should be able to get the correct Registry address per network', async () => {
     const registryAddressByNetworks = await bridge.getRegistryByNetworks()
-    expect(Object.keys(registryAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(registryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(registryAddressByNetworks).forEach(registryAddress => {
       expect(registryAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -153,11 +148,11 @@ describe('Contract class: Bridge', () => {
 
   // TODO: Finish the following tests
   it.skip('getMessageFee(): should be able to get the correct message fee', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getBridgeOutRequestPayload(): should be able to get the correct bridge out request payload', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   describe.skip('setHolograph():', () => {
@@ -181,14 +176,14 @@ describe('Contract class: Bridge', () => {
   })
 
   it.skip('bridgeInRequest(): should be able to bridge in request', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('bridgeOutRequest(): should be able to bridge out request', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('revertedBridgeOutRequest(): should be able to revert the bridge out request', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 })

@@ -1,14 +1,11 @@
-import {getContract} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Address} from 'viem'
 
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {Providers, HolographLogger, Config} from '../services'
-import {HolographTreasuryABI} from '../constants/abi/develop'
 import {Holograph} from './index'
+import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographTreasuryABI} from '../constants/abi/develop'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 
-type HolographTreasuryFunctionNames = ExtractAbiFunctionNames<typeof HolographTreasuryABI>
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts
@@ -19,24 +16,17 @@ type HolographTreasuryFunctionNames = ExtractAbiFunctionNames<typeof HolographTr
  * The Treasury holds and manages the protocol treasury.
  *
  */
-export class Treasury {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-
-  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(config)
+export class Treasury extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: Treasury.name})
+      logger = parentLogger.addContext({className: Treasury.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: Treasury.name})
+      logger = HolographLogger.createLogger({className: Treasury.name})
     }
 
-    this.networks = this.config.networks
+    super(_config, logger, HolographTreasuryABI, 'HolographTreasury')
   }
 
   /**
@@ -47,7 +37,7 @@ export class Treasury {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this.config)
+      const holograph = new Holograph(this._config)
       const add = (await holograph.getTreasury(chainId)) as Address
       this._addresses[chainId] = add
     }
@@ -55,34 +45,14 @@ export class Treasury {
     return this._addresses[chainId]
   }
 
-  private async _getContractFunction(chainId: number, functionName: HolographTreasuryFunctionNames, ...args: any[]) {
-    const logger = this._logger.addContext({functionName})
-    const provider = this._providers.byChainId(chainId)
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof HolographTreasuryABI>) {
     const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographTreasuryABI, client: provider})
-
-    let result
-    try {
-      if (isReadFunction(HolographTreasuryABI, functionName)) {
-        result = await contract.read[functionName](args)
-      } else {
-        result = await contract.write[functionName](args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('HolographTreasury', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -92,7 +62,7 @@ export class Treasury {
    * @returns The address of the HolographBridge module
    */
   getBridge(chainId: number) {
-    return this._getContractFunction(chainId, 'getBridge')
+    return this._getContractFunction({chainId, functionName: 'getBridge'})
   }
 
   /**
@@ -106,7 +76,7 @@ export class Treasury {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getBridge')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getBridge'})
     }
 
     return results
@@ -119,8 +89,8 @@ export class Treasury {
    * @param bridge address of the Holograph Bridge smart contract to use.
    * @return A transaction.
    */
-  async setBridge(chainId: number, bridge: Address) {
-    return this._getContractFunction(chainId, 'setBridge', bridge)
+  async setBridge(chainId: number, bridge: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setBridge', args: [bridge], wallet})
   }
 
   /**
@@ -131,7 +101,7 @@ export class Treasury {
    * @returns the holograph contract address.
    */
   async getHolograph(chainId: number) {
-    return this._getContractFunction(chainId, 'getHolograph')
+    return this._getContractFunction({chainId, functionName: 'getHolograph'})
   }
 
   /**
@@ -146,7 +116,7 @@ export class Treasury {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHolograph')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getHolograph'})
     }
 
     return results
@@ -159,8 +129,8 @@ export class Treasury {
    * @param holograph address of the Holograph Protocol smart contract to use.
    * @return A transaction.
    */
-  async setHolograph(chainId: number, holograph: Address) {
-    return this._getContractFunction(chainId, 'setHolograph', holograph)
+  async setHolograph(chainId: number, holograph: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [holograph]})
   }
 
   /**
@@ -171,7 +141,7 @@ export class Treasury {
    * @returns The HolographOperator contract address in the provided network.
    */
   async getOperator(chainId: number) {
-    return this._getContractFunction(chainId, 'getOperator')
+    return this._getContractFunction({chainId, functionName: 'getOperator'})
   }
 
   /**
@@ -186,7 +156,7 @@ export class Treasury {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getOperator')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getOperator'})
     }
 
     return results
@@ -199,8 +169,8 @@ export class Treasury {
    * @param operator address of the Holograph Operator smart contract to use.
    * @return A transaction.
    */
-  async setOperator(chainId: number, operator: Address) {
-    return this._getContractFunction(chainId, 'setOperator', operator)
+  async setOperator(chainId: number, operator: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setOperator', args: [operator], wallet})
   }
 
   /**
@@ -211,7 +181,7 @@ export class Treasury {
    * @returns The HolographRegistry contract address in the provided network.
    */
   async getRegistry(chainId: number) {
-    return this._getContractFunction(chainId, 'getRegistry')
+    return this._getContractFunction({chainId, functionName: 'getRegistry'})
   }
 
   /**
@@ -226,7 +196,7 @@ export class Treasury {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getRegistry')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getRegistry'})
     }
 
     return results
@@ -239,8 +209,8 @@ export class Treasury {
    * @param operator address of the Holograph Registry smart contract to use.
    * @return A transaction.
    */
-  async setRegistry(chainId: number, registry: Address) {
-    return this._getContractFunction(chainId, 'setRegistry', registry)
+  async setRegistry(chainId: number, registry: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setRegistry', args: [registry], wallet})
   }
 
   /**
@@ -249,8 +219,8 @@ export class Treasury {
    * @param chainId The chainId of the network to send the transaction to.
    * @return A transaction.
    */
-  async withdraw(chainId: number) {
-    return this._getContractFunction(chainId, 'withdraw')
+  async withdraw(chainId: number, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'withdraw', wallet})
   }
 
   /**
@@ -260,8 +230,8 @@ export class Treasury {
    * @param recipient The address to send the withdrawn funds to.
    * @return A transaction.
    */
-  async withdrawTo(chainId: number, recipient: Address) {
-    return this._getContractFunction(chainId, 'withdrawTo', recipient)
+  async withdrawTo(chainId: number, recipient: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'withdrawTo', args: [recipient], wallet})
   }
 
   /**
@@ -272,7 +242,7 @@ export class Treasury {
    * @returns The mint fee.
    */
   async getHolographMintFee(chainId: number) {
-    return this._getContractFunction(chainId, 'getHolographMintFee')
+    return this._getContractFunction({chainId, functionName: 'getHolographMintFee'})
   }
 
   /**
@@ -287,7 +257,10 @@ export class Treasury {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getHolographMintFee')
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getHolographMintFee',
+      })
     }
 
     return results
@@ -300,7 +273,7 @@ export class Treasury {
    * @param chainId The chainId of the network to send the transaction to.
    * @returns a transaction.
    */
-  async setHolographMintFee(chainId: number, fee: bigint) {
-    return this._getContractFunction(chainId, 'setHolographMintFee', fee)
+  async setHolographMintFee(chainId: number, fee: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setHolographMintFee', args: [fee], wallet})
   }
 }
