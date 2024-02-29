@@ -14,6 +14,7 @@ describe('Contract class: OVMGasPriceOracle', () => {
   let config: Config
   let providersWrapper: Providers
   let ovmGasPriceOracle: OVMGasPriceOracle
+  const chainIds = Object.keys(NETWORKS_MOCK).map(chainName => CHAIN_ID_BY_CHAIN_NAME[chainName])
 
   beforeAll(() => {
     config = Config.getInstance(configObject)

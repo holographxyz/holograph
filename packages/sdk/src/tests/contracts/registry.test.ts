@@ -1,11 +1,23 @@
 import {Address} from 'abitype'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
+<<<<<<< HEAD
 import {Registry} from '../../contracts'
 import {Providers, Config} from '../../services'
 
 import {configObject} from './utils'
 import {Addresses} from '../../constants/addresses'
+=======
+import {CHAIN_ID_BY_CHAIN_NAME} from '../../constants/rpcs'
+import {Registry} from '../../contracts'
+import {Providers} from '../../services'
+import {NetworkRpc, Config} from '../../services/config.service'
+
+const NETWORKS_MOCK: NetworkRpc = {
+  ethereumTestnetGoerli: process.env.ETHEREUM_TESTNET_GOERLI_RPC_URL ?? '',
+  polygonTestnet: process.env.POLYGON_TESTNET_RPC_URL ?? '',
+}
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -27,7 +39,11 @@ describe('Contract class: Registry', () => {
   let config: Config
   let providersWrapper: Providers
   let registry: Registry
+<<<<<<< HEAD
   const chainIds = Object.keys(configObject.networks)
+=======
+  const chainIds = Object.keys(NETWORKS_MOCK).map(chainName => CHAIN_ID_BY_CHAIN_NAME[chainName])
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
   beforeAll(() => {
 <<<<<<< HEAD
@@ -42,8 +58,8 @@ describe('Contract class: Registry', () => {
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
 
-    expect(multiProviders).toHaveProperty(chainIds[0])
-    expect(multiProviders).toHaveProperty(chainIds[1])
+    expect(multiProviders).toHaveProperty(String(chainIds[0]))
+    expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
   it('should be able to get the Registry wrapper class', () => {
@@ -60,7 +76,11 @@ describe('Contract class: Registry', () => {
 
   describe('isHolographedContract():', () => {
     it('should be able to validate a holographed contract', async () => {
+<<<<<<< HEAD
       const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+      const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
       const isHolographedContract = await registry.isHolographedContract(
         chainId,
         expectedValues.holographedContractExample as Address,
@@ -69,7 +89,11 @@ describe('Contract class: Registry', () => {
     })
 
     it('should be able to validate that a contract is not holographed', async () => {
+<<<<<<< HEAD
       const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+      const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
       const isHolographedContract = await registry.isHolographedContract(
         chainId,
         expectedValues.notHolographedContractExample as Address,
@@ -83,17 +107,28 @@ describe('Contract class: Registry', () => {
       const isHolographedContractByNetworks = await registry.isHolographedContractByNetworks(
         expectedValues.holographedContractExample as Address,
       )
+<<<<<<< HEAD
       expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(configObject.networks))
 
       expect(isHolographedContractByNetworks[Object.keys(configObject.networks)[0]]).toBe('true')
       expect(isHolographedContractByNetworks[Object.keys(configObject.networks)[1]]).toBe('true')
+=======
+      expect(Object.keys(isHolographedContractByNetworks)).toEqual(chainIds.map(String))
+
+      expect(isHolographedContractByNetworks[chainIds[0]]).toBe('true')
+      expect(isHolographedContractByNetworks[chainIds[1]]).toBe('true')
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     })
 
     it('should be able to validate that a contract is not holographed', async () => {
       const isHolographedContractByNetworks = await registry.isHolographedContractByNetworks(
         expectedValues.notHolographedContractExample as Address,
       )
+<<<<<<< HEAD
       expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+      expect(Object.keys(isHolographedContractByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
       Object.values(isHolographedContractByNetworks).forEach(isHolographedContract => {
         expect(isHolographedContract).toBe('false')
@@ -103,7 +138,11 @@ describe('Contract class: Registry', () => {
 
   describe('isHolographedHashDeployed():', () => {
     it("should be able to validate a deployed contract using it's deployement config hash", async () => {
+<<<<<<< HEAD
       const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+      const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
       const isDeployed = await registry.isHolographedHashDeployed(
         chainId,
         expectedValues.deployedContractHash as Address,
@@ -112,7 +151,11 @@ describe('Contract class: Registry', () => {
     })
 
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash", async () => {
+<<<<<<< HEAD
       const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+      const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
       const isDeployed = await registry.isHolographedHashDeployed(
         chainId,
         expectedValues.notDeployedContractHash as Address,
@@ -127,10 +170,17 @@ describe('Contract class: Registry', () => {
         expectedValues.deployedContractHash as Address,
       )
 
+<<<<<<< HEAD
       expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(configObject.networks))
 
       expect(isDeployedByNetworks[Object.keys(configObject.networks)[0]]).toBe('true')
       expect(isDeployedByNetworks[Object.keys(configObject.networks)[1]]).toBe('true')
+=======
+      expect(Object.keys(isDeployedByNetworks)).toEqual(chainIds.map(String))
+
+      expect(isDeployedByNetworks[chainIds[0]]).toBe('true')
+      expect(isDeployedByNetworks[chainIds[1]]).toBe('true')
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     })
 
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash per network", async () => {
@@ -138,7 +188,11 @@ describe('Contract class: Registry', () => {
         expectedValues.notDeployedContractHash as Address,
       )
 
+<<<<<<< HEAD
       expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+      expect(Object.keys(isDeployedByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
       Object.values(isDeployedByNetworks).forEach(isDeployed => {
         expect(isDeployed).toBe('false')
@@ -147,7 +201,11 @@ describe('Contract class: Registry', () => {
   })
 
   describe('getHolographedHashAddress():', () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     it('should return the contract address for a holographed hash', async () => {
       const isDeployed = await registry.getHolographedHashAddress(
         chainId,
@@ -170,6 +228,7 @@ describe('Contract class: Registry', () => {
       expectedValues.deployedContractHash as Address,
     )
 
+<<<<<<< HEAD
     expect(Object.keys(contractAddressByNetwork)).toEqual(Object.keys(configObject.networks))
 
     expect(contractAddressByNetwork[Object.keys(configObject.networks)[0]]).toBe(
@@ -182,6 +241,16 @@ describe('Contract class: Registry', () => {
 
   describe('getContractTypeAddress():', () => {
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    expect(Object.keys(contractAddressByNetwork)).toEqual(chainIds.map(String))
+
+    expect(contractAddressByNetwork[chainIds[0]]).toBe(expectedValues.deployedContractHashAddress)
+    expect(contractAddressByNetwork[chainIds[1]]).toBe(expectedValues.deployedContractHashAddress)
+  })
+
+  describe('getContractTypeAddress():', () => {
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     it('should return the correct contract address for the provided contract type', async () => {
       const contractTypeAddress = await registry.getContractTypeAddress(chainId, expectedValues.contractType as Address)
       expect(contractTypeAddress).toBe(expectedValues.contractTypeAddress)
@@ -202,7 +271,11 @@ describe('Contract class: Registry', () => {
         expectedValues.contractType as Address,
       )
 
+<<<<<<< HEAD
       expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
       Object.values(contractTypeAddressByNetworks).forEach(contractTypeAddress => {
         expect(contractTypeAddress).toBe(expectedValues.contractTypeAddress)
@@ -214,7 +287,11 @@ describe('Contract class: Registry', () => {
         expectedValues.notAcontractType as Address,
       )
 
+<<<<<<< HEAD
       expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
       Object.values(contractTypeAddressByNetworks).forEach(contractTypeAddress => {
         expect(contractTypeAddress).toBe(Addresses.zero())
@@ -223,7 +300,11 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHolograph(): should return the correct Holograph contract address', async () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     const holographAddress = await registry.getHolograph(chainId)
     expect(holographAddress).toBe(expectedValues.holographAddress)
   })
@@ -231,7 +312,11 @@ describe('Contract class: Registry', () => {
   it('getHolographByNetworks(): should return the correct Holograph contract address per network', async () => {
     const holographAddressByNetworks = await registry.getHolographByNetworks()
 
+<<<<<<< HEAD
     expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+    expect(Object.keys(holographAddressByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
     Object.values(holographAddressByNetworks).forEach(holographAddress => {
       expect(holographAddress).toBe(expectedValues.holographAddress)
@@ -239,7 +324,11 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHToken(): should return the correct HToken address', async () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     const hTokenAddress = await registry.getHToken(chainId)
     expect(hTokenAddress).toBe(expectedValues.hToken)
   })
@@ -247,7 +336,11 @@ describe('Contract class: Registry', () => {
   it('getHTokenByNetworks(): should return the correct HToken address per network', async () => {
     const hTokenAddressByNetworks = await registry.getHTokenByNetworks()
 
+<<<<<<< HEAD
     expect(Object.keys(hTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+    expect(Object.keys(hTokenAddressByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
     Object.values(hTokenAddressByNetworks).forEach(hTokenAddress => {
       expect(hTokenAddress).toBe(expectedValues.hToken)
@@ -255,7 +348,11 @@ describe('Contract class: Registry', () => {
   })
 
   it('getUtilityToken(): should return the correct Holograph Utility Token address', async () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     const utilityTokenAddress = await registry.getUtilityToken(chainId)
     expect(utilityTokenAddress).toBe(expectedValues.utilityTokenAddress)
   })
@@ -263,7 +360,11 @@ describe('Contract class: Registry', () => {
   it('getUtilityTokenByNetworks(): should return the correct Holograph Utility Token address per network', async () => {
     const utilityTokenAddressByNetworks = await registry.getUtilityTokenByNetworks()
 
+<<<<<<< HEAD
     expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
     Object.values(utilityTokenAddressByNetworks).forEach(utilityTokenAddress => {
       expect(utilityTokenAddress).toBe(expectedValues.utilityTokenAddress)
@@ -271,7 +372,11 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHolographableContracts(): should be return the correct Holograph contract address', async () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     const holographableContracts = (await registry.getHolographableContracts(chainId, 0n, 10n)) as string[]
     expectTypeOf(holographableContracts).toBeArray()
     expectTypeOf(holographableContracts).items.toBeString()
@@ -280,7 +385,11 @@ describe('Contract class: Registry', () => {
   it('getHolographableContractsByNetworks(): should be return the correct Holograph contract address per network', async () => {
     const holographableContractsByNetworks = await registry.getHolographableContractsByNetworks(0n, 10n)
 
+<<<<<<< HEAD
     expect(Object.keys(holographableContractsByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+    expect(Object.keys(holographableContractsByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
     Object.values(holographableContractsByNetworks).forEach(holographableContracts => {
       expectTypeOf(holographableContracts as string[]).toBeArray()
@@ -289,7 +398,11 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHolographableContractsLength(): should be return the correct Holograph contract address', async () => {
+<<<<<<< HEAD
     const chainId = Number(Object.keys(configObject.networks)[0])
+=======
+    const chainId = chainIds[0]
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
     const deployedHolographableContracts = (await registry.getHolographableContractsLength(chainId)) as string
     expect(BigInt(deployedHolographableContracts)).toBeGreaterThan(1)
   })
@@ -297,7 +410,11 @@ describe('Contract class: Registry', () => {
   it('getHolographableContractsLengthByNetworks(): should be return the correct Holograph contract address per network', async () => {
     const deployedHolographableContractsByNetworks = await registry.getHolographableContractsLengthByNetworks()
 
+<<<<<<< HEAD
     expect(Object.keys(deployedHolographableContractsByNetworks)).toEqual(Object.keys(configObject.networks))
+=======
+    expect(Object.keys(deployedHolographableContractsByNetworks)).toEqual(chainIds.map(String))
+>>>>>>> cc34e98 (refactor: Address review comments and make the network name as the networks object keys)
 
     Object.values(deployedHolographableContractsByNetworks).forEach(deployedHolographableContracts => {
       expect(BigInt(deployedHolographableContracts as string)).toBeGreaterThan(1)

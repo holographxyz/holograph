@@ -16,6 +16,7 @@ describe('Contract class: Factory', () => {
   let config: Config
   let providersWrapper: Providers
   let factory: Factory
+  const chainIds = Object.keys(NETWORKS_MOCK).map(chainName => CHAIN_ID_BY_CHAIN_NAME[chainName])
 
   beforeAll(() => {
     config = Config.getInstance(configObject)

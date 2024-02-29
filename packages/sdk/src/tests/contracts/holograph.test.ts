@@ -69,7 +69,7 @@ describe('Contract class: Holograph', () => {
     const chainId = Object.keys(configObject.networks)[0]
     const holographChainId = await holograph.getChainId(Number(chainId))
 
-    expect(holographChainId).toBe(chainId)
+    expect(holographChainId).toBe(String(chainId))
   })
 
   it('getChainIdByNetworks(): should be able to get the correct chainId per network', async () => {

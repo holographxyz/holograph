@@ -5,18 +5,19 @@ import {HolographLogger} from './logger.service'
 import {HolographAccount} from './wallet.service'
 import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
 import {getEnv} from '../config/env.validation'
-import {CHAIN_ID_BY_RPC_URL} from '../constants/rpcs'
+import {CHAIN_ID_BY_CHAIN_NAME, CHAIN_NAME_BY_RPC_URL, ChainName} from '../constants/rpcs'
 import {isFrontEnd} from '../utils/helpers'
 
-export type ChainsRpc = Record<number, string>
 export type AccountsConfig = {
   default: HolographAccount
   [accountName: string]: HolographAccount
 }
 
+export type NetworkRpc = {[key in ChainName]?: string}
+
 export type HolographConfig = {
   accounts?: AccountsConfig
-  networks?: ChainsRpc
+  networks?: NetworkRpc
   environment?: Environment
   logLevel?: string
 }

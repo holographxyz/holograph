@@ -22,6 +22,7 @@ describe('Contract class: Bridge', () => {
   let config: Config
   let providersWrapper: Providers
   let bridge: Bridge
+  const chainIds = Object.keys(NETWORKS_MOCK).map(chainName => CHAIN_ID_BY_CHAIN_NAME[chainName])
 
   beforeAll(() => {
     config = Config.getInstance(configObject)
@@ -122,7 +123,7 @@ describe('Contract class: Bridge', () => {
 
     Object.values(jobNonceByNetworks).forEach((jobNonce, index) => {
       expect(Number(jobNonce)).toBeGreaterThan(0)
-      expect(jobNonce).toBe(expectedValues.jobNonce[networksArray[index]])
+      expect(jobNonce).toBe(expectedValues.jobNonce[chainIds[index]])
     })
   })
 
