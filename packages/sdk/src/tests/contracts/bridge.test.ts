@@ -1,4 +1,5 @@
 import {beforeAll, describe, expect, it} from 'vitest'
+import {networks} from '@holographxyz/networks'
 
 import {Bridge} from '../../contracts'
 import {Providers, Config} from '../../services'
@@ -22,7 +23,7 @@ describe('Contract class: Bridge', () => {
   let config: Config
   let providersWrapper: Providers
   let bridge: Bridge
-  const chainIds = Object.keys(NETWORKS_MOCK).map(chainName => CHAIN_ID_BY_CHAIN_NAME[chainName])
+  const chainIds = Object.keys(NETWORKS_MOCK).map(networkKey => Number(networks[networkKey].chain))
 
   beforeAll(() => {
     config = Config.getInstance(configObject)

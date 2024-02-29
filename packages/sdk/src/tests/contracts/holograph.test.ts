@@ -1,4 +1,5 @@
 import {beforeAll, describe, expect, it} from 'vitest'
+import {networks} from '@holographxyz/networks'
 
 import {Holograph} from '../../contracts'
 import {Providers, Config} from '../../services'
@@ -23,6 +24,10 @@ describe('Contract class: Holograph', () => {
   let config: Config
   let providersWrapper: Providers
   let holograph: Holograph
+<<<<<<< HEAD
+=======
+  const chainIds = Object.keys(NETWORKS_MOCK).map(networkKey => Number(networks[networkKey].chain))
+>>>>>>> 8c24e75 (refactor: Move RPC constants to the networks package)
 
   beforeAll(() => {
     config = Config.getInstance(configObject)

@@ -1,5 +1,6 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 import {Address} from 'abitype'
+import {networks} from '@holographxyz/networks'
 
 import {Operator} from '../../contracts'
 import {Providers, Config} from '../../services'

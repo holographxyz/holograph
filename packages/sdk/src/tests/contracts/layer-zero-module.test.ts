@@ -1,4 +1,5 @@
 import {beforeAll, describe, expect, it} from 'vitest'
+import {networks} from '@holographxyz/networks'
 
 import {LayerZeroModule} from '../../contracts'
 import {Providers, Config} from '../../services'
