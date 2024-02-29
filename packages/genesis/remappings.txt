@@ -1,0 +1,2 @@
+@holographxyz/=node_modules/@holographxyz/
+forge-std/=lib/forge-std/src/

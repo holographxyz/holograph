@@ -1,8 +1,12 @@
 {
-  "extends": "tsconfig/holograph.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "target": "es5",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "outDir": "dist",
+    "resolveJsonModule": true
   },
-  "include": ["."],
-  "exclude": ["dist", "build", "node_modules", "./src/typechain-types"]
+  "include": ["./scripts", "./test"],
+  "files": ["./hardhat.config.ts"]
 }

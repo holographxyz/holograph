@@ -32,48 +32,25 @@ function hex2buffer(input: string): Uint8Array {
 const currentEnvironment = Environment[getEnvironment()];
 process.stdout.write(`\n👉 Environment: ${currentEnvironment}\n\n`);
 
-const SOLIDITY_VERSION = process.env.SOLIDITY_VERSION || '0.8.13';
+const SOLIDITY_VERSION = process.env.SOLIDITY_VERSION || '0.8.17';
 
 const MNEMONIC = process.env.MNEMONIC || 'test '.repeat(11) + 'junk';
-const DEPLOYER = process.env.DEPLOYER || '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80';
+const DEPLOYER = process.env.DEPLOYER || '0x0';
 
-if (
-  process.env.SUPER_COLD_STORAGE_ENABLED &&
-  process.env.SUPER_COLD_STORAGE_ENABLED == 'true' &&
-  process.env.npm_lifecycle_event == 'deploy'
-) {
-  if (
-    !process.env.SUPER_COLD_STORAGE_CA ||
-    !process.env.SUPER_COLD_STORAGE_ADDRESS ||
-    !process.env.SUPER_COLD_STORAGE_DOMAIN ||
-    !process.env.SUPER_COLD_STORAGE_AUTHORIZATION
-  ) {
-    throw new Error(
-      'SUPER_COLD_STORAGE_CA, SUPER_COLD_STORAGE_ADDRESS, SUPER_COLD_STORAGE_DOMAIN, and SUPER_COLD_STORAGE_AUTHORIZATION must be set when SUPER_COLD_STORAGE_ENABLED is true'
-    );
+const setDeployerKey = function (fallbackKey: string | number): string | number {
+  if (process.env.HARDWARE_WALLET_ENABLED == 'true' && process.env.HARDWARE_WALLET_DEPLOYER != undefined) {
+    console.log(`Setting deployer key to ${process.env.HARDWARE_WALLET_DEPLOYER} as hardware wallet`);
+    return `ledger://${process.env.HARDWARE_WALLET_DEPLOYER}`;
   }
-
-  global.__superColdStorage = {
-    address: process.env.SUPER_COLD_STORAGE_ADDRESS,
-    domain: process.env.SUPER_COLD_STORAGE_DOMAIN,
-    authorization: process.env.SUPER_COLD_STORAGE_AUTHORIZATION, // String.fromCharCode.apply(null, hex2buffer(process.env.SUPER_COLD_STORAGE_AUTHORIZATION)),
-    ca: String.fromCharCode.apply(null, hex2buffer(process.env.SUPER_COLD_STORAGE_CA) as any),
-  };
-}
+  console.log(`Setting deployer key to ${fallbackKey} as fallback`);
+  return fallbackKey;
+};
 
 if (process.env.FUNDS_TRANSFER && process.env.FUNDS_TRANSFER != '') {
   global.__transferFunds = process.env.FUNDS_TRANSFER;
 }
 
-const setDeployerKey = function (fallbackKey: string | number): string | number {
-  if ('__superColdStorage' in global) {
-    return ('super-cold-storage://' + global.__superColdStorage.address) as string;
-  } else {
-    return fallbackKey;
-  }
-};
-
-const dynamicNetworks = function (): unknown {
+const dynamicNetworks = function (): any {
   let output: any = {};
   for (const name of Object.keys(networks)) {
     if (name != 'hardhat' && name != 'localhost' && name != 'localhost2') {
@@ -89,7 +66,6 @@ const dynamicNetworks = function (): unknown {
 };
 
 const DEPLOYMENT_SALT = parseInt(process.env.DEPLOYMENT_SALT || '0');
-
 const DEPLOYMENT_PATH = process.env.DEPLOYMENT_PATH || 'deployments';
 
 global.__DEPLOYMENT_SALT = '0x' + DEPLOYMENT_SALT.toString(16).padStart(64, '0');
@@ -101,12 +77,14 @@ task('deploy', 'Deploy contracts').setAction(async (args, hre, runSuper) => {
   global.__gasPriceMultiplier = BigNumber.from(process.env.GAS_PRICE_MULTIPLIER || '10000');
   global.__maxGasPrice = BigNumber.from(process.env.MAXIMUM_GAS_PRICE || '0');
   global.__maxGasBribe = BigNumber.from(process.env.MAXIMUM_GAS_BRIBE || '0');
-  // start gas price monitoring service
-  process.stdout.write('Loading Gas Price Service\n');
-  const gasService: GasService = new GasService(hre.network.name, hre.ethers.provider, 'DEBUG' in process.env);
-  process.stdout.write('Seeding Gas Price Service\n');
-  await gasService.init();
-  process.stdout.write('\nReady to start deployments\n');
+  // NOTE: Gas price monitor service is disabled for now
+  // Please look to utils/helpers.ts and search for "manual" to see how to adjust gas prices manually
+  // Start gas price monitoring service
+  // process.stdout.write('Loading Gas Price Service\n');
+  // const gasService: GasService = new GasService(hre.network.name, hre.ethers.provider, 'DEBUG' in process.env);
+  // process.stdout.write('Seeding Gas Price Service\n');
+  // await gasService.init();
+  // process.stdout.write('\nReady to start deployments\n');
   // run the actual hardhat deploy task
   return runSuper(args);
 });
@@ -200,11 +178,10 @@ const config: HardhatUserConfig = {
       },
       saveDeployments: false,
     },
-    ...(dynamicNetworks() as Networks),
+    ...dynamicNetworks(),
   },
   namedAccounts: {
-    deployer: setDeployerKey(0),
-    lzEndpoint: 10,
+    deployer: setDeployerKey(process.env.DEPLOYER || 0),
   },
   solidity: {
     version: SOLIDITY_VERSION,
@@ -225,6 +202,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY || '',
       goerli: process.env.ETHERSCAN_API_KEY || '',
+      sepolia: process.env.ETHERSCAN_API_KEY || '',
       avalanche: process.env.SNOWTRACE_API_KEY || '',
       avalancheFujiTestnet: process.env.SNOWTRACE_API_KEY || '',
       polygon: process.env.POLYGONSCAN_API_KEY || '',
@@ -232,24 +210,64 @@ const config: HardhatUserConfig = {
       bsc: process.env.BSCSCAN_API_KEY || '',
       bscTestnet: process.env.BSCSCAN_API_KEY || '',
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || process.env.OPTIMISM_API_KEY || '',
-      optimisticGoerli: process.env.OPTIMISTIC_API_KEY || process.env.OPTIMISM_API_KEY || '',
+      optimisticSepolia: process.env.OPTIMISTIC_API_KEY || process.env.OPTIMISM_API_KEY || '',
       arbitrumOne: process.env.ARBISCAN_API_KEY || '',
-      arbitrumGoerli: process.env.ARBISCAN_API_KEY || '',
+      arbitrumSepolia: process.env.ARBISCAN_API_KEY || '',
       arbitrumNova: process.env.ARBISCAN_NOVA_API_KEY || '',
       mantle: process.env.MANTLE_API_KEY || '',
       mantleTestnet: process.env.MANTLE_API_KEY || '',
       base: process.env.BASESCAN_API_KEY || '',
-      baseTestnetGoerli: process.env.BASESCAN_API_KEY || '',
-      zora: process.env.ZORAENERGY_API_KEY || '',
-      zoraTestnetGoerli: process.env.ZORAENERGY_API_KEY || '',
+      baseTestnetSepolia: process.env.BASESCAN_API_KEY || '',
+      zora: process.env.ZORAENERGY_API_KEY || '---', // Blank string doesn't work for Blockscout
+      zoraTestnetSepolia: process.env.ZORAENERGY_API_KEY || '',
     },
     customChains: [
+      {
+        network: 'optimismTestnetSepolia',
+        chainId: 11155420,
+        urls: {
+          apiURL: 'https://api-sepolia-optimistic.etherscan.io/api',
+          browserURL: 'https://sepolia-optimism.etherscan.io/',
+        },
+      },
+      {
+        network: 'baseTestnetSepolia',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
+        },
+      },
+      {
+        network: 'zora',
+        chainId: 7777777,
+        urls: {
+          apiURL: 'https://explorer.zora.energy/api',
+          browserURL: 'https://explorer.zora.energy/',
+        },
+      },
+      {
+        network: 'zoraTestnetSepolia',
+        chainId: 999999999,
+        urls: {
+          apiURL: 'https://sepolia.explorer.zora.energy/api',
+          browserURL: 'https://explorer.zora.energy/',
+        },
+      },
       {
         network: 'arbitrumNova',
         chainId: 42170,
         urls: {
           apiURL: 'https://api-nova.arbiscan.io/api',
           browserURL: 'https://nova.arbiscan.io',
+        },
+      },
+      {
+        network: 'arbitrumTestnetSepolia',
+        chainId: 421614,
+        urls: {
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io',
         },
       },
       {
@@ -277,11 +295,11 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: 'baseTestnetGoerli',
+        network: 'baseTestnetSepolia',
         chainId: 84531,
         urls: {
-          apiURL: 'https://api-goerli.basescan.org/api',
-          browserURL: 'https://goerli.basescan.org',
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org',
         },
       },
     ],

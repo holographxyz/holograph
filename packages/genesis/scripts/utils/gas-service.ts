@@ -32,7 +32,7 @@ export class GasService {
     this.verbose = verbose;
   }
 
-  structuredLog(network: string, msg: string, tags: undefined | string | number | (string | number)[]): void {
+  structuredLog(network: string, msg: string, tags: undefined | string | (string | number)[]): void {
     if (this.verbose) {
       process.stdout.write(`${JSON.stringify({ network, msg, tags })}\n`);
     }
