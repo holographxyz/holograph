@@ -1,15 +1,11 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 import {Address} from 'abitype'
 
-import {Config} from '../../services/config.service'
 import {Operator} from '../../contracts'
-import {Providers} from '../../services'
+import {Providers, Config} from '../../services'
 import {REGEX} from '../../utils/transformers'
 
-const NETWORKS_MOCK = {
-  5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-  80001: process.env.POLYGON_TESTNET_RPC ?? '',
-}
+import {configObject} from './utils'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -27,10 +23,10 @@ describe('Contract class: Operator', () => {
   let config: Config
   let providersWrapper: Providers
   let operator: Operator
-  const chainIds = Object.keys(NETWORKS_MOCK).map(Number)
+  const chainIds = Object.keys(configObject.networks).map(Number)
 
   beforeAll(() => {
-    config = Config.getInstance(NETWORKS_MOCK)
+    config = Config.getInstance(configObject)
     providersWrapper = new Providers(config)
     operator = new Operator(config)
   })
@@ -103,7 +99,7 @@ describe('Contract class: Operator', () => {
 
   it('getHolographByNetworks(): should be able to get the correct Holograph address per network', async () => {
     const holographAddressByNetworks = await operator.getHolographByNetworks()
-    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(holographAddressByNetworks).forEach(holographAddress => {
       expect(holographAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -113,7 +109,7 @@ describe('Contract class: Operator', () => {
 
   it('getBridgeByNetworks(): should be able to get the correct HolographBridge address per network', async () => {
     const bridgeAddressByNetworks = await operator.getBridgeByNetworks()
-    expect(Object.keys(bridgeAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(bridgeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(bridgeAddressByNetworks).forEach(bridgeAddress => {
       expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -123,7 +119,7 @@ describe('Contract class: Operator', () => {
 
   it('getRegistryByNetworks(): should be able to get the correct HolographRegistry address per network', async () => {
     const registryAddressByNetworks = await operator.getRegistryByNetworks()
-    expect(Object.keys(registryAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(registryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(registryAddressByNetworks).forEach(registryAddress => {
       expect(registryAddress).toBe(expectedValues.registryAddress)
@@ -132,7 +128,7 @@ describe('Contract class: Operator', () => {
 
   it('getMessagingModuleByNetworks(): should be able to get the correct HolographMessagingModule address per network', async () => {
     const messagingModuleAddressByNetworks = await operator.getMessagingModuleByNetworks()
-    expect(Object.keys(messagingModuleAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(messagingModuleAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(messagingModuleAddressByNetworks).forEach(messagingModuleAddress => {
       expect(messagingModuleAddress).toBe(expectedValues.messagingModuleAddress)
@@ -141,7 +137,7 @@ describe('Contract class: Operator', () => {
 
   it('getUtilityTokenByNetworks(): should be able to get the correct HolographUtilityToken address per network', async () => {
     const utilityTokenAddressByNetworks = await operator.getUtilityTokenByNetworks()
-    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(utilityTokenAddressByNetworks).forEach(utilityTokenAddress => {
       expect(utilityTokenAddress).toBe(expectedValues.utilityTokenAddress)
@@ -150,91 +146,91 @@ describe('Contract class: Operator', () => {
 
   // TODO: We cannot create tests for the following methods until we can call bondUtilityToken() to become an operator.
   it.skip('getJobDetails(): should be able to get the correct job details', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getPodOperatorsLength(): should be able to get the correct pod operators length', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getPodOperators(): should be able to get the correct pod operators', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getPaginatedPodOperators(): should be able to get the correct paginated pod operators', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getPodBondAmounts(): should be able to get the correct pod bond amounts', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('getMessageFee(): should be able to get the correct pod bond amounts', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   // TODO: Finish the following tests (write functions)
   it.skip('recoverJob(): should be able to recover a job', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('executeJob(): should be able to execute a job', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('nonRevertingBridgeCall(): should be able to execute a non-reverting bridge call', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('crossChainMessage(): should be able to send a cross chain message', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('jobEstimator(): should be able to estimate a job', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('send(): should be able to send a message', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('topupUtilityToken(): should be able to topup the utility token', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('bondUtilityToken(): should be able to bond the utility token', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('unbondUtilityToken(): should be able to unbond the utility token', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setBridge(): should be able to set the bridge address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setHolograph(): should be able to set the holograph address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setInterfaces(): should be able to set the interfaces address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setMessagingModule(): should be able to set the messaging module address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setRegistry(): should be able to set the registry address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setUtilityToken(): should be able to set the utility token address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('setMinGasPrice(): should be able to set the minimum gas price', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 })

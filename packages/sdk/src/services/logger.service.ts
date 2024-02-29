@@ -3,10 +3,7 @@ import pretty from 'pino-pretty'
 import {v4 as uuidv4} from 'uuid'
 import {getLoggerConfigs} from '../config/logger.config'
 import {HolographError} from '../errors'
-
-function baseClassSimulacrum<T>(): new () => Pick<T, keyof T> {
-  return class {} as any
-}
+import {baseClassSimulacrum} from '../utils/transformers'
 
 type PinoMethods = Pick<pino.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'>
 

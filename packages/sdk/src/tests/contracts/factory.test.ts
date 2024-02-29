@@ -1,13 +1,9 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Config} from '../../services/config.service'
 import {Factory} from '../../contracts'
-import {Providers} from '../../services'
+import {Providers, Config} from '../../services'
 
-const NETWORKS_MOCK = {
-  5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-  80001: process.env.POLYGON_TESTNET_RPC ?? '',
-}
+import {ONLY_ADMIN_ERROR_MESSAGE, configObject} from './utils'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
@@ -22,14 +18,14 @@ describe('Contract class: Factory', () => {
   let factory: Factory
 
   beforeAll(() => {
-    config = Config.getInstance(NETWORKS_MOCK)
+    config = Config.getInstance(configObject)
     providersWrapper = new Providers(config)
     factory = new Factory(config)
   })
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(NETWORKS_MOCK)
+    const chainIds = Object.keys(configObject.networks)
     expect(multiProviders).toHaveProperty(chainIds[0])
     expect(multiProviders).toHaveProperty(chainIds[1])
   })
@@ -47,45 +43,61 @@ describe('Contract class: Factory', () => {
   })
 
   it('should be able to get the correct Factory contract address according to the environment and chainId', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const factoryAddress = await factory.getAddress(chainId)
     expect(factoryAddress).toBe(expectedValues.factoryAddress)
   })
 
   it('getHolograph(): should be able to get the correct Holograph Protocol address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const holographAddress = await factory.getHolograph(chainId)
     expect(holographAddress).toBe(expectedValues.holographAddress)
   })
 
   it('getRegistry(): should be able to get the correct Registry address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const registryAddress = await factory.getRegistry(chainId)
     expect(registryAddress).toBe(expectedValues.registryAddress)
   })
 
   // TODO: Finish the following tests
-  it.skip('setHolograph(): should be able to set the correct Holograph Protocol address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  describe('setHolograph()', () => {
+    it.skip('The admin should be able to set the Holograph Protocol address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+    })
+    it('should revert if it is not the admin who is setting the Holograph Protocol address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+      await expect(() =>
+        factory.setHolograph(chainId, '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'),
+      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+    })
   })
 
-  it.skip('setRegistry(): should be able to set the correct Registry address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+  describe('setRegistry()', () => {
+    it.skip('The admin should be able to set the Registry address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+    })
+    it('should revert if it is not the admin who is setting the Registry address', async () => {
+      const chainId = Number(Object.keys(configObject.networks)[0])
+      await expect(() =>
+        factory.setRegistry(chainId, '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB'),
+      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+    })
   })
 
   it.skip('deployHolographableContract(): should be able to deploy a holographable contract', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('deployHolographableContractMultiChain(): should be able to deploy a holographable contract in multiple chains', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('bridgeIn(): should be able to bridge in a token', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 
   it.skip('bridgeOut(): should be able to bridge out a token', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
   })
 })

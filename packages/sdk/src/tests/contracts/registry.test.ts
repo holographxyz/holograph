@@ -1,15 +1,11 @@
+import {Address} from 'abitype'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
-import {Config} from '../../services/config.service'
 import {Registry} from '../../contracts'
-import {Providers} from '../../services'
-import {Address} from 'abitype'
-import {ZeroAddress} from 'ethers'
+import {Providers, Config} from '../../services'
 
-const NETWORKS_MOCK = {
-  5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-  80001: process.env.POLYGON_TESTNET_RPC ?? '',
-}
+import {configObject} from './utils'
+import {Addresses} from '../../constants/addresses'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -31,10 +27,10 @@ describe('Contract class: Registry', () => {
   let config: Config
   let providersWrapper: Providers
   let registry: Registry
-  const chainIds = Object.keys(NETWORKS_MOCK)
+  const chainIds = Object.keys(configObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(NETWORKS_MOCK)
+    config = Config.getInstance(configObject)
     providersWrapper = new Providers(config)
     registry = new Registry(config)
   })
@@ -60,7 +56,7 @@ describe('Contract class: Registry', () => {
 
   describe('isHolographedContract():', () => {
     it('should be able to validate a holographed contract', async () => {
-      const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+      const chainId = Number(Object.keys(configObject.networks)[0])
       const isHolographedContract = await registry.isHolographedContract(
         chainId,
         expectedValues.holographedContractExample as Address,
@@ -69,7 +65,7 @@ describe('Contract class: Registry', () => {
     })
 
     it('should be able to validate that a contract is not holographed', async () => {
-      const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+      const chainId = Number(Object.keys(configObject.networks)[0])
       const isHolographedContract = await registry.isHolographedContract(
         chainId,
         expectedValues.notHolographedContractExample as Address,
@@ -83,17 +79,17 @@ describe('Contract class: Registry', () => {
       const isHolographedContractByNetworks = await registry.isHolographedContractByNetworks(
         expectedValues.holographedContractExample as Address,
       )
-      expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(configObject.networks))
 
-      expect(isHolographedContractByNetworks[Object.keys(NETWORKS_MOCK)[0]]).toBe('true')
-      expect(isHolographedContractByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('true')
+      expect(isHolographedContractByNetworks[Object.keys(configObject.networks)[0]]).toBe('true')
+      expect(isHolographedContractByNetworks[Object.keys(configObject.networks)[1]]).toBe('true')
     })
 
     it('should be able to validate that a contract is not holographed', async () => {
       const isHolographedContractByNetworks = await registry.isHolographedContractByNetworks(
         expectedValues.notHolographedContractExample as Address,
       )
-      expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(isHolographedContractByNetworks)).toEqual(Object.keys(configObject.networks))
 
       Object.values(isHolographedContractByNetworks).forEach(isHolographedContract => {
         expect(isHolographedContract).toBe('false')
@@ -103,7 +99,7 @@ describe('Contract class: Registry', () => {
 
   describe('isHolographedHashDeployed():', () => {
     it("should be able to validate a deployed contract using it's deployement config hash", async () => {
-      const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+      const chainId = Number(Object.keys(configObject.networks)[0])
       const isDeployed = await registry.isHolographedHashDeployed(
         chainId,
         expectedValues.deployedContractHash as Address,
@@ -112,7 +108,7 @@ describe('Contract class: Registry', () => {
     })
 
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash", async () => {
-      const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+      const chainId = Number(Object.keys(configObject.networks)[0])
       const isDeployed = await registry.isHolographedHashDeployed(
         chainId,
         expectedValues.notDeployedContractHash as Address,
@@ -127,10 +123,10 @@ describe('Contract class: Registry', () => {
         expectedValues.deployedContractHash as Address,
       )
 
-      expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(configObject.networks))
 
-      expect(isDeployedByNetworks[Object.keys(NETWORKS_MOCK)[0]]).toBe('true')
-      expect(isDeployedByNetworks[Object.keys(NETWORKS_MOCK)[1]]).toBe('true')
+      expect(isDeployedByNetworks[Object.keys(configObject.networks)[0]]).toBe('true')
+      expect(isDeployedByNetworks[Object.keys(configObject.networks)[1]]).toBe('true')
     })
 
     it("should be able to validate that a contract is not deployed contract using it's deployement config hash per network", async () => {
@@ -138,7 +134,7 @@ describe('Contract class: Registry', () => {
         expectedValues.notDeployedContractHash as Address,
       )
 
-      expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(isDeployedByNetworks)).toEqual(Object.keys(configObject.networks))
 
       Object.values(isDeployedByNetworks).forEach(isDeployed => {
         expect(isDeployed).toBe('false')
@@ -147,7 +143,7 @@ describe('Contract class: Registry', () => {
   })
 
   describe('getHolographedHashAddress():', () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     it('should return the contract address for a holographed hash', async () => {
       const isDeployed = await registry.getHolographedHashAddress(
         chainId,
@@ -161,7 +157,7 @@ describe('Contract class: Registry', () => {
         chainId,
         expectedValues.notDeployedContractHash as Address,
       )
-      expect(isDeployed).toBe(ZeroAddress)
+      expect(isDeployed).toBe(Addresses.zero())
     })
   })
 
@@ -170,14 +166,18 @@ describe('Contract class: Registry', () => {
       expectedValues.deployedContractHash as Address,
     )
 
-    expect(Object.keys(contractAddressByNetwork)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(contractAddressByNetwork)).toEqual(Object.keys(configObject.networks))
 
-    expect(contractAddressByNetwork[Object.keys(NETWORKS_MOCK)[0]]).toBe(expectedValues.deployedContractHashAddress)
-    expect(contractAddressByNetwork[Object.keys(NETWORKS_MOCK)[1]]).toBe(expectedValues.deployedContractHashAddress)
+    expect(contractAddressByNetwork[Object.keys(configObject.networks)[0]]).toBe(
+      expectedValues.deployedContractHashAddress,
+    )
+    expect(contractAddressByNetwork[Object.keys(configObject.networks)[1]]).toBe(
+      expectedValues.deployedContractHashAddress,
+    )
   })
 
   describe('getContractTypeAddress():', () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     it('should return the correct contract address for the provided contract type', async () => {
       const contractTypeAddress = await registry.getContractTypeAddress(chainId, expectedValues.contractType as Address)
       expect(contractTypeAddress).toBe(expectedValues.contractTypeAddress)
@@ -188,7 +188,7 @@ describe('Contract class: Registry', () => {
         chainId,
         expectedValues.notAcontractType as Address,
       )
-      expect(contractTypeAddress).toBe(ZeroAddress)
+      expect(contractTypeAddress).toBe(Addresses.zero())
     })
   })
 
@@ -198,7 +198,7 @@ describe('Contract class: Registry', () => {
         expectedValues.contractType as Address,
       )
 
-      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
       Object.values(contractTypeAddressByNetworks).forEach(contractTypeAddress => {
         expect(contractTypeAddress).toBe(expectedValues.contractTypeAddress)
@@ -210,16 +210,16 @@ describe('Contract class: Registry', () => {
         expectedValues.notAcontractType as Address,
       )
 
-      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+      expect(Object.keys(contractTypeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
       Object.values(contractTypeAddressByNetworks).forEach(contractTypeAddress => {
-        expect(contractTypeAddress).toBe(ZeroAddress)
+        expect(contractTypeAddress).toBe(Addresses.zero())
       })
     })
   })
 
   it('getHolograph(): should return the correct Holograph contract address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const holographAddress = await registry.getHolograph(chainId)
     expect(holographAddress).toBe(expectedValues.holographAddress)
   })
@@ -227,7 +227,7 @@ describe('Contract class: Registry', () => {
   it('getHolographByNetworks(): should return the correct Holograph contract address per network', async () => {
     const holographAddressByNetworks = await registry.getHolographByNetworks()
 
-    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(holographAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(holographAddressByNetworks).forEach(holographAddress => {
       expect(holographAddress).toBe(expectedValues.holographAddress)
@@ -235,7 +235,7 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHToken(): should return the correct HToken address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const hTokenAddress = await registry.getHToken(chainId)
     expect(hTokenAddress).toBe(expectedValues.hToken)
   })
@@ -243,7 +243,7 @@ describe('Contract class: Registry', () => {
   it('getHTokenByNetworks(): should return the correct HToken address per network', async () => {
     const hTokenAddressByNetworks = await registry.getHTokenByNetworks()
 
-    expect(Object.keys(hTokenAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(hTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(hTokenAddressByNetworks).forEach(hTokenAddress => {
       expect(hTokenAddress).toBe(expectedValues.hToken)
@@ -251,7 +251,7 @@ describe('Contract class: Registry', () => {
   })
 
   it('getUtilityToken(): should return the correct Holograph Utility Token address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const utilityTokenAddress = await registry.getUtilityToken(chainId)
     expect(utilityTokenAddress).toBe(expectedValues.utilityTokenAddress)
   })
@@ -259,7 +259,7 @@ describe('Contract class: Registry', () => {
   it('getUtilityTokenByNetworks(): should return the correct Holograph Utility Token address per network', async () => {
     const utilityTokenAddressByNetworks = await registry.getUtilityTokenByNetworks()
 
-    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(utilityTokenAddressByNetworks).forEach(utilityTokenAddress => {
       expect(utilityTokenAddress).toBe(expectedValues.utilityTokenAddress)
@@ -267,7 +267,7 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHolographableContracts(): should be return the correct Holograph contract address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const holographableContracts = (await registry.getHolographableContracts(chainId, 0n, 10n)) as string[]
     expectTypeOf(holographableContracts).toBeArray()
     expectTypeOf(holographableContracts).items.toBeString()
@@ -276,7 +276,7 @@ describe('Contract class: Registry', () => {
   it('getHolographableContractsByNetworks(): should be return the correct Holograph contract address per network', async () => {
     const holographableContractsByNetworks = await registry.getHolographableContractsByNetworks(0n, 10n)
 
-    expect(Object.keys(holographableContractsByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(holographableContractsByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(holographableContractsByNetworks).forEach(holographableContracts => {
       expectTypeOf(holographableContracts as string[]).toBeArray()
@@ -285,7 +285,7 @@ describe('Contract class: Registry', () => {
   })
 
   it('getHolographableContractsLength(): should be return the correct Holograph contract address', async () => {
-    const chainId = Number(Object.keys(NETWORKS_MOCK)[0])
+    const chainId = Number(Object.keys(configObject.networks)[0])
     const deployedHolographableContracts = (await registry.getHolographableContractsLength(chainId)) as string
     expect(BigInt(deployedHolographableContracts)).toBeGreaterThan(1)
   })
@@ -293,7 +293,7 @@ describe('Contract class: Registry', () => {
   it('getHolographableContractsLengthByNetworks(): should be return the correct Holograph contract address per network', async () => {
     const deployedHolographableContractsByNetworks = await registry.getHolographableContractsLengthByNetworks()
 
-    expect(Object.keys(deployedHolographableContractsByNetworks)).toEqual(Object.keys(NETWORKS_MOCK))
+    expect(Object.keys(deployedHolographableContractsByNetworks)).toEqual(Object.keys(configObject.networks))
 
     Object.values(deployedHolographableContractsByNetworks).forEach(deployedHolographableContracts => {
       expect(BigInt(deployedHolographableContracts as string)).toBeGreaterThan(1)

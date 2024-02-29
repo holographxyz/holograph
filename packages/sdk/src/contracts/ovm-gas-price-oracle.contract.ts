@@ -1,14 +1,10 @@
-import {getContract, Hex} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Address, Hex} from 'viem'
 
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {Providers, HolographLogger, Config} from '../services'
-import {OVM_GasPriceOracleABI} from '../constants/abi/develop'
 import {Addresses} from '../constants/addresses'
-
-type OVMGasPriceOracleFunctionNames = ExtractAbiFunctionNames<typeof OVM_GasPriceOracleABI>
+import {OVM_GasPriceOracleABI} from '../constants/abi/develop'
+import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts
@@ -26,24 +22,17 @@ type OVMGasPriceOracleFunctionNames = ExtractAbiFunctionNames<typeof OVM_GasPric
  * the deployed bytecode instead of running the initcode.
  *
  */
-export class OVMGasPriceOracle {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-
-  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(config)
+export class OVMGasPriceOracle extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: OVMGasPriceOracle.name})
+      logger = parentLogger.addContext({className: OVMGasPriceOracle.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: OVMGasPriceOracle.name})
+      logger = HolographLogger.createLogger({className: OVMGasPriceOracle.name})
     }
 
-    this.networks = this.config.networks
+    super(_config, logger, OVM_GasPriceOracleABI, 'OVM_GasPriceOracle')
   }
 
   /**
@@ -53,37 +42,17 @@ export class OVMGasPriceOracle {
    * @returns The OVM_GasPriceOracle contract address in the provided network.
    */
   getAddress(chainId: number): Address {
-    return Addresses.ovmGasPriceOracle(this.config.environment, Number(chainId)) as Address
+    return Addresses.ovmGasPriceOracle(this._config.environment, Number(chainId)) as Address
   }
 
-  private async _getContractFunction(chainId: number, functionName: OVMGasPriceOracleFunctionNames, ...args: any[]) {
-    const logger = this._logger.addContext({functionName})
-    const provider = this._providers.byChainId(chainId)
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof OVM_GasPriceOracleABI>) {
     const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: OVM_GasPriceOracleABI, client: provider})
-
-    let result
-    try {
-      if (isReadFunction(OVM_GasPriceOracleABI, functionName)) {
-        result = await contract.read[functionName](args)
-      } else {
-        result = await contract.write[functionName](args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('OVM_GasPriceOracle', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -94,7 +63,7 @@ export class OVMGasPriceOracle {
    * @returns The L1 fee that should be paid for the tx.
    */
   async getL1Fee(chainId: number, data: Hex) {
-    return this._getContractFunction(chainId, 'getL1Fee', data)
+    return this._getContractFunction({chainId, functionName: 'getL1Fee', args: [data]})
   }
 
   /**
@@ -109,7 +78,11 @@ export class OVMGasPriceOracle {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getL1Fee', data)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getL1Fee',
+        args: [data],
+      })
     }
 
     return results
@@ -138,7 +111,7 @@ export class OVMGasPriceOracle {
    * @returns The amount of L1 gas used for a transaction.
    */
   async getL1GasUsed(chainId: number, data: Hex) {
-    return this._getContractFunction(chainId, 'getL1GasUsed', data)
+    return this._getContractFunction({chainId, functionName: 'getL1GasUsed', args: [data]})
   }
 
   /**
@@ -153,7 +126,11 @@ export class OVMGasPriceOracle {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getL1GasUsed', data)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getL1GasUsed',
+        args: [data],
+      })
     }
 
     return results
@@ -166,8 +143,8 @@ export class OVMGasPriceOracle {
    * @param gasPrice The new L2 gas price.
    * @returns A transaction.
    */
-  async setGasPrice(chainId: number, gasPrice: bigint) {
-    return this._getContractFunction(chainId, 'setGasPrice', gasPrice)
+  async setGasPrice(chainId: number, gasPrice: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setGasPrice', args: [gasPrice], wallet})
   }
 
   /**
@@ -177,8 +154,8 @@ export class OVMGasPriceOracle {
    * @param baseFee The new L1 base fee.
    * @returns A transaction.
    */
-  async setL1BaseFee(chainId: number, baseFee: bigint) {
-    return this._getContractFunction(chainId, 'setL1BaseFee', baseFee)
+  async setL1BaseFee(chainId: number, baseFee: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setL1BaseFee', args: [baseFee], wallet})
   }
 
   /**
@@ -188,8 +165,8 @@ export class OVMGasPriceOracle {
    * @param overhead The new overhead.
    * @returns A transaction.
    */
-  async setOverhead(chainId: number, overhead: bigint) {
-    return this._getContractFunction(chainId, 'setOverhead', overhead)
+  async setOverhead(chainId: number, overhead: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setOverhead', args: [overhead], wallet})
   }
 
   /**
@@ -199,8 +176,8 @@ export class OVMGasPriceOracle {
    * @param scalar The new scalar.
    * @returns A transaction.
    */
-  async setScalar(chainId: number, scalar: bigint) {
-    return this._getContractFunction(chainId, 'setScalar', scalar)
+  async setScalar(chainId: number, scalar: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setScalar', args: [scalar], wallet})
   }
 
   /**
@@ -210,7 +187,7 @@ export class OVMGasPriceOracle {
    * @param decimals The new decimals.
    * @returns A transaction.
    */
-  async setDecimals(chainId: number, decimals: bigint) {
-    return this._getContractFunction(chainId, 'setDecimals', decimals)
+  async setDecimals(chainId: number, decimals: bigint, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setDecimals', args: [decimals], wallet})
   }
 }

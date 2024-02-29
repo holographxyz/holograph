@@ -36,4 +36,19 @@ const getEnvironment = (): Environment => {
   return environment;
 };
 
-export { Environment, getEnvironment };
+const setEnvironment = (env?: Environment): Environment => {
+  let environment = Environment.testnet;
+
+  if (env !== undefined) {
+    const acceptableBranches: Set<string> = new Set<string>(Object.values(Environment));
+
+    if (acceptableBranches.has(env)) {
+      environment = Environment[env as keyof typeof Environment];
+    }
+  }
+
+  global.__environment = environment;
+  return environment;
+};
+
+export { Environment, getEnvironment, setEnvironment };

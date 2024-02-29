@@ -1,4 +1,5 @@
-import {Hex, keccak256} from 'viem'
+import {getNetworkByChainId} from '@holographxyz/networks'
+import {Chain, Hex, defineChain, keccak256} from 'viem'
 
 export enum ContractName {
   Holograph = 'Holograph',
@@ -57,4 +58,27 @@ export function lowerCaseAllStrings(input: any[], add?: string): any[] {
 
 export const REGEX = {
   WALLET_ADDRESS: /^0x[a-fA-F0-9]{40}$/,
+}
+
+export function baseClassSimulacrum<T>(): new () => Pick<T, keyof T> {
+  return class {} as any
+}
+
+export function holographToViemChain(chainId: number): Chain {
+  const network = getNetworkByChainId(chainId)
+  const chain = defineChain({
+    id: network.chain,
+    name: network.name,
+    nativeCurrency: {
+      decimals: 18, // TODO:  add this info to the networks package
+      name: network.tokenName,
+      symbol: network.tokenSymbol,
+    },
+    rpcUrls: {
+      default: {
+        http: [network.rpc],
+      },
+    },
+  })
+  return chain
 }

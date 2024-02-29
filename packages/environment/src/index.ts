@@ -1,3 +1,3 @@
-import { Environment, getEnvironment } from './environment';
+import { Environment, getEnvironment, setEnvironment } from './environment';
 
-export { Environment, getEnvironment };
+export { Environment, getEnvironment, setEnvironment };

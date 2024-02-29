@@ -1,14 +1,10 @@
-import {getContract, Hex} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Address, Hex} from 'viem'
 
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {Providers, HolographLogger, Config} from '../services'
-import {LayerZeroModuleABI} from '../constants/abi/develop'
 import {Addresses} from '../constants/addresses'
-
-type LayerZeroModuleFunctionNames = ExtractAbiFunctionNames<typeof LayerZeroModuleABI>
+import {LayerZeroModuleABI} from '../constants/abi/develop'
+import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
 
 export type GasParameters = {
   msgBaseGas: bigint
@@ -29,24 +25,17 @@ export type GasParameters = {
  * This contract abstracts all of the LayerZero specific logic into an isolated module.
  *
  */
-export class LayerZeroModule {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-
-  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(config)
+export class LayerZeroModule extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: LayerZeroModule.name})
+      logger = parentLogger.addContext({className: LayerZeroModule.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: LayerZeroModule.name})
+      logger = HolographLogger.createLogger({className: LayerZeroModule.name})
     }
 
-    this.networks = this.config.networks
+    super(_config, logger, LayerZeroModuleABI, 'LayerZeroModule')
   }
 
   /**
@@ -56,37 +45,17 @@ export class LayerZeroModule {
    * @returns The LayerZeroModule contract address in the provided network.
    */
   getAddress(chainId?: number | string): Address {
-    return Addresses.layerZeroModule(this.config.environment, Number(chainId)) as Address
+    return Addresses.layerZeroModule(this._config.environment, Number(chainId)) as Address
   }
 
-  private async _getContractFunction(chainId: number, functionName: LayerZeroModuleFunctionNames, ...args: any[]) {
-    const logger = this._logger.addContext({functionName})
-    const provider = this._providers.byChainId(chainId)
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof LayerZeroModuleABI>) {
     const address = this.getAddress(chainId)
-
-    const contract = getContract({address, abi: LayerZeroModuleABI, client: provider})
-
-    let result
-    try {
-      if (isReadFunction(LayerZeroModuleABI, functionName)) {
-        result = await contract.read[functionName](args)
-      } else {
-        result = await contract.write[functionName](args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('LayerZeroModule', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -101,7 +70,11 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getGasParameters', network.holographId)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getGasParameters',
+        args: [network.holographId],
+      })
     }
 
     return results
@@ -119,7 +92,10 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getOptimismGasPriceOracle')
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getOptimismGasPriceOracle',
+      })
     }
 
     return results
@@ -137,7 +113,7 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getLZEndpoint')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getLZEndpoint'})
     }
 
     return results
@@ -155,7 +131,7 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getBridge')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getBridge'})
     }
 
     return results
@@ -173,7 +149,7 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getInterfaces')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getInterfaces'})
     }
 
     return results
@@ -191,7 +167,7 @@ export class LayerZeroModule {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getOperator')
+      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getOperator'})
     }
 
     return results
@@ -212,7 +188,11 @@ export class LayerZeroModule {
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
   async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
-    return this._getContractFunction(chainId, 'getMessageFee', toChain, gasLimit, gasPrice, crossChainPayload)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'getMessageFee',
+      args: [toChain, gasLimit, gasPrice, crossChainPayload],
+    })
   }
 
   /**
@@ -225,7 +205,11 @@ export class LayerZeroModule {
    * @returns The HLG fee.
    */
   async getHlgFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
-    return this._getContractFunction(chainId, 'getHlgFee', toChain, gasLimit, gasPrice, crossChainPayload)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'getHlgFee',
+      args: [toChain, gasLimit, gasPrice, crossChainPayload],
+    })
   }
 
   /**
@@ -247,17 +231,14 @@ export class LayerZeroModule {
     msgSender: Address,
     msgValue: bigint,
     crossChainPayload: Hex,
+    wallet?: {account: string | HolographWallet},
   ) {
-    return this._getContractFunction(
+    return this._getContractFunction({
       chainId,
-      'send',
-      gasLimit,
-      gasPrice,
-      toChain,
-      msgSender,
-      msgValue,
-      crossChainPayload,
-    )
+      functionName: 'send',
+      args: [gasLimit, gasPrice, toChain, msgSender, msgValue, crossChainPayload],
+      wallet,
+    })
   }
 
   /**
@@ -267,8 +248,8 @@ export class LayerZeroModule {
    * @param interfaces The address of the Holograph Interfaces smart contract to use.
    * @returns A transaction.
    */
-  async setInterfaces(chainId: number, interfaces: Address) {
-    return this._getContractFunction(chainId, 'setInterfaces', interfaces)
+  async setInterfaces(chainId: number, interfaces: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setInterfaces', args: [interfaces], wallet})
   }
 
   /**
@@ -278,8 +259,8 @@ export class LayerZeroModule {
    * @param operator The address of the Holograph Operator smart contract to use.
    * @returns A transaction.
    */
-  async setOperator(chainId: number, operator: Address) {
-    return this._getContractFunction(chainId, 'setOperator', operator)
+  async setOperator(chainId: number, operator: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setOperator', args: [operator], wallet})
   }
 
   /**
@@ -289,8 +270,8 @@ export class LayerZeroModule {
    * @param lZEndpoint address of the LayerZero Endpoint to use.
    * @returns A transaction.
    */
-  async setLZEndpoint(chainId: number, lZEndpoint: Address) {
-    return this._getContractFunction(chainId, 'setLZEndpoint', lZEndpoint)
+  async setLZEndpoint(chainId: number, lZEndpoint: Address, wallet?: {account: string | HolographWallet}) {
+    return this._getContractFunction({chainId, functionName: 'setLZEndpoint', args: [lZEndpoint], wallet})
   }
 
   /**
@@ -300,8 +281,17 @@ export class LayerZeroModule {
    * @param optimismGasPriceOracle address of the Optimism Gas Price Oracle smart contract to use
    * @returns A transaction.
    */
-  async setOptimismGasPriceOracle(chainId: number, optimismGasPriceOracle: Address) {
-    return this._getContractFunction(chainId, 'setOptimismGasPriceOracle', optimismGasPriceOracle)
+  async setOptimismGasPriceOracle(
+    chainId: number,
+    optimismGasPriceOracle: Address,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setOptimismGasPriceOracle',
+      args: [optimismGasPriceOracle],
+      wallet,
+    })
   }
 
   /**
@@ -312,8 +302,18 @@ export class LayerZeroModule {
    * @param gasParameters The struct of all the gas parameters to set.
    * @returns A transaction.
    */
-  async setGasParameters(chainId: number, holographChainId: number, gasParameters: GasParameters) {
-    return this._getContractFunction(chainId, 'setGasParameters', holographChainId, gasParameters)
+  async setGasParameters(
+    chainId: number,
+    holographChainId: number,
+    gasParameters: GasParameters,
+    wallet?: {account: string | HolographWallet},
+  ) {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setGasParameters',
+      args: [holographChainId, gasParameters],
+      wallet,
+    })
   }
 
   /**
@@ -326,18 +326,19 @@ export class LayerZeroModule {
   async setGasParametersByNetworks(
     chainIds: number[],
     gasParametersArray: GasParameters[],
+    wallet?: {account: string | HolographWallet},
   ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
     let index = 0
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'setGasParameters',
-        network.holographId,
-        gasParametersArray[index],
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'setGasParameters',
+        args: [network.holographId, gasParametersArray[index]],
+        wallet,
+      })
       index++
     }
 

@@ -1,14 +1,10 @@
-import {Hex, getContract} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Hex, Address} from 'viem'
 
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {HolographInterfacesABI} from '../constants/abi/develop'
-import {Providers, HolographLogger, Config} from '../services'
 import {Holograph} from './index'
-
-type HolographInterfacesFunctionNames = ExtractAbiFunctionNames<typeof HolographInterfacesABI>
+import {HolographLogger, Config} from '../services'
+import {HolographInterfacesABI} from '../constants/abi/develop'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
 
 /**
  * Enum designed to mirror the equivalent Solidity enum.
@@ -56,24 +52,17 @@ export enum TokenUriType {
  * The contract stores a reference of all supported: chains, interfaces, functions, etc.
  *
  */
-export class Interfaces {
-  /** The list of networks in which the contract was instantiated. */
-  public readonly networks: Network[]
-  /** The record of addresses per chainId. */
-  private readonly _addresses: Record<number, Address> = {}
-  private readonly _providers: Providers
-  private _logger: HolographLogger
-
-  constructor(private readonly config: Config, parentLogger?: HolographLogger) {
-    this._providers = new Providers(config)
+export class Interfaces extends HolographBaseContract {
+  constructor(_config: Config, parentLogger?: HolographLogger) {
+    let logger: HolographLogger
 
     if (parentLogger) {
-      this._logger = parentLogger.addContext({className: Interfaces.name})
+      logger = parentLogger.addContext({className: Holograph.name})
     } else {
-      this._logger = HolographLogger.createLogger({className: Interfaces.name})
+      logger = HolographLogger.createLogger({className: Holograph.name})
     }
 
-    this.networks = this.config.networks
+    super(_config, logger, HolographInterfacesABI, 'HolographInterfaces')
   }
 
   /**
@@ -84,7 +73,7 @@ export class Interfaces {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this.config)
+      const holograph = new Holograph(this._config)
       const add = (await holograph.getInterfaces(chainId)) as Address
       this._addresses[chainId] = add
     }
@@ -92,34 +81,14 @@ export class Interfaces {
     return this._addresses[chainId]
   }
 
-  private async _getContractFunction(chainId: number, functionName: HolographInterfacesFunctionNames, ...args: any[]) {
-    const logger = this._logger.addContext({functionName})
-    const provider = this._providers.byChainId(chainId)
+  private async _getContractFunction({
+    chainId,
+    functionName,
+    wallet,
+    args,
+  }: GetContractFunctionArgs<typeof HolographInterfacesABI>) {
     const address = await this.getAddress(chainId)
-
-    const contract = getContract({address, abi: HolographInterfacesABI, client: provider})
-
-    let result
-    try {
-      if (isReadFunction(HolographInterfacesABI, functionName)) {
-        result = await contract.read[functionName](args)
-      } else {
-        result = await contract.write[functionName](args)
-      }
-    } catch (error: any) {
-      let holographError: HolographError
-
-      if (isCallException(error)) {
-        holographError = new ContractRevertError('HolographInterfaces', functionName, error)
-      } else {
-        holographError = new ViemError(error, functionName)
-      }
-
-      logger.logHolographError(error)
-
-      throw holographError
-    }
-    return mapReturnType(result)
+    return this._callContractFunction({chainId, address, functionName, wallet, args})
   }
 
   /**
@@ -142,7 +111,11 @@ export class Interfaces {
     bps: number,
     contractAddress: Address,
   ) {
-    return this._getContractFunction(chainId, 'contractURI', name, imageURL, externalLink, bps, contractAddress)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'contractURI',
+      args: [name, imageURL, externalLink, bps, contractAddress],
+    })
   }
 
   /**
@@ -169,15 +142,11 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'contractURI',
-        name,
-        imageURL,
-        externalLink,
-        bps,
-        contractAddress,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'contractURI',
+        args: [name, imageURL, externalLink, bps, contractAddress],
+      })
     }
 
     return results
@@ -200,7 +169,7 @@ export class Interfaces {
    * ```
    */
   async getUriPrepend(chainId: number, uriType: TokenUriType) {
-    return this._getContractFunction(chainId, 'getUriPrepend', uriType)
+    return this._getContractFunction({chainId, functionName: 'getUriPrepend', args: [uriType]})
   }
 
   /**
@@ -216,7 +185,11 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(network.chain, 'getUriPrepend', uriType)
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getUriPrepend',
+        args: [uriType],
+      })
     }
 
     return results
@@ -231,7 +204,7 @@ export class Interfaces {
    * @returns A transaction.
    */
   async updateUriPrepend(chainId: number, uriType: TokenUriType, prepend: string) {
-    return this._getContractFunction(chainId, 'updateUriPrepend', uriType, prepend)
+    return this._getContractFunction({chainId, functionName: 'updateUriPrepend', args: [uriType, prepend]})
   }
 
   /**
@@ -243,7 +216,7 @@ export class Interfaces {
    * @returns A transaction.
    */
   async updateUriPrepends(chainId: number, uriTypes: TokenUriType[], prepends: string[]) {
-    return this._getContractFunction(chainId, 'updateUriPrepends', uriTypes, prepends)
+    return this._getContractFunction({chainId, functionName: 'updateUriPrepends', args: [uriTypes, prepends]})
   }
 
   /**
@@ -256,7 +229,11 @@ export class Interfaces {
    * @returns The Holograph chainId in the provided network.
    */
   async getChainId(chainId: number, fromChainType: ChainIdType, fromChainId: bigint, toChainType: ChainIdType) {
-    return this._getContractFunction(chainId, 'getChainId', fromChainType, fromChainId, toChainType)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'getChainId',
+      args: [fromChainType, fromChainId, toChainType],
+    })
   }
 
   /**
@@ -278,13 +255,11 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'getChainId',
-        fromChainType,
-        fromChainId,
-        toChainType,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'getChainId',
+        args: [fromChainType, fromChainId, toChainType],
+      })
     }
 
     return results
@@ -307,7 +282,11 @@ export class Interfaces {
     toChainType: ChainIdType,
     toChainId: bigint,
   ) {
-    return this._getContractFunction(chainId, 'updateChainIdMap', fromChainType, fromChainId, toChainType, toChainId)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'updateChainIdMap',
+      args: [fromChainType, fromChainId, toChainType, toChainId],
+    })
   }
 
   /**
@@ -327,14 +306,11 @@ export class Interfaces {
     toChainTypes: ChainIdType[],
     toChainIds: bigint[],
   ) {
-    return this._getContractFunction(
+    return this._getContractFunction({
       chainId,
-      'updateChainIdMaps',
-      fromChainTypes,
-      fromChainIds,
-      toChainTypes,
-      toChainIds,
-    )
+      functionName: 'updateChainIdMaps',
+      args: [fromChainTypes, fromChainIds, toChainTypes, toChainIds],
+    })
   }
 
   /**
@@ -346,7 +322,7 @@ export class Interfaces {
    * @returns `true` if the contract implements `interfaceID` and `interfaceID` is not 0xffffffff, `false` otherwise.
    */
   async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex) {
-    return this._getContractFunction(chainId, 'supportsInterface', interfaceType, interfaceId)
+    return this._getContractFunction({chainId, functionName: 'supportsInterface', args: [interfaceType, interfaceId]})
   }
 
   /**
@@ -366,12 +342,11 @@ export class Interfaces {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction(
-        network.chain,
-        'supportsInterface',
-        interfaceType,
-        interfaceId,
-      )
+      results[network.chain] = await this._getContractFunction({
+        chainId: network.chain,
+        functionName: 'supportsInterface',
+        args: [interfaceType, interfaceId],
+      })
     }
 
     return results
@@ -387,7 +362,11 @@ export class Interfaces {
    * @returns A transaction.
    */
   async updateInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex, supported: boolean) {
-    return this._getContractFunction(chainId, 'updateInterface', interfaceType, interfaceId, supported)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'updateInterface',
+      args: [interfaceType, interfaceId, supported],
+    })
   }
 
   /**
@@ -400,6 +379,10 @@ export class Interfaces {
    * @returns A transaction.
    */
   async updateInterfaces(chainId: number, interfaceType: InterfaceType, interfaceIds: Hex[], supported: boolean) {
-    return this._getContractFunction(chainId, 'updateInterfaces', interfaceType, interfaceIds, supported)
+    return this._getContractFunction({
+      chainId,
+      functionName: 'updateInterfaces',
+      args: [interfaceType, interfaceIds, supported],
+    })
   }
 }

@@ -4,6 +4,7 @@ import {
   ContractFunctionRevertedError,
   ContractFunctionZeroDataError,
   RawContractError,
+  TransactionExecutionError,
 } from 'viem'
 
 export enum HolographErrorCode {
@@ -12,6 +13,10 @@ export enum HolographErrorCode {
   HOLO_SDK_10002 = 'HOLO_SDK_10002',
   HOLO_SDK_10003 = 'HOLO_SDK_10003',
   HOLO_SDK_10004 = 'HOLO_SDK_10004',
+  HOLO_SDK_10005 = 'HOLO_SDK_10005',
+  HOLO_SDK_10006 = 'HOLO_SDK_10006',
+  HOLO_SDK_10007 = 'HOLO_SDK_10007',
+  HOLO_SDK_10008 = 'HOLO_SDK_10008',
 }
 
 interface HolographErrorParams {
@@ -55,7 +60,8 @@ export const normalizeException = (err: any): Error => {
 export const isCallException = (err: any): boolean => {
   if (
     err.name &&
-    (err.name === CallExecutionError.name ||
+    (err.name === TransactionExecutionError.name ||
+      err.name === CallExecutionError.name ||
       err.name === CallExecutionError.name ||
       err.name === ContractFunctionExecutionError.name ||
       err.name === ContractFunctionRevertedError.name ||

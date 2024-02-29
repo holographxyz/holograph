@@ -3,6 +3,10 @@ import {InvalidHolographEnvironmentError} from '../errors/general/invalid-hologr
 export class Addresses {
   private constructor() {}
 
+  static zero() {
+    return '0x0000000000000000000000000000000000000000'
+  }
+
   /**
    * V2
    */
