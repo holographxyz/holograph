@@ -2,9 +2,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { NetworkType } from './network-type';
-import { Network, Networks } from '../types';
 
-export const networks: Networks = {
+export const networks = {
   // LOCAL NETWORKS
   hardhat: {
     name: 'Hardhat',
@@ -24,7 +23,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   localhost: {
     name: 'Localhost',
     type: NetworkType.local,
@@ -43,7 +42,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   localhost2: {
     name: 'Localhost 2',
     type: NetworkType.local,
@@ -62,9 +61,9 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   // TEST NETWORKS
-    zoraTestnetSepolia: {
+  zoraTestnetSepolia: {
     name: 'Zora Sepolia Testnet',
     type: NetworkType.testnet,
     key: 'zoraTestnetSepolia',
@@ -77,12 +76,12 @@ export const networks: Networks = {
     tokenSymbol: 'ETH',
     explorer: 'https://sepolia.explorer.zora.energy/',
     lzEndpoint: ''.toLowerCase(),
-    lzId: 0,  // TODO: Not supported yet
+    lzId: 0, // TODO: Not supported yet
     ccipEndpoint: ''.toLowerCase(),
     ccipId: '',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   baseTestnetSepolia: {
     name: 'Base Sepolia Testnet',
     type: NetworkType.testnet,
@@ -101,7 +100,7 @@ export const networks: Networks = {
     ccipId: '',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   arbitrumTestnetSepolia: {
     name: 'Arbitrum Sepolia Testnet',
     type: NetworkType.testnet,
@@ -120,7 +119,7 @@ export const networks: Networks = {
     ccipId: '3478487238524512106',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   optimismTestnetSepolia: {
     name: 'Optimism Sepolia Testnet',
     type: NetworkType.testnet,
@@ -139,7 +138,7 @@ export const networks: Networks = {
     ccipId: '',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ethereumTestnetSepolia: {
     name: 'Ethereum Sepolia',
     type: NetworkType.testnet,
@@ -158,7 +157,7 @@ export const networks: Networks = {
     ccipId: '16015286601757825753',
     active: true,
     protocolMultisig: '0x8FE61F653450051cEcbae12475BA2b8fbA628c7A'.toLowerCase(),
-  } as Network,
+  },
   baseTestnetGoerli: {
     name: 'Base Goerli Testnet',
     type: NetworkType.testnet,
@@ -177,7 +176,7 @@ export const networks: Networks = {
     ccipId: '5790810961207155433',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   zoraTestnetGoerli: {
     name: 'Zora Goerli Testnet',
     type: NetworkType.testnet,
@@ -196,7 +195,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   mantleTestnet: {
     name: 'Mantle Testnet',
     type: NetworkType.testnet,
@@ -215,7 +214,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0x87Ef913A4D2D7B1d31782E6635A1172371E98123'.toLowerCase(),
-  } as Network,
+  },
   kekChainTestnet: {
     name: 'KeKchain Testnet',
     type: NetworkType.testnet,
@@ -234,7 +233,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   goChainTestnet: {
     name: 'GoChain Testnet',
     type: NetworkType.testnet,
@@ -253,7 +252,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   reiNetworkTestnet: {
     name: 'REI Network Testnet',
     type: NetworkType.testnet,
@@ -272,7 +271,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   reiChainTestnet: {
     name: 'REI Chain Testnet',
     type: NetworkType.testnet,
@@ -291,7 +290,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   hooSmartChainTestnet: {
     name: 'Hoo Smart Chain Testnet',
     type: NetworkType.testnet,
@@ -310,7 +309,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   novaTestnetNebula: {
     name: 'Nova Testnet Nebula',
     type: NetworkType.testnet,
@@ -329,7 +328,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   energyWebChainTestnetVolta: {
     name: 'Energy Web Chain Testnet Volta',
     type: NetworkType.testnet,
@@ -348,7 +347,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   nahmiiTestnet: {
     name: 'Nahmii Testnet',
     type: NetworkType.testnet,
@@ -367,7 +366,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   callistoTestnet: {
     name: 'Callisto Testnet',
     type: NetworkType.testnet,
@@ -386,7 +385,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   godwokenTestnet: {
     name: 'Godwoken Testnet',
     type: NetworkType.testnet,
@@ -405,7 +404,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   syscoinTestnetTanenbaum: {
     name: 'Syscoin Testnet Tanenbaum',
     type: NetworkType.testnet,
@@ -424,7 +423,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   elastosSmartChainTestnet: {
     name: 'Elastos Smart Chain Testnet',
     type: NetworkType.testnet,
@@ -443,7 +442,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   xdcTestnetApothem: {
     name: 'XDC Testnet Apothem (XinFin)',
     type: NetworkType.testnet,
@@ -462,7 +461,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   fuseTestnetSpark: {
     name: 'Fuse Testnet Spark',
     type: NetworkType.testnet,
@@ -481,7 +480,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   polisTestnetSparta: {
     name: 'Polis Testnet Sparta',
     type: NetworkType.testnet,
@@ -500,7 +499,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   meterTestnetWarringstakes: {
     name: 'Meter Testnet Warringstakes',
     type: NetworkType.testnet,
@@ -519,7 +518,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   coinExSmartChainTestnet: {
     name: 'CoinEx Smart Chain Testnet',
     type: NetworkType.testnet,
@@ -538,7 +537,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   thunderCoreTestnet: {
     name: 'ThunderCore Testnet',
     type: NetworkType.testnet,
@@ -557,7 +556,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   smartBitcoinCashTestnet: {
     name: 'Smart Bitcoin Cash Testnet',
     type: NetworkType.testnet,
@@ -576,7 +575,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   stepTestnet: {
     name: 'Step Testnet',
     type: NetworkType.testnet,
@@ -595,7 +594,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ultronTestnet: {
     name: 'Ultron Testnet',
     type: NetworkType.testnet,
@@ -614,7 +613,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   visionTestnetVpioneer: {
     name: 'Vision Testnet Vpioneer',
     type: NetworkType.testnet,
@@ -633,7 +632,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   /*
   wanchainTestnet: {
     name: 'Wanchain Testnet',
@@ -653,7 +652,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  } ,
 */
   thetaTestnet: {
     name: 'Theta Testnet',
@@ -673,7 +672,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   flareTestnetCoston2: {
     name: 'Flare Testnet Coston 2',
     type: NetworkType.testnet,
@@ -692,7 +691,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   flareTestnetCoston: {
     name: 'Flare Testnet Coston',
     type: NetworkType.testnet,
@@ -711,7 +710,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   oasisTestnetSaphire: {
     name: 'Sapphire ParaTime Testnet (Oasis Network)',
     type: NetworkType.testnet,
@@ -730,7 +729,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   oasisTestnetEmerald: {
     name: 'Emerald ParaTime Testnet (Oasis Network)',
     type: NetworkType.testnet,
@@ -749,7 +748,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   rskTestnet: {
     name: 'RSK Testnet',
     type: NetworkType.testnet,
@@ -768,7 +767,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   astarTestnetShibuya: {
     name: 'Astar Shibuya Testnet',
     type: NetworkType.testnet,
@@ -787,7 +786,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   publicMintTestnet: {
     name: 'Public Mint Testnet',
     type: NetworkType.testnet,
@@ -806,7 +805,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   kccTestnet: {
     name: 'KCC Testnet (KuCoin)',
     type: NetworkType.testnet,
@@ -825,7 +824,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   hecoChainTestnet: {
     name: 'HECO Chain Testnet',
     type: NetworkType.testnet,
@@ -844,7 +843,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   fusionTestnet: {
     name: 'Fusion Testnet (AnySwap)',
     type: NetworkType.testnet,
@@ -863,7 +862,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   kavaEvmTestnet: {
     name: 'Kava EVM Testnet',
     type: NetworkType.testnet,
@@ -882,7 +881,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   velasEvmTestnet: {
     name: 'Velas EVM Testnet',
     type: NetworkType.testnet,
@@ -901,7 +900,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   tomoChainTestnet: {
     name: 'TomoChain Testnet',
     type: NetworkType.testnet,
@@ -920,7 +919,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   telosEvmTestnet: {
     name: 'Telos EVM Testnet',
     type: NetworkType.testnet,
@@ -939,7 +938,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   palmNftTestnet: {
     name: 'Palm NFT Testnet',
     type: NetworkType.testnet,
@@ -958,7 +957,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   okxTestnet: {
     name: 'OKExChain Testnet',
     type: NetworkType.testnet,
@@ -977,7 +976,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   metisTestnetGoerli: {
     name: 'Metis Goerli Testnet',
     type: NetworkType.testnet,
@@ -996,7 +995,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   klaytnTestnet: {
     name: 'Klaytn Baobab Testnet',
     type: NetworkType.testnet,
@@ -1015,7 +1014,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   iotexTestnet: {
     name: 'IoTeX Network Testnet',
     type: NetworkType.testnet,
@@ -1034,7 +1033,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   evmosTestnet: {
     name: 'Evmos Testnet',
     type: NetworkType.testnet,
@@ -1053,7 +1052,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   dogechainTestnet: {
     name: 'Dogechain Testnet',
     type: NetworkType.testnet,
@@ -1072,7 +1071,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   cantoTestnet: {
     name: 'Canto Testnet',
     type: NetworkType.testnet,
@@ -1091,7 +1090,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaFantomTestnet: {
     name: 'BOBA Fantom Testnet L2',
     type: NetworkType.testnet,
@@ -1110,7 +1109,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaMoonbeamTestnet: {
     name: 'BOBA Moonbeam Testnet L2',
     type: NetworkType.testnet,
@@ -1129,7 +1128,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaBinanceChainTestnet: {
     name: 'BOBA BNB Testnet L2',
     type: NetworkType.testnet,
@@ -1148,7 +1147,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaAvalancheTestnet: {
     name: 'BOBA Avalanche Fuji L2',
     type: NetworkType.testnet,
@@ -1167,7 +1166,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaEthereumTestnetGoerli: {
     name: 'BOBA Ethereum Goerli L2',
     type: NetworkType.testnet,
@@ -1186,7 +1185,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   celoTestnetAlfajorest: {
     name: 'Celo Alfajorest',
     type: NetworkType.testnet,
@@ -1205,7 +1204,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   moonbeamTestnet: {
     name: 'Moonbase Alpha',
     type: NetworkType.testnet,
@@ -1224,7 +1223,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   harmonyTestnet: {
     name: 'Harmony Testnet',
     type: NetworkType.testnet,
@@ -1243,7 +1242,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   optimismTestnetGoerli: {
     name: 'Optimism Goerli',
     type: NetworkType.testnet,
@@ -1262,7 +1261,7 @@ export const networks: Networks = {
     ccipId: '2664363617261496610',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   arbitrumTestnetGoerli: {
     name: 'Arbitrum Goerli',
     type: NetworkType.testnet,
@@ -1281,7 +1280,7 @@ export const networks: Networks = {
     ccipId: '6101244977088475029',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   auroraTestnet: {
     name: 'Aurora Testnet',
     type: NetworkType.testnet,
@@ -1300,7 +1299,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   cronosTestnet: {
     name: 'Cronos Testnet',
     type: NetworkType.testnet,
@@ -1319,7 +1318,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ethereumTestnetGoerli: {
     name: 'Ethereum Goerli',
     type: NetworkType.testnet,
@@ -1338,7 +1337,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0xcb5E71E000288e2648Bb0E7b67D3f2850e56EF67'.toLowerCase(),
-  } as Network,
+  },
   ethereumTestnetKovan: {
     name: 'Ethereum Kovan',
     type: NetworkType.testnet,
@@ -1358,7 +1357,7 @@ export const networks: Networks = {
     active: false,
     protocolMultisig: undefined,
     deprecated: true,
-  } as Network,
+  },
   ethereumTestnetRopsten: {
     name: '',
     type: NetworkType.testnet,
@@ -1379,7 +1378,7 @@ export const networks: Networks = {
     active: false,
     protocolMultisig: undefined,
     deprecated: true,
-  } as Network,
+  },
   gnosisTestnetSokol: {
     name: 'Gnosis Chain Sokol',
     type: NetworkType.testnet,
@@ -1398,7 +1397,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   optimismTestnetKovan: {
     name: 'Optimism Kovan',
     type: NetworkType.testnet,
@@ -1418,7 +1417,7 @@ export const networks: Networks = {
     active: false,
     protocolMultisig: undefined,
     deprecated: true,
-  } as Network,
+  },
   arbitrumTestnetRinkeby: {
     name: 'Arbitrum Rinkeby',
     type: NetworkType.testnet,
@@ -1438,7 +1437,7 @@ export const networks: Networks = {
     active: false,
     protocolMultisig: undefined,
     deprecated: true,
-  } as Network,
+  },
   fantomTestnet: {
     name: 'Fantom Testnet',
     type: NetworkType.testnet,
@@ -1457,7 +1456,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   polygonTestnet: {
     name: 'Polygon Mumbai',
     type: NetworkType.testnet,
@@ -1476,7 +1475,7 @@ export const networks: Networks = {
     ccipId: '12532609583862916517',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   avalancheTestnet: {
     name: 'Avalanche Fuji',
     type: NetworkType.testnet,
@@ -1495,7 +1494,7 @@ export const networks: Networks = {
     ccipId: '14767482510784806043',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   binanceSmartChainTestnet: {
     name: 'BNB Testnet',
     type: NetworkType.testnet,
@@ -1514,7 +1513,7 @@ export const networks: Networks = {
     ccipId: '13264668187771770619',
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ethereumTestnetRinkeby: {
     name: '',
     type: NetworkType.testnet,
@@ -1535,7 +1534,7 @@ export const networks: Networks = {
     active: false,
     protocolMultisig: undefined,
     deprecated: true,
-  } as Network,
+  },
   // LIVE NETWORKS
   ethereum: {
     name: 'Ethereum',
@@ -1555,7 +1554,7 @@ export const networks: Networks = {
     ccipId: '5009297550715157269',
     active: true,
     protocolMultisig: '0x67EBef315c8aA6be5a0840D0FD0BAEC25E6f92aa'.toLowerCase(),
-  } as Network,
+  },
   binanceSmartChain: {
     name: 'BNB',
     type: NetworkType.mainnet,
@@ -1574,7 +1573,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0x0127164f81fc6Aa5391fC78FC4Dca904fb369980'.toLowerCase(),
-  } as Network,
+  },
   avalanche: {
     name: 'Avalanche',
     type: NetworkType.mainnet,
@@ -1593,7 +1592,7 @@ export const networks: Networks = {
     ccipId: '64335005675654153810',
     active: true,
     protocolMultisig: '0x4CeDF51096E4cfA89E7a611DD156Ec98D0fE5AAF'.toLowerCase(),
-  } as Network,
+  },
   polygon: {
     name: 'Polygon',
     type: NetworkType.mainnet,
@@ -1612,7 +1611,7 @@ export const networks: Networks = {
     ccipId: '4051577828743386545',
     active: true,
     protocolMultisig: '0x2907460B5E65ecaA733Af19b3A037aB177540456'.toLowerCase(),
-  } as Network,
+  },
   fantom: {
     name: 'Fantom',
     type: NetworkType.mainnet,
@@ -1631,7 +1630,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   arbitrumOne: {
     name: 'Arbitrum One',
     type: NetworkType.mainnet,
@@ -1650,7 +1649,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0xC903A55a4C276a15E797951436777c57341C82d4'.toLowerCase(),
-  } as Network,
+  },
   optimism: {
     name: 'Optimism',
     type: NetworkType.mainnet,
@@ -1669,7 +1668,7 @@ export const networks: Networks = {
     ccipId: '3734403246176062136',
     active: true,
     protocolMultisig: '0x2872509C9E8452230c47a1b2fc8305f78983bDAb'.toLowerCase(),
-  } as Network,
+  },
   gnosis: {
     name: 'Gnosis Chain',
     type: NetworkType.mainnet,
@@ -1688,7 +1687,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   cronos: {
     name: 'Cronos',
     type: NetworkType.mainnet,
@@ -1707,7 +1706,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   aurora: {
     name: 'Aurora ETH',
     type: NetworkType.mainnet,
@@ -1726,7 +1725,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   harmony: {
     name: 'Harmony',
     type: NetworkType.mainnet,
@@ -1745,7 +1744,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   moonbeam: {
     name: 'Moonbeam',
     type: NetworkType.mainnet,
@@ -1764,7 +1763,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   celo: {
     name: 'Celo',
     type: NetworkType.mainnet,
@@ -1783,7 +1782,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   swimmer: {
     name: 'Swimmer Subnet',
     type: NetworkType.mainnet,
@@ -1802,7 +1801,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   dfk: {
     name: 'DFK Chain',
     type: NetworkType.mainnet,
@@ -1821,7 +1820,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   moonriver: {
     name: 'Moonriver',
     type: NetworkType.mainnet,
@@ -1840,7 +1839,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaEthereum: {
     name: 'BOBA Network Ethereum L2',
     type: NetworkType.mainnet,
@@ -1859,7 +1858,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaAvalanche: {
     name: 'BOBA Avalanche L2',
     type: NetworkType.mainnet,
@@ -1878,7 +1877,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaBinanceChain: {
     name: 'BOBA BNB L2',
     type: NetworkType.mainnet,
@@ -1897,7 +1896,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaFantom: {
     name: 'BOBA Fantom L2',
     type: NetworkType.mainnet,
@@ -1916,7 +1915,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bobaMoonbeam: {
     name: 'BOBA Moonbeam L2',
     type: NetworkType.mainnet,
@@ -1935,7 +1934,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   canto: {
     name: 'Canto',
     type: NetworkType.mainnet,
@@ -1954,7 +1953,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   dogechain: {
     name: 'Dogechain',
     type: NetworkType.mainnet,
@@ -1973,7 +1972,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   evmos: {
     name: 'Evmos',
     type: NetworkType.mainnet,
@@ -1992,7 +1991,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   iotex: {
     name: 'IoTeX Network',
     type: NetworkType.mainnet,
@@ -2011,7 +2010,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   klaytnCypress: {
     name: 'Klaytn Cypress',
     type: NetworkType.mainnet,
@@ -2030,7 +2029,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   metisAndromeda: {
     name: 'Metis Andromeda',
     type: NetworkType.mainnet,
@@ -2049,7 +2048,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   okx: {
     name: 'OKXChain',
     type: NetworkType.mainnet,
@@ -2068,7 +2067,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   palmNft: {
     name: 'Palm NFT',
     type: NetworkType.mainnet,
@@ -2087,7 +2086,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   telosEvm: {
     name: 'Telos EVM',
     type: NetworkType.mainnet,
@@ -2106,7 +2105,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   tomoChain: {
     name: 'TomoChain',
     type: NetworkType.mainnet,
@@ -2125,7 +2124,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   velasEvm: {
     name: 'Velas EVM',
     type: NetworkType.mainnet,
@@ -2144,7 +2143,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ubiq: {
     name: 'Ubiq Network',
     type: NetworkType.mainnet,
@@ -2163,7 +2162,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   kavaEvm: {
     name: 'Kava EVM',
     type: NetworkType.mainnet,
@@ -2182,7 +2181,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   fusion: {
     name: 'Fusion (AnySwap)',
     type: NetworkType.mainnet,
@@ -2201,7 +2200,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   hecoChain: {
     name: 'HECO Chain',
     type: NetworkType.mainnet,
@@ -2220,7 +2219,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   kcc: {
     name: 'KCC (KuCoin)',
     type: NetworkType.mainnet,
@@ -2239,7 +2238,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   publicMint: {
     name: 'Public Mint',
     type: NetworkType.mainnet,
@@ -2258,7 +2257,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   astar: {
     name: 'Astar',
     type: NetworkType.mainnet,
@@ -2277,7 +2276,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   shiden: {
     name: 'Shiden',
     type: NetworkType.mainnet,
@@ -2296,7 +2295,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   rsk: {
     name: 'RSK',
     type: NetworkType.mainnet,
@@ -2315,7 +2314,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   oasisEmerald: {
     name: 'Emerald ParaTime (Oasis Network)',
     type: NetworkType.mainnet,
@@ -2334,7 +2333,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   flare: {
     name: 'Flare',
     type: NetworkType.mainnet,
@@ -2353,7 +2352,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   songbird: {
     name: 'Songbird',
     type: NetworkType.mainnet,
@@ -2372,7 +2371,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   theta: {
     name: 'Theta',
     type: NetworkType.mainnet,
@@ -2391,7 +2390,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   wanchain: {
     name: 'Wanchain',
     type: NetworkType.mainnet,
@@ -2410,7 +2409,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   vision: {
     name: 'Vision',
     type: NetworkType.mainnet,
@@ -2429,7 +2428,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   ultron: {
     name: 'Ultron',
     type: NetworkType.mainnet,
@@ -2448,7 +2447,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   step: {
     name: 'Step Network',
     type: NetworkType.mainnet,
@@ -2467,7 +2466,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   smartBitcoinCash: {
     name: 'Smart Bitcoin Cash',
     type: NetworkType.mainnet,
@@ -2486,7 +2485,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   thunderCore: {
     name: 'ThunderCore',
     type: NetworkType.mainnet,
@@ -2505,7 +2504,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   bitgert: {
     name: 'Bitgert',
     type: NetworkType.mainnet,
@@ -2524,7 +2523,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   coinExSmartChain: {
     name: 'CoinEx Smart Chain',
     type: NetworkType.mainnet,
@@ -2543,7 +2542,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   meter: {
     name: 'Meter',
     type: NetworkType.mainnet,
@@ -2562,7 +2561,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   polisOlympus: {
     name: 'Polis Olympus',
     type: NetworkType.mainnet,
@@ -2581,7 +2580,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   fuse: {
     name: 'Fuse',
     type: NetworkType.mainnet,
@@ -2600,7 +2599,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   xdc: {
     name: 'XDC (XinFin)',
     type: NetworkType.mainnet,
@@ -2619,7 +2618,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   elastosSmartChain: {
     name: 'Elastos Smart Chain',
     type: NetworkType.mainnet,
@@ -2638,7 +2637,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   syscoin: {
     name: 'Syscoin',
     type: NetworkType.mainnet,
@@ -2657,7 +2656,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   godwoken: {
     name: 'Godwoken',
     type: NetworkType.mainnet,
@@ -2676,7 +2675,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   callisto: {
     name: 'Callisto',
     type: NetworkType.mainnet,
@@ -2695,7 +2694,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   nahmii: {
     name: 'Nahmii',
     type: NetworkType.mainnet,
@@ -2714,7 +2713,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   energyWebChain: {
     name: 'Energy Web Chain',
     type: NetworkType.mainnet,
@@ -2733,7 +2732,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   nova: {
     name: 'Nova',
     type: NetworkType.mainnet,
@@ -2752,7 +2751,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   hooSmartChain: {
     name: 'Hoo Smart Chain',
     type: NetworkType.mainnet,
@@ -2771,7 +2770,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   reiChain: {
     name: 'REI Chain',
     type: NetworkType.mainnet,
@@ -2790,7 +2789,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   reiNetwork: {
     name: 'REI Network',
     type: NetworkType.mainnet,
@@ -2809,7 +2808,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   goChain: {
     name: 'GoChain',
     type: NetworkType.mainnet,
@@ -2828,7 +2827,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   kekChain: {
     name: 'KekChain',
     type: NetworkType.mainnet,
@@ -2847,7 +2846,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   highPerformanceBlockchain: {
     name: 'High Performance Blockchain',
     type: NetworkType.mainnet,
@@ -2866,7 +2865,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   zyxNetwork: {
     name: 'ZYX Network',
     type: NetworkType.mainnet,
@@ -2885,7 +2884,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   tombChain: {
     name: 'Tomb Chain',
     type: NetworkType.mainnet,
@@ -2904,7 +2903,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: false,
     protocolMultisig: undefined,
-  } as Network,
+  },
   arbitrumNova: {
     name: 'Arbitrum Nova',
     type: NetworkType.mainnet,
@@ -2923,7 +2922,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   mantle: {
     name: 'Mantle',
     type: NetworkType.mainnet,
@@ -2942,7 +2941,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0x1e3eB22b68919Bf22C220B1f51B7d00beB6B2771'.toLowerCase(),
-  } as Network,
+  },
   zora: {
     name: 'Zora',
     type: NetworkType.mainnet,
@@ -2961,7 +2960,7 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: undefined,
-  } as Network,
+  },
   base: {
     name: 'Base',
     type: NetworkType.mainnet,
@@ -2980,5 +2979,29 @@ export const networks: Networks = {
     ccipId: 0,
     active: true,
     protocolMultisig: '0x45E6ca6bd2F10c44B00C957A65dAb568EE7d2378'.toLowerCase(),
-  } as Network,
+  },
+};
+
+export type NetworkKey = keyof typeof networks;
+
+export const NETWORK_KEY_BY_RPC_URL = {
+  ARBITRUM_TESTNET_SEPOLIA_RPC_URL: networks.arbitrumTestnetSepolia.key,
+  ARBITRUM_ONE_RPC_URL: networks.arbitrumOne.key,
+  AVALANCHE_TESTNET_RPC_URL: networks.avalancheTestnet.key,
+  AVALANCHE_RPC_URL: networks.avalanche.key,
+  BASE_TESTNET_SEPOLIA_RPC_URL: networks.baseTestnetSepolia.key,
+  BASE_RPC_URL: networks.base.key,
+  BINANCE_SMART_CHAIN_TESTNET_RPC_URL: networks.binanceSmartChainTestnet.key,
+  BINANCE_SMART_CHAIN_RPC_URL: networks.binanceSmartChain.key,
+  ETHEREUM_TESTNET_GOERLI_RPC_URL: networks.ethereumTestnetGoerli.key,
+  ETHEREUM_TESTNET_SEPOLIA_RPC_URL: networks.ethereumTestnetSepolia.key,
+  ETHEREUM_RPC_URL: networks.ethereum.key,
+  MANTLE_TESTNET_RPC_URL: networks.mantleTestnet.key,
+  MANTLE_RPC_URL: networks.mantle.key,
+  OPTIMISM_TESTNET_SEPOLIA_RPC_URL: networks.optimismTestnetSepolia.key,
+  OPTIMISM_RPC_URL: networks.optimism.key,
+  POLYGON_TESTNET_RPC_URL: networks.polygonTestnet.key,
+  POLYGON_RPC_URL: networks.polygon.key,
+  ZORA_TESTNET_SEPOLIA_RPC_URL: networks.zoraTestnetSepolia.key,
+  ZORA_RPC_URL: networks.zora.key,
 };

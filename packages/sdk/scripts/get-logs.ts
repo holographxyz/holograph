@@ -11,7 +11,7 @@ config()
  * this limitation should not hinder its current use case.
  */
 
-const RPC_URL = process.env.POLYGON_TESTNET_RPC
+const RPC_URL = process.env.POLYGON_TESTNET_RPC_URL
 
 type LogsParams = {
   network: string
@@ -112,7 +112,7 @@ async function getLogs(
 
 async function main() {
   if (RPC_URL === undefined) {
-    console.error(`POLYGON_TESTNET_RPC env is required!`)
+    console.error(`POLYGON_TESTNET_RPC_URL env is required!`)
     process.exit(1)
   }
 

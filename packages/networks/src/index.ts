@@ -1,6 +1,6 @@
 import { NetworkType } from './network-type';
 import { Network, Networks, NetworkKeys, NetworkHelper } from '../types';
-import { networks } from './networks';
+import { networks, NetworkKey, NETWORK_KEY_BY_RPC_URL } from './networks';
 import {
   getSupportedNetworks,
   getNetworkByKey,
@@ -16,6 +16,7 @@ export {
   NetworkType,
   Network,
   Networks,
+  NetworkKey,
   NetworkKeys,
   NetworkHelper,
   networks,
@@ -27,4 +28,5 @@ export {
   getNetworkByLzId,
   supportedNetworks,
   supportedShortNetworks,
+  NETWORK_KEY_BY_RPC_URL,
 };

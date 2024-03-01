@@ -1,18 +1,21 @@
 import {Environment, setEnvironment} from '@holographxyz/environment'
-import {getNetworkByChainId, Network} from '@holographxyz/networks'
-import {HolographLogger} from './logger.service'
-import {HolographAccount} from './wallet.service'
-import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
+import {Network, NetworkKey, getNetworkByChainId} from '@holographxyz/networks'
 
-export type ChainsRpc = Record<number, string>
+import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
+import {HolographLogger} from './logger.service'
+import {getChainIdsByNetworksConfig, getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
+import {HolographAccount} from './wallet.service'
+
 export type AccountsConfig = {
   default: HolographAccount
   [accountName: string]: HolographAccount
 }
 
+export type NetworkRpc = {[key in NetworkKey]?: string}
+
 export type HolographConfig = {
   accounts?: AccountsConfig
-  networks: ChainsRpc
+  networks?: NetworkRpc
   environment?: Environment
   logLevel?: string
 }
@@ -30,27 +33,30 @@ export class Config {
     this._environment = setEnvironment(holographConfig.environment)
     this._accounts = holographConfig.accounts
 
-    this.setNetworks(holographConfig.networks)
+    if (holographConfig?.networks) {
+      this.setNetworks(holographConfig.networks)
+    } else {
+      if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
+      const networksConfig = getEnvRpcConfig()
+      this.setNetworks(networksConfig)
+    }
   }
 
   static getInstance(holographConfig: HolographConfig): Config {
     if (!Config._instance) {
       Config._instance = new Config(holographConfig)
     }
-
     return Config._instance
   }
 
-  private setNetworks(networks: ChainsRpc) {
+  private setNetworks(networksConfig: NetworkRpc) {
     const logger = this._logger.addContext({functionName: this.setNetworks.name})
     logger.info('settings networks')
-
-    const chainIds = Object.keys(networks)
-
+    const chainIds = getChainIdsByNetworksConfig(networksConfig)
     for (let chainId of chainIds) {
       try {
         const network = getNetworkByChainId(chainId)
-        network.rpc = networks[chainId]
+        network.rpc = networksConfig[network.key]
         this._networks.push(network)
       } catch (err: any) {
         err = normalizeException(err)

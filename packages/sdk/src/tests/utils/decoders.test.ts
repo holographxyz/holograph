@@ -12,7 +12,7 @@ import {
 } from '../../utils/decoders'
 require('dotenv').config()
 
-const RPC_URL = process.env.ETHEREUM_TESTNET_RPC // goerli
+const RPC_URL = process.env.ETHEREUM_TESTNET_GOERLI_RPC_URL
 
 describe('Utils: decoders', () => {
   let client

@@ -1,9 +1,9 @@
 import {config} from 'dotenv'
-import {Config, HolographConfig} from '../src/services/config.service'
-import {Holograph} from '../src/contracts/holograph.contract'
-
-import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
 import {Environment} from '@holographxyz/environment'
+
+import {Holograph} from '../src/contracts/holograph.contract'
+import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
+import {Config, HolographConfig} from '../src/services/config.service'
 
 config()
 
@@ -14,8 +14,8 @@ async function main() {
 
   const protocolConfig: HolographConfig = {
     networks: {
-      5: process.env.ETHEREUM_TESTNET_RPC ?? '',
-      80001: process.env.POLYGON_TESTNET_RPC ?? '',
+      ethereumTestnetGoerli: process.env.ETHEREUM_TESTNET_GOERLI_RPC_URL ?? '',
+      polygonTestnet: process.env.POLYGON_TESTNET_RPC_URL ?? '',
     },
     environment: Environment.develop,
     accounts: {

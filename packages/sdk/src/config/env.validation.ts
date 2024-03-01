@@ -1,29 +1,47 @@
-import Joi from 'joi'
+import * as z from 'zod'
 import * as dotenv from 'dotenv'
 
 dotenv.config()
 
-const NodeEnvSchema = Joi.string()
-  .valid('development', 'production', 'staging', 'test', 'provision')
-  .default('development')
+export const logLevelSchema = z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).optional().default('info')
 
-const HolographEnvSchema = Joi.string()
-  .valid('localhost', 'experimental', 'develop', 'testnet', 'mainnet')
-  .default('develop')
+export const generalEnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'staging', 'test', 'provision']).default('development'),
+  HOLOGRAPH_ENVIRONMENT: z.enum(['localhost', 'experimental', 'develop', 'testnet', 'mainnet']).default('develop'),
+  LOG_LEVEL: logLevelSchema,
+})
 
-export function maybeGetResult(result: Joi.ValidationResult<any>) {
-  if (result.error) {
-    throw new Error(`Environment config error: ${result.error.message}`)
-  }
-  return result.value
-}
+export const rpcUrlEnvSchema = z.object({
+  ARBITRUM_TESTNET_SEPOLIA_RPC_URL: z.string().url().optional(),
+  ARBITRUM_ONE_RPC_URL: z.string().url().optional(),
+  AVALANCHE_TESTNET_RPC_URL: z.string().url().optional(),
+  AVALANCHE_RPC_URL: z.string().url().optional(),
+  BASE_TESTNET_SEPOLIA_RPC_URL: z.string().url().optional(),
+  BASE_RPC_URL: z.string().url().optional(),
+  BINANCE_SMART_CHAIN_TESTNET_RPC_URL: z.string().url().optional(),
+  BINANCE_SMART_CHAIN_RPC_URL: z.string().url().optional(),
+  ETHEREUM_TESTNET_GOERLI_RPC_URL: z.string().url().optional(),
+  ETHEREUM_TESTNET_SEPOLIA_RPC_URL: z.string().url().optional(),
+  ETHEREUM_RPC_URL: z.string().url().optional(),
+  MANTLE_TESTNET_RPC_URL: z.string().url().optional(),
+  MANTLE_RPC_URL: z.string().url().optional(),
+  OPTIMISM_TESTNET_SEPOLIA_RPC_URL: z.string().url().optional(),
+  OPTIMISM_RPC_URL: z.string().url().optional(),
+  POLYGON_TESTNET_RPC_URL: z.string().url().optional(),
+  POLYGON_RPC_URL: z.string().url().optional(),
+  ZORA_TESTNET_SEPOLIA_RPC_URL: z.string().url().optional(),
+  ZORA_RPC_URL: z.string().url().optional(),
+})
 
-export function getNodeEnv(): string {
-  const result = NodeEnvSchema.validate(process.env.NODE_ENV)
-  return maybeGetResult(result)
-}
+export type RpcUrlEnvironmentVariables = keyof z.infer<typeof rpcUrlEnvSchema>
 
-export function getHolographEnv(): string {
-  const result = HolographEnvSchema.validate(process.env.HOLOGRAPH_ENVIRONMENT)
-  return maybeGetResult(result)
+export const envSchema = generalEnvSchema.merge(rpcUrlEnvSchema)
+
+export type EnvironmentVariables = z.infer<typeof envSchema>
+
+// Validate and get environment variables with TypeScript autocomplete
+// It will throw an error if there is a missing or invalid environment variable
+// @example: const holographEnvironment = getEnv().HOLOGRAPH_ENVIRONMENT
+export function getEnv() {
+  return envSchema.parse(process.env)
 }

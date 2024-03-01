@@ -2,6 +2,7 @@ import {beforeAll, describe, expect, it} from 'vitest'
 
 import {LayerZeroModule} from '../../contracts'
 import {Providers, Config} from '../../services'
+import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
 import {configObject} from './utils'
@@ -23,6 +24,7 @@ describe('Contract class: LayerZeroModule', () => {
   let config: Config
   let providersWrapper: Providers
   let layerZeroModule: LayerZeroModule
+  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
 
   beforeAll(() => {
     config = Config.getInstance(configObject)
@@ -32,9 +34,8 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(configObject.networks)
-    expect(multiProviders).toHaveProperty(chainIds[0])
-    expect(multiProviders).toHaveProperty(chainIds[1])
+    expect(multiProviders).toHaveProperty(String(chainIds[0]))
+    expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
   it('should be able to get the LayerZeroModule wrapper class', () => {
@@ -61,7 +62,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getGasParametersByNetworks(): should be able to get the correct gas parameters per network', async () => {
     const gasParametersByNetworks = await layerZeroModule.getGasParametersByNetworks()
-    expect(Object.keys(gasParametersByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(gasParametersByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(gasParametersByNetworks).forEach(gasParameters => {
       expect(gasParameters).toBeInstanceOf(Object)
@@ -76,7 +77,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getOptimismGasPriceOracleByNetworks(): should be able to get the correct Optimism gas price oracle address per network', async () => {
     const optimismGasPriceOracleByNetworks = await layerZeroModule.getOptimismGasPriceOracleByNetworks()
-    expect(Object.keys(optimismGasPriceOracleByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(optimismGasPriceOracleByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(optimismGasPriceOracleByNetworks).forEach(optimismGasPriceOracle => {
       expect(optimismGasPriceOracle).toMatch(REGEX.WALLET_ADDRESS)
@@ -86,7 +87,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getLZEndpointByNetworks(): should be able to get the correct LZ endpoint addresses per network', async () => {
     const lzEndpointByNetworks = await layerZeroModule.getLZEndpointByNetworks()
-    expect(Object.keys(lzEndpointByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(lzEndpointByNetworks)).toEqual(chainIds.map(String))
 
     Object.entries(lzEndpointByNetworks).map(([chainId, lzEndpoint]) => {
       expect(lzEndpoint).toMatch(REGEX.WALLET_ADDRESS)
@@ -96,7 +97,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getBridgeByNetworks(): should be able to get the correct HolographBridge address per network', async () => {
     const bridgeAddressByNetworks = await layerZeroModule.getBridgeByNetworks()
-    expect(Object.keys(bridgeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(bridgeAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(bridgeAddressByNetworks).forEach(bridgeAddress => {
       expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -106,7 +107,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getInterfacesByNetworks(): should be able to get the correct HolographInterfaces address per network', async () => {
     const interfacesAddressByNetworks = await layerZeroModule.getInterfacesByNetworks()
-    expect(Object.keys(interfacesAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(interfacesAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(interfacesAddressByNetworks).forEach(interfacesAddress => {
       expect(interfacesAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -116,7 +117,7 @@ describe('Contract class: LayerZeroModule', () => {
 
   it('getOperatorByNetworks(): should be able to get the correct HolographOperator address per network', async () => {
     const operatorAddressByNetworks = await layerZeroModule.getOperatorByNetworks()
-    expect(Object.keys(operatorAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(operatorAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(operatorAddressByNetworks).forEach(operatorAddress => {
       expect(operatorAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -126,34 +127,34 @@ describe('Contract class: LayerZeroModule', () => {
 
   // TODO: Finish the following tests
   it.skip('getMessageFee(): should be able to get the correct message fee', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('getHlgFee(): should be able to get the correct HLG fee', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('send(): should be able to send a transaction', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('setInterfaces(): should be able to set the HolographInterfaces address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('setLZEndpoint(): should be able to set the LZ endpoint address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('setOperator(): should be able to set the HolographOperator address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('setOptimismGasPriceOracle(): should be able to set the Optimism gas price oracle address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 
   it.skip('setGasParameters(): should be able to set the gas parameters', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
   })
 })

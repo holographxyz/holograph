@@ -2,6 +2,7 @@ import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Holograph} from '../../contracts'
 import {Providers, Config} from '../../services'
+import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
 import {configObject} from './utils'
@@ -23,6 +24,7 @@ describe('Contract class: Holograph', () => {
   let config: Config
   let providersWrapper: Providers
   let holograph: Holograph
+  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
 
   beforeAll(() => {
     config = Config.getInstance(configObject)
@@ -32,9 +34,8 @@ describe('Contract class: Holograph', () => {
 
   it('should be able to get the correct providers', () => {
     const multiProviders = providersWrapper.providers
-    const chainIds = Object.keys(configObject.networks)
-    expect(multiProviders).toHaveProperty(chainIds[0])
-    expect(multiProviders).toHaveProperty(chainIds[1])
+    expect(multiProviders).toHaveProperty(String(chainIds[0]))
+    expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
   it('should be able to get the Holograph wrapper class', () => {
@@ -49,7 +50,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getBridge(): should be able to get the correct HolographBridge address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const bridgeAddress = await holograph.getBridge(chainId)
     expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
     expect(bridgeAddress).toBe(expectedValues.bridgeAddress)
@@ -57,7 +58,7 @@ describe('Contract class: Holograph', () => {
 
   it('getBridgeByNetworks(): should be able to get the correct HolographBridge address per network', async () => {
     const bridgeAddressByNetworks = await holograph.getBridgeByNetworks()
-    expect(Object.keys(bridgeAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(bridgeAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(bridgeAddressByNetworks).forEach(bridgeAddress => {
       expect(bridgeAddress).toMatch(REGEX.WALLET_ADDRESS)
@@ -66,21 +67,20 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getChainId(): should be able to get the correct chainId', async () => {
-    const chainId = Object.keys(configObject.networks)[0]
+    const chainId = chainIds[0]
     const holographChainId = await holograph.getChainId(Number(chainId))
 
-    expect(holographChainId).toBe(chainId)
+    expect(holographChainId).toBe(String(chainId))
   })
 
   it('getChainIdByNetworks(): should be able to get the correct chainId per network', async () => {
     const holographChainIdByNetworks = await holograph.getChainIdByNetworks()
-    const chainIds = Object.keys(configObject.networks)
-    expect(Object.keys(holographChainIdByNetworks)).toEqual(chainIds)
-    expect(Object.values(holographChainIdByNetworks)).toEqual(chainIds)
+    expect(Object.keys(holographChainIdByNetworks)).toEqual(chainIds.map(String))
+    expect(Object.values(holographChainIdByNetworks)).toEqual(chainIds.map(String))
   })
 
   it('getHolographChainId(): should be able to get the correct holographChainId', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const holographChainId = await holograph.getHolographChainId(chainId)
 
     expect(holographChainId).toBe(expectedValues.holographChainId[chainId])
@@ -88,12 +88,12 @@ describe('Contract class: Holograph', () => {
 
   it('getHolographChainIdByNetworks(): should be able to get the correct holographChainId per network', async () => {
     const holographChainIdByNetworks = await holograph.getHolographChainIdByNetworks()
-    expect(Object.keys(holographChainIdByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(holographChainIdByNetworks)).toEqual(chainIds.map(String))
     expect(Object.values(holographChainIdByNetworks)).toEqual(Object.values(expectedValues.holographChainId))
   })
 
   it('getFactory(): should be able to get the correct HolographFactory address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const factoryAddress = await holograph.getFactory(chainId)
 
     expect(factoryAddress).toBe(expectedValues.factoryAddress)
@@ -101,7 +101,7 @@ describe('Contract class: Holograph', () => {
 
   it('getFactoryByNetworks(): should be able to get the correct HolographFactory address per network', async () => {
     const factoryAddressByNetworks = await holograph.getFactoryByNetworks()
-    expect(Object.keys(factoryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(factoryAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(factoryAddressByNetworks).forEach(factoryAddress => {
       expect(factoryAddress).toBe(expectedValues.factoryAddress)
@@ -109,7 +109,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getFactory(): should be able to get the correct HolographFactory address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const factoryAddress = await holograph.getFactory(chainId)
 
     expect(factoryAddress).toBe(expectedValues.factoryAddress)
@@ -117,7 +117,7 @@ describe('Contract class: Holograph', () => {
 
   it('getFactoryByNetworks(): should be able to get the correct HolographFactory address per network', async () => {
     const factoryAddressByNetworks = await holograph.getFactoryByNetworks()
-    expect(Object.keys(factoryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(factoryAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(factoryAddressByNetworks).forEach(factoryAddress => {
       expect(factoryAddress).toBe(expectedValues.factoryAddress)
@@ -125,7 +125,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getInterfaces(): should be able to get the correct HolographInterfaces address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const interfacesAddress = await holograph.getInterfaces(chainId)
 
     expect(interfacesAddress).toBe(expectedValues.interfacesAddress)
@@ -133,7 +133,7 @@ describe('Contract class: Holograph', () => {
 
   it('getInterfacesByNetworks(): should be able to get the correct HolographInterfaces address per network', async () => {
     const interfacesAddressByNetworks = await holograph.getInterfacesByNetworks()
-    expect(Object.keys(interfacesAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(interfacesAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(interfacesAddressByNetworks).forEach(interfacesAddress => {
       expect(interfacesAddress).toBe(expectedValues.interfacesAddress)
@@ -141,7 +141,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getOperator(): should be able to get the correct HolographOperator address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const operatorAddress = await holograph.getOperator(chainId)
 
     expect(operatorAddress).toBe(expectedValues.operatorAddress)
@@ -149,7 +149,7 @@ describe('Contract class: Holograph', () => {
 
   it('getOperatorByNetworks(): should be able to get the correct HolographOperator address per network', async () => {
     const operatorAddressByNetworks = await holograph.getOperatorByNetworks()
-    expect(Object.keys(operatorAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(operatorAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(operatorAddressByNetworks).forEach(operatorAddress => {
       expect(operatorAddress).toBe(expectedValues.operatorAddress)
@@ -157,7 +157,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getRegistry(): should be able to get the correct HolographRegistry address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const registryAddress = await holograph.getRegistry(chainId)
 
     expect(registryAddress).toBe(expectedValues.registryAddress)
@@ -165,7 +165,7 @@ describe('Contract class: Holograph', () => {
 
   it('getRegistryByNetworks(): should be able to get the correct HolographRegistry address per network', async () => {
     const registryAddressByNetworks = await holograph.getRegistryByNetworks()
-    expect(Object.keys(registryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(registryAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(registryAddressByNetworks).forEach(registryAddress => {
       expect(registryAddress).toBe(expectedValues.registryAddress)
@@ -173,7 +173,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getTreasury(): should be able to get the correct HolographTreasury address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const treasuryAddress = await holograph.getTreasury(chainId)
 
     expect(treasuryAddress).toBe(expectedValues.treasuryAddress)
@@ -181,7 +181,7 @@ describe('Contract class: Holograph', () => {
 
   it('getTreasuryByNetworks(): should be able to get the correct HolographTreasury address per network', async () => {
     const treasuryAddressByNetworks = await holograph.getTreasuryByNetworks()
-    expect(Object.keys(treasuryAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(treasuryAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(treasuryAddressByNetworks).forEach(treasuryAddress => {
       expect(treasuryAddress).toBe(expectedValues.treasuryAddress)
@@ -189,7 +189,7 @@ describe('Contract class: Holograph', () => {
   })
 
   it('getUtilityToken(): should be able to get the correct utility token address', async () => {
-    const chainId = Number(Object.keys(configObject.networks)[0])
+    const chainId = chainIds[0]
     const utilityTokenAddress = await holograph.getUtilityToken(chainId)
 
     expect(utilityTokenAddress).toBe(expectedValues.hTokenAddress)
@@ -197,7 +197,7 @@ describe('Contract class: Holograph', () => {
 
   it('getUtilityTokenByNetworks(): should be able to get the correct utility token address per network', async () => {
     const utilityTokenAddressByNetworks = await holograph.getUtilityTokenByNetworks()
-    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(Object.keys(configObject.networks))
+    expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(utilityTokenAddressByNetworks).forEach(utilityTokenAddress => {
       expect(utilityTokenAddress).toBe(expectedValues.hTokenAddress)
