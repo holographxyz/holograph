@@ -1,9 +1,9 @@
 import {config} from 'dotenv'
-import {Config, HolographConfig} from '../src/services/config.service'
-import {Holograph} from '../src/contracts/holograph.contract'
-
-import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
 import {Environment} from '@holographxyz/environment'
+
+import {Holograph} from '../src/contracts/holograph.contract'
+import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
+import {Config, HolographConfig} from '../src/services/config.service'
 
 config()
 

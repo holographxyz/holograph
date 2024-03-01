@@ -1,11 +1,10 @@
 import {Environment, setEnvironment} from '@holographxyz/environment'
-import {NETWORK_KEY_BY_RPC_URL, Network, NetworkKey, getNetworkByChainId, networks} from '@holographxyz/networks'
+import {Network, NetworkKey, getNetworkByChainId} from '@holographxyz/networks'
 
-import {HolographLogger} from './logger.service'
-import {HolographAccount} from './wallet.service'
 import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
-import {getEnv} from '../config/env.validation'
-import {isFrontEnd} from '../utils/helpers'
+import {HolographLogger} from './logger.service'
+import {getChainIdsByNetworksConfig, getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
+import {HolographAccount} from './wallet.service'
 
 export type AccountsConfig = {
   default: HolographAccount
@@ -38,21 +37,8 @@ export class Config {
       this.setNetworks(holographConfig.networks)
     } else {
       if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
-
-      const envData = getEnv()
-      const rpcUrls = Object.entries(envData).filter(([key, value]) => key.endsWith('RPC_URL') && value)
-
-      if (!rpcUrls.length) throw new Error('No RPC URL environment variables found')
-
-      const chainsRpc = rpcUrls.reduce((acc, [key, value]) => {
-        const chainKey = NETWORK_KEY_BY_RPC_URL[key]
-        if (chainKey) {
-          acc[chainKey] = value
-        }
-        return acc
-      }, {} as NetworkRpc)
-
-      this.setNetworks(chainsRpc)
+      const networksConfig = getEnvRpcConfig()
+      this.setNetworks(networksConfig)
     }
   }
 
@@ -60,18 +46,17 @@ export class Config {
     if (!Config._instance) {
       Config._instance = new Config(holographConfig)
     }
-
     return Config._instance
   }
 
-  private setNetworks(networksRpc: NetworkRpc) {
+  private setNetworks(networksConfig: NetworkRpc) {
     const logger = this._logger.addContext({functionName: this.setNetworks.name})
     logger.info('settings networks')
-    const chainIds = (Object.keys(networksRpc) as NetworkKey[]).map(networkKey => networks[networkKey].chain)
+    const chainIds = getChainIdsByNetworksConfig(networksConfig)
     for (let chainId of chainIds) {
       try {
         const network = getNetworkByChainId(chainId)
-        network.rpc = networksRpc[network.key]
+        network.rpc = networksConfig[network.key]
         this._networks.push(network)
       } catch (err: any) {
         err = normalizeException(err)

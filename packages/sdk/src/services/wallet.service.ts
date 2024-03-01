@@ -12,8 +12,8 @@ import {
   publicActions,
   isAddress,
 } from 'viem'
-import {Network} from '@holographxyz/networks'
 import {privateKeyToAccount, mnemonicToAccount, Account, toAccount} from 'viem/accounts'
+import {Network, networks as holographNetworks} from '@holographxyz/networks'
 
 import {
   AccountNameAlreadyExistsError,
@@ -22,7 +22,7 @@ import {
   UnavailableNetworkError,
   WalletNotFoundError,
 } from '../errors'
-import {ChainsRpc, Config} from './config.service'
+import {Config, NetworkRpc} from './config.service'
 import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
 
@@ -36,7 +36,7 @@ export type HolographAccount = Account
 export type HolographWalletArgs = {
   account: HolographAccount
   networks?: Network[]
-  chainsRpc?: ChainsRpc
+  chainsRpc?: NetworkRpc
 }
 
 /**
@@ -99,7 +99,8 @@ export class HolographWallet {
     }
 
     if (networks === undefined && chainsRpc !== undefined) {
-      for (const [chainId, rpc] of Object.entries(chainsRpc)) {
+      for (const [networkKey, rpc] of Object.entries(chainsRpc)) {
+        const chainId = holographNetworks[networkKey].chain
         this._multiChainWalletClient[chainId] = createWalletClient({
           chain: holographToViemChain(Number(chainId)),
           account: this._account,
