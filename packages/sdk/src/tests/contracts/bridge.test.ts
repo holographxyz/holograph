@@ -1,23 +1,17 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Bridge} from '../../contracts'
+import {REGEX} from '../../utils/transformers'
 import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-import {REGEX} from '../../utils/transformers'
+import {configObject, localhostContractAddresses} from '../setup'
 
-import {configObject} from './utils'
-
-//NOTICE: the expected values are for the development env
 const expectedValues = {
-  bridgeAddress: '0x747f62b66cec00AC36E33CFda63238aEdc8a08d8',
-  holographAddress: '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97',
-  factoryAddress: '0x90425798cc0e33932f11edc3EeDBD4f3f88DFF64',
-  operatorAddress: '0xe5CBE551D7717141f430fC1dC3bD71009BedE017',
-  registryAddress: '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB',
-  jobNonce: {
-    5: '609',
-    80001: '133',
-  },
+  holographAddress: localhostContractAddresses.holograph,
+  bridgeAddress: localhostContractAddresses.holographBridge,
+  factoryAddress: localhostContractAddresses.holographFactory,
+  operatorAddress: localhostContractAddresses.holographOperator,
+  registryAddress: localhostContractAddresses.holographRegistry,
 }
 
 describe('Contract class: Bridge', () => {
@@ -79,10 +73,10 @@ describe('Contract class: Bridge', () => {
     expect(factoryAddress).toBe(expectedValues.factoryAddress)
   })
 
-  it('getJobNonce(): should be able to get the correct job nonce', async () => {
+  it('getJobNonce(): should be able to get the job nonce', async () => {
     const chainId = chainIds[0]
     const jobNonce = await bridge.getJobNonce(chainId)
-    expect(jobNonce).toBe(expectedValues.jobNonce[chainId])
+    expect(Number(jobNonce)).toBeGreaterThanOrEqual(0)
   })
 
   it('getOperator(): should be able to get the correct Operator address', async () => {
@@ -117,13 +111,12 @@ describe('Contract class: Bridge', () => {
     })
   })
 
-  it('getJobNonceByNetworks(): should be able to get the correct job nonce per network', async () => {
+  it('getJobNonceByNetworks(): should be able to get the job nonce per network', async () => {
     const jobNonceByNetworks = await bridge.getJobNonceByNetworks()
     expect(Object.keys(jobNonceByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(jobNonceByNetworks).forEach((jobNonce, index) => {
-      expect(Number(jobNonce)).toBeGreaterThan(0)
-      expect(jobNonce).toBe(expectedValues.jobNonce[chainIds[index]])
+      expect(Number(jobNonce)).toBeGreaterThanOrEqual(0)
     })
   })
 

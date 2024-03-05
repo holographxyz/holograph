@@ -5,15 +5,15 @@ import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {configObject} from './utils'
+import {configObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
-  contractAddress: '0x98ad6d9ff18c5f3adf7aa225a374c56e246094ef',
-  holographAddress: '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97',
-  bridgeAddress: '0x747f62b66cec00AC36E33CFda63238aEdc8a08d8',
-  registryAddress: '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB',
-  operatorAddress: '0xe5CBE551D7717141f430fC1dC3bD71009BedE017',
+  contractAddress: localhostContractAddresses.holographTreasury,
+  holographAddress: localhostContractAddresses.holograph,
+  bridgeAddress: localhostContractAddresses.holographBridge,
+  registryAddress: localhostContractAddresses.holographRegistry,
+  operatorAddress: localhostContractAddresses.holographOperator,
 }
 
 describe('Contract class: Treasury', () => {
@@ -36,7 +36,7 @@ describe('Contract class: Treasury', () => {
   })
 
   it('should be able to get the correct Treasury contract address according to the environment and chainId', async () => {
-    const address = (await treasury.getAddress(chainIds[1])).toLowerCase()
+    const address = await treasury.getAddress(chainIds[1])
     expect(address).toBe(expectedValues.contractAddress)
   })
 

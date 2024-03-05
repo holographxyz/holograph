@@ -4,11 +4,11 @@ import {OVMGasPriceOracle} from '../../contracts'
 import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject} from './utils'
+import {configObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
-  ovmGasPriceOracleAddress: '0xd17c85ee12114be77ed0451c42c701fb2ae77c6f',
+  ovmGasPriceOracleAddress: localhostContractAddresses.ovmGasPriceOracle,
 }
 
 describe('Contract class: OVMGasPriceOracle', () => {
@@ -42,7 +42,7 @@ describe('Contract class: OVMGasPriceOracle', () => {
 
   it('should be able to get the correct OVMGasPriceOracle contract address according to the environment and chainId', () => {
     const chainId = chainIds[0]
-    expect(ovmGasPriceOracle.getAddress(chainId)).toBe(expectedValues.ovmGasPriceOracleAddress)
+    expect(ovmGasPriceOracle.getAddress(chainId)).toBe(expectedValues.ovmGasPriceOracleAddress.toLowerCase())
   })
 
   // TODO: Finish the following tests
