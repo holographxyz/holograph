@@ -1,14 +1,15 @@
 import {beforeEach, describe, expect, it} from 'vitest'
 
-import {NFT, NOT_MINTED_NFT_ERROR_MESSAGE, UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../assets/nft'
+import {NFT} from '../../assets/nft'
+import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
+import {NOT_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/not-minted-nft.error'
 
 const expectedTokenId = {
   hex: '0x000000060000000000000000000000000000000000000000000000000000a4f4',
   decimal: '161759680002903838768002090522117784041822866535243434886621661537524',
   part: {
     chainId: '6',
-    decimal: '42228',
-    hex: '0xa4f4',
+    tokenNumber: '42228',
   },
 }
 
@@ -123,13 +124,11 @@ describe('Asset class: NFT', () => {
       expect(tokenId).toHaveProperty('hex')
       expect(tokenId).toHaveProperty('part')
       expect(tokenId.part).toHaveProperty('chainId')
-      expect(tokenId.part).toHaveProperty('decimal')
-      expect(tokenId.part).toHaveProperty('hex')
+      expect(tokenId.part).toHaveProperty('tokenNumber')
       expect(tokenId.decimal).toEqual(expectedTokenId.decimal)
       expect(tokenId.hex).toEqual(expectedTokenId.hex)
       expect(tokenId.part.chainId).toEqual(expectedTokenId.part.chainId)
-      expect(tokenId.part.decimal).toEqual(expectedTokenId.part.decimal)
-      expect(tokenId.part.hex).toEqual(expectedTokenId.part.hex)
+      expect(tokenId.part.tokenNumber).toEqual(expectedTokenId.part.tokenNumber)
     })
   })
 
@@ -222,13 +221,13 @@ describe('Asset class: NFT', () => {
   describe('setFile()', () => {
     it('should fail if the NFT has been deployed', () => {
       nft.toggleIsMinted()
-      expect(() => nft.setFile('https://newfileurl.com/file')).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+      expect(() => nft.setFile('ipfs://newfileurl.com/file')).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
     })
 
     it('should be able to set the NFT file', () => {
-      nft.setFile('https://fileurl.com/file')
+      nft.setFile('ipfs://fileurl.com/file')
       const file = nft.getFile()
-      expect(file).toBe('https://fileurl.com/file')
+      expect(file).toBe('ipfs://fileurl.com/file')
     })
   })
 

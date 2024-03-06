@@ -1,22 +1,12 @@
 import {numberToHex} from 'viem'
 
-import {removeLeftZeroes} from '../utils/helpers'
-
-export const UPDATE_MINTED_NFT_ERROR_MESSAGE = 'HOLOGRAPH: cannot update an NFT that is minted'
-export const NOT_MINTED_NFT_ERROR_MESSAGE = 'HOLOGRAPH: NFT has not been minted'
-
-type HolographNFTMetadata = {
-  name: string
-  description: string
-  creator: string
-  attributes?: {
-    [key: string]: string
-  }
-}
+import {NotMintedNftError} from '../errors/assets/not-minted-nft.error'
+import {IsNotMinted} from '../utils/decorators'
+import {HolographNFTMetadata, validate} from './nft.validation'
 
 export class NFT {
+  isMinted: boolean
   private metadata: HolographNFTMetadata
-  private isMinted: boolean
   private owner?: string
   private chainId?: string | number
   private file?: string
@@ -59,7 +49,7 @@ export class NFT {
   }
 
   getTokenId() {
-    if (!this.chainId || !this.tokenId) throw new Error(NOT_MINTED_NFT_ERROR_MESSAGE)
+    if (!this.chainId || !this.tokenId) throw new NotMintedNftError(this.getTokenId.name)
     const tokenIdHex = numberToHex(BigInt(this.tokenId), {size: 32})
     const chainIdHex = tokenIdHex.slice(0, 10)
     const tokenNumberHex = tokenIdHex.slice(10)
@@ -69,39 +59,44 @@ export class NFT {
       hex: tokenIdHex,
       part: {
         chainId: parseInt(chainIdHex, 16).toString(),
-        decimal: parseInt(tokenNumberHex, 16).toString(),
-        hex: removeLeftZeroes(tokenNumberHex),
+        tokenNumber: parseInt(tokenNumberHex, 16).toString(),
       },
     }
   }
 
+  @IsNotMinted()
   setMetadata(metadata: HolographNFTMetadata) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+    validate.metadata.parse(metadata)
     this.metadata = metadata
   }
 
+  @IsNotMinted()
   setName(name: string) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+    validate.name.parse(name)
     this.metadata.name = name
   }
 
+  @IsNotMinted()
   setDescription(description: string) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+    validate.description.parse(description)
     this.metadata.description = description
   }
 
+  @IsNotMinted()
   setCreator(creator: string) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+    validate.creator.parse(creator)
     this.metadata.creator = creator
   }
 
-  setAttributes(attributes: {[key: string]: string}) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+  @IsNotMinted()
+  setAttributes(attributes: HolographNFTMetadata['attributes']) {
+    validate.attributes.parse(attributes)
     this.metadata.attributes = attributes
   }
 
+  @IsNotMinted()
   setFile(file: string) {
-    if (this.isMinted) throw new Error(UPDATE_MINTED_NFT_ERROR_MESSAGE)
+    validate.file.parse(file)
     this.file = file
   }
 
@@ -110,14 +105,18 @@ export class NFT {
 
   uploadFileToIpfs() {}
 
-  setOwner() {}
+  setOwner(owner: string) {
+    validate.owner.parse(owner)
+  }
 
-  // TODO: Remove the following methods soon
+  // TODO: Functions below are used for easy testing while in development. Remove before public release.
   setTokenId(tokenId: string) {
+    validate.tokenId.parse(tokenId)
     this.tokenId = tokenId
   }
 
   setChainId(chainId: string | number) {
+    validate.chainId.parse(chainId)
     this.chainId = chainId
   }
 

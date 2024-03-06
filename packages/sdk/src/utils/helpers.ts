@@ -36,10 +36,3 @@ export function getChainIdsByNetworksConfig(networksConfig?: HolographConfig['ne
   const networkKeys = Object.keys(networksConfig || getEnvRpcConfig()) as NetworkKey[]
   return networkKeys.map(networkKey => networks[networkKey].chain)
 }
-
-// The function below is used to remove left zeroes from a string with a prefix. The default prefix is '0x'.
-// You can also remove the prefix by setting it to an empty string.
-// @example: const result = removeLeftZeroes('0x00000000000000000a4f4') -> '0xa4f4'
-export function removeLeftZeroes(str: string, prefix = '0x') {
-  return prefix + str.replace(/^0+/, '')
-}
