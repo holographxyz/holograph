@@ -32,7 +32,7 @@ export function getEnvRpcConfig() {
 // The function below is used to get the chain IDs array from the networks config object.
 // If no networks config is provided, it will automatically use the environment variables through the getEnvRpcConfig function.
 // @example: const chainIds = getChainIdsByNetworksConfig({ ethereum: 'https://mainnet.infura.io/v3/', polygon: 'https://polygon-rpc.com' }) -> [1, 137]
-export const getChainIdsByNetworksConfig = (networksConfig?: HolographConfig['networks']) => {
+export function getChainIdsByNetworksConfig(networksConfig?: HolographConfig['networks']) {
   const networkKeys = Object.keys(networksConfig || getEnvRpcConfig()) as NetworkKey[]
   return networkKeys.map(networkKey => networks[networkKey].chain)
 }
