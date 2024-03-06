@@ -32,7 +32,14 @@ export function getEnvRpcConfig() {
 // The function below is used to get the chain IDs array from the networks config object.
 // If no networks config is provided, it will automatically use the environment variables through the getEnvRpcConfig function.
 // @example: const chainIds = getChainIdsByNetworksConfig({ ethereum: 'https://mainnet.infura.io/v3/', polygon: 'https://polygon-rpc.com' }) -> [1, 137]
-export const getChainIdsByNetworksConfig = (networksConfig?: HolographConfig['networks']) => {
+export function getChainIdsByNetworksConfig(networksConfig?: HolographConfig['networks']) {
   const networkKeys = Object.keys(networksConfig || getEnvRpcConfig()) as NetworkKey[]
   return networkKeys.map(networkKey => networks[networkKey].chain)
+}
+
+// The function below is used to remove left zeroes from a string with a prefix. The default prefix is '0x'.
+// You can also remove the prefix by setting it to an empty string.
+// @example: const result = removeLeftZeroes('0x00000000000000000a4f4') -> '0xa4f4'
+export function removeLeftZeroes(str: string, prefix = '0x') {
+  return prefix + str.replace(/^0+/, '')
 }
