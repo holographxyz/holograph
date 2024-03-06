@@ -6,29 +6,25 @@ import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {configObject} from './utils'
+import {configObject, localhostContractAddresses} from '../setup'
 
-//NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
-  contractAddress: '0x98ad6d9ff18c5f3adf7aa225a374c56e246094ef',
-  holographAddress: '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97',
-  bridgeAddress: '0x747f62b66cec00AC36E33CFda63238aEdc8a08d8',
-  registryAddress: '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB',
-  operatorAddress: '0xe5cbe551d7717141f430fc1dc3bd71009bede017',
-  utilityTokenAddress: '0x01F3f1Ce33592a548a2EdF047Fe331f8A5Eb4389',
-  messagingModuleAddress: '0xa534C5D756b0b7Cb5dec153FA64351459a28eB98',
+  holographAddress: localhostContractAddresses.holograph,
+  bridgeAddress: localhostContractAddresses.holographBridge,
+  registryAddress: localhostContractAddresses.holographRegistry,
+  operatorAddress: localhostContractAddresses.holographOperator,
+  utilityTokenAddress: localhostContractAddresses.holographUtilityToken,
+  messagingModuleAddress: localhostContractAddresses.messageModule,
   minGasPrice: '1000000000',
 }
 
 describe('Contract class: Operator', () => {
   let config: Config
-  let providersWrapper: Providers
   let operator: Operator
   const chainIds = getChainIdsByNetworksConfig(configObject.networks)
 
   beforeAll(() => {
     config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
     operator = new Operator(config)
   })
 
@@ -69,7 +65,7 @@ describe('Contract class: Operator', () => {
   })
 
   it('should be able to get the correct operator contract address according to the environment and chainId', async () => {
-    const address = (await operator.getAddress(chainIds[1])).toLowerCase()
+    const address = await operator.getAddress(chainIds[1])
     expect(address).toBe(expectedValues.operatorAddress)
   })
 

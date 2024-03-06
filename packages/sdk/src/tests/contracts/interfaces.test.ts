@@ -5,11 +5,11 @@ import {ChainIdType, InterfaceType, Interfaces, TokenUriType} from '../../contra
 import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject} from './utils'
+import {configObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
-  contractAddress: '0xd9e5f062a539b421af91013a401f93677d439ee1',
+  contractAddress: localhostContractAddresses.holographInterfaces,
   nameExample: 'Test',
   imageUrlExample: 'imageUrl',
   externalLinkExample: 'externalLink.com',
@@ -18,9 +18,9 @@ const expectedValues = {
   contractUriExample:
     'data:application/json;base64,eyJuYW1lIjoiVGVzdCIsImRlc2NyaXB0aW9uIjoiVGVzdCIsImltYWdlIjoiaW1hZ2VVcmwiLCJleHRlcm5hbF9saW5rIjoiZXh0ZXJuYWxMaW5rLmNvbSIsInNlbGxlcl9mZWVfYmFzaXNfcG9pbnRzIjoxLCJmZWVfcmVjaXBpZW50IjoiMHhlNzEzYWFhNTVjZWExMWY3YWJmYmRjODk0ZjQ5NDViMDVjN2M1NjkwIn0',
   fromChainIdTypeExample: ChainIdType.EVM,
-  fromChainIdExample: 5n,
+  fromChainIdExample: 1338n,
   toChainIdTypeExample: ChainIdType.HOLOGRAPH,
-  toChainIdExample: '4000000011',
+  toChainIdExample: '4294967294',
 }
 
 const supportedPrepends: {type: number; prepend: string}[] = [
@@ -52,7 +52,7 @@ describe('Contract class: Interfaces', () => {
   })
 
   it('getAddress(): should be able to get the correct Interfaces contract address according to the environment and chainId', async () => {
-    const address = (await interfaces.getAddress(chainIds[1])).toLowerCase()
+    const address = await interfaces.getAddress(chainIds[1])
     expect(address).toBe(expectedValues.contractAddress)
   })
 

@@ -5,18 +5,19 @@ import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {configObject} from './utils'
+import {configObject, localhostContractAddresses} from '../setup'
+import {Addresses} from '../../constants/addresses'
 
-//NOTICE: the expected values are for the development env
+//TODO: localhost deploy needs to configure these values
 const expectedValues = {
-  layerZeroModuleAddress: '0x422cfa9d656588e55fdd5d34a55c89f711f724cc',
-  optimismGasPriceOracleAddress: '0xd17C85EE12114bE77Ed0451c42c701fb2aE77C6f',
-  bridgeAddress: '0x747f62b66cec00AC36E33CFda63238aEdc8a08d8',
-  interfacesAddress: '0xD9E5f062A539B421af91013a401F93677D439ee1',
-  operatorAddress: '0xe5CBE551D7717141f430fC1dC3bD71009BedE017',
+  layerZeroModuleAddress: localhostContractAddresses.layerZeroModule,
+  optimismGasPriceOracleAddress: Addresses.zero(),
+  bridgeAddress: Addresses.zero(),
+  interfacesAddress: Addresses.zero(),
+  operatorAddress: Addresses.zero(),
   lzEndpoint: {
-    5: '0xbfD2135BFfbb0B5378b56643c2Df8a87552Bfa23',
-    80001: '0xf69186dfBa60DdB133E91E9A4B5673624293d8F8',
+    1338: Addresses.zero(),
+    1339: Addresses.zero(),
   },
 }
 
@@ -57,7 +58,7 @@ describe('Contract class: LayerZeroModule', () => {
   })
 
   it('should be able to get the correct LayerZeroModule contract address according to the environment and chainId', () => {
-    expect(layerZeroModule.getAddress()).toBe(expectedValues.layerZeroModuleAddress)
+    expect(layerZeroModule.getAddress()).toBe(expectedValues.layerZeroModuleAddress.toLowerCase())
   })
 
   it('getGasParametersByNetworks(): should be able to get the correct gas parameters per network', async () => {

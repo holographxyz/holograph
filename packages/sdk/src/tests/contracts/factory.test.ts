@@ -4,13 +4,14 @@ import {Factory} from '../../contracts'
 import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {ONLY_ADMIN_ERROR_MESSAGE, configObject} from './utils'
+import {ONLY_ADMIN_ERROR_MESSAGE, configObject, localhostContractAddresses} from '../setup'
+import {Addresses} from '../../constants/addresses'
+import {Address} from 'viem'
 
-//NOTICE: the expected values are for the development env
 const expectedValues = {
-  factoryAddress: '0x90425798cc0e33932f11edc3EeDBD4f3f88DFF64',
-  holographAddress: '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97',
-  registryAddress: '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB',
+  holographAddress: localhostContractAddresses.holograph,
+  factoryAddress: localhostContractAddresses.holographFactory,
+  registryAddress: localhostContractAddresses.holographRegistry,
 }
 
 describe('Contract class: Factory', () => {
@@ -63,26 +64,33 @@ describe('Contract class: Factory', () => {
 
   // TODO: Finish the following tests
   describe('setHolograph()', () => {
-    it.skip('The admin should be able to set the Holograph Protocol address', async () => {
+    it('The admin should be able to set the Holograph Protocol address', async () => {
       const chainId = chainIds[0]
+      await expect(() => factory.setHolograph(chainId, expectedValues.holographAddress as Address)).not.toThrowError(
+        ONLY_ADMIN_ERROR_MESSAGE,
+      )
     })
+
     it('should revert if it is not the admin who is setting the Holograph Protocol address', async () => {
       const chainId = chainIds[0]
-      await expect(() =>
-        factory.setHolograph(chainId, '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'),
-      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+      await expect(() => factory.setHolograph(chainId, Addresses.zero(), {account: 'account1'})).rejects.toThrowError(
+        ONLY_ADMIN_ERROR_MESSAGE,
+      )
     })
   })
 
   describe('setRegistry()', () => {
-    it.skip('The admin should be able to set the Registry address', async () => {
+    it('The admin should be able to set the Registry address', async () => {
       const chainId = chainIds[0]
+      await expect(() => factory.setRegistry(chainId, expectedValues.registryAddress as Address)).not.toThrowError(
+        ONLY_ADMIN_ERROR_MESSAGE,
+      )
     })
     it('should revert if it is not the admin who is setting the Registry address', async () => {
       const chainId = chainIds[0]
-      await expect(() =>
-        factory.setRegistry(chainId, '0xAE27815bCf7ccA7191Cb55a6B86576aeDC462bBB'),
-      ).rejects.toThrowError(ONLY_ADMIN_ERROR_MESSAGE)
+      await expect(() => factory.setRegistry(chainId, Addresses.zero(), {account: 'account1'})).rejects.toThrowError(
+        ONLY_ADMIN_ERROR_MESSAGE,
+      )
     })
   })
 
