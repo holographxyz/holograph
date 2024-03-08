@@ -1,12 +1,6 @@
 import {networks} from '@holographxyz/networks'
 
-export enum BytecodeType {
-  CxipERC721 = 'CxipERC721',
-  HolographERC721 = 'HolographERC721',
-  HolographDropERC721 = 'HolographDropERC721',
-  Holographer = 'Holographer',
-  EditionsMetadataRenderer = 'EditionsMetadataRenderer',
-}
+import {BytecodeType} from '../utils/types'
 
 export function getByteCodes(bytecodeType: BytecodeType, networkName = ''): string {
   const ZORA_KEY = networks.zora.key

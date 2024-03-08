@@ -4,43 +4,8 @@ import {Holograph} from './index'
 import {HolographLogger, Config} from '../services'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
-
-/**
- * Enum designed to mirror the equivalent Solidity enum.
- * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/ChainIdType.sol
- */
-export enum ChainIdType {
-  UNDEFINED, // 0
-  EVM, //       1
-  HOLOGRAPH, // 2
-  LAYERZERO, // 3
-  HYPERLANE, // 4
-}
-
-/**
- * Enum designed to mirror the equivalent Solidity enum.
- * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/InterfaceType.sol
- */
-export enum InterfaceType {
-  UNDEFINED, // 0
-  ERC20, //     1
-  ERC721, //    2
-  ERC1155, //   3
-  ROYALTIES, // 4
-  GENERIC, //   5
-}
-
-/**
- * Enum designed to mirror the equivalent Solidity enum.
- * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/TokenUriType.sol
- */
-export enum TokenUriType {
-  UNDEFINED, // 0
-  IPFS, //      1
-  HTTPS, //     2
-  ARWEAVE, //   3
-}
+import {ChainIdType, GetContractFunctionArgs, InterfaceType, TokenUriType} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts

@@ -1,27 +1,4 @@
-export type EventInfo = {
-  readonly topic: string
-  readonly signature: string
-  readonly name: string
-}
-
-export enum HolographEventName {
-  // TransferERC20 = 'TransferERC20',
-  TransferERC721 = 'TransferERC721',
-  HolographableContractEvent = 'HolographableContractEvent',
-  BridgeableContractDeployed = 'BridgeableContractDeployed',
-  CrossChainMessageSent = 'CrossChainMessageSent',
-  AvailableOperatorJob = 'AvailableOperatorJob',
-  FinishedOperatorJob = 'FinishedOperatorJob',
-  // FailedOperatorJob = 'FailedOperatorJob',
-  // SecondarySaleFees = 'SecondarySaleFees',
-  // EditionInitialized = 'EditionInitialized',
-  // PacketReceived = 'PacketReceived',
-  // RelayerParams = 'RelayerParams',
-  // MintFeePayout = 'MintFeePayout',
-  // AssignJob = 'AssignJob',
-  LzPacket = 'LzPacket',
-  // Sale = 'Sale',
-}
+import {EventInfo, HolographEventName} from '../utils/types'
 
 export const HOLOGRAPH_EVENTS: {readonly [key in HolographEventName]: EventInfo} = {
   [HolographEventName.TransferERC721]: {

@@ -1,7 +1,5 @@
 import {Network, getNetworkByChainId} from '@holographxyz/networks'
-import {Abi, AbiFunction, AbiParameterToPrimitiveType} from 'viem'
-
-type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'uint32'}> // NOTICE: use this to figure out which primitive type to use
+import {Abi, AbiFunction} from 'viem'
 
 export type HolographByNetworksResponse = {
   [chainId: number]: string | string[]

@@ -12,7 +12,7 @@ import {
   publicActions,
   isAddress,
 } from 'viem'
-import {privateKeyToAccount, mnemonicToAccount, Account, toAccount} from 'viem/accounts'
+import {privateKeyToAccount, mnemonicToAccount, toAccount} from 'viem/accounts'
 import {Network, networks as holographNetworks} from '@holographxyz/networks'
 
 import {
@@ -22,22 +22,10 @@ import {
   UnavailableNetworkError,
   WalletNotFoundError,
 } from '../errors'
-import {Config, NetworkRpc} from './config.service'
+import {Config} from './config.service'
 import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
-
-export type HolographAccountsMap = {
-  default: HolographAccount | undefined
-  [account: Address]: HolographAccount
-}
-
-export type HolographAccount = Account
-
-export type HolographWalletArgs = {
-  account: HolographAccount
-  networks?: Network[]
-  chainsRpc?: NetworkRpc
-}
+import {HolographAccount, HolographWalletArgs} from '../utils/types'
 
 /**
  * HolographAccountFactory

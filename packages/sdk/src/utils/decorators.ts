@@ -6,11 +6,10 @@ export function IsNotMinted() {
     const originalMethod = descriptor.value
     descriptor.value = function (this: NFT, ...args: any[]) {
       if (this.isMinted) {
-        throw new UpdateMintedNftError(originalMethod.name)
+        throw new UpdateMintedNftError(propertyKey)
       } else {
-        return originalMethod.apply(this, args)
+        originalMethod.apply(this, args)
       }
     }
-    return descriptor
   }
 }

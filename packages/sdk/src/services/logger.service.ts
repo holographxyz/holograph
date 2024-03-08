@@ -1,22 +1,11 @@
 import pino from 'pino'
 import pretty from 'pino-pretty'
 import {v4 as uuidv4} from 'uuid'
+
 import {getLoggerConfigs} from '../config/logger.config'
 import {HolographError} from '../errors'
 import {baseClassSimulacrum} from '../utils/transformers'
-
-type PinoMethods = Pick<pino.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'>
-
-type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
-
-interface CreateHolographLogger {
-  serviceName: string
-  className: string
-  functionName: string
-  traceId: string
-}
-
-type HolographLoggerContext = AtLeastOne<CreateHolographLogger>
+import {HolographLoggerContext, PinoMethods} from '../utils/types'
 
 export function simpleFnLogger() {
   return function (target: Object, key: string, descriptor: PropertyDescriptor) {

@@ -1,8 +1,8 @@
 import {Hex, keccak256} from 'viem'
-import {bytecodes, BytecodeType} from '../constants/bytecodes'
+import {bytecodes} from '../constants/bytecodes'
 
 import {remove0x, sha3} from './transformers'
-import {DeploymentConfig} from './decoders'
+import {BytecodeType, DeploymentConfig} from './types'
 
 export function create2address(deploymentConfig: DeploymentConfig, factoryAddress: string): string {
   const configHash: string = deploymentConfigHash(deploymentConfig)

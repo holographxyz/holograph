@@ -1,15 +1,12 @@
-import {AbiParameterToPrimitiveType, Hex, getContract} from 'viem'
-import {Network} from '@holographxyz/networks'
-import {AbiParametersToPrimitiveTypes, Address, ExtractAbiFunctionNames} from 'abitype'
+import {Hex} from 'viem'
+import {Address} from 'abitype'
 
-import {Holograph} from './index'
 import {HolographRegistryABI} from '../constants/abi/develop'
-import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
-import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
-import {HolographLogger, Providers, Config, HolographWallet} from '../services'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
-
-type HolographRegistryFunctionNames = ExtractAbiFunctionNames<typeof HolographRegistryABI>
+import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
+import {Holograph} from '.'
 
 /**
  * @group Contracts

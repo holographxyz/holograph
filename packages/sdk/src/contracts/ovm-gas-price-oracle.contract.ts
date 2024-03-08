@@ -4,7 +4,8 @@ import {Addresses} from '../constants/addresses'
 import {OVM_GasPriceOracleABI} from '../constants/abi/develop'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
+import {GetContractFunctionArgs} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts

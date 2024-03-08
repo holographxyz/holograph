@@ -1,53 +1,18 @@
-import {HOLOGRAPH_EVENTS, HolographEventName} from '../constants/events'
-import {lowerCaseAllStrings} from './transformers'
 import {
-  Hex,
-  parseAbi,
-  TransactionReceipt,
-  parseEventLogs,
-  Log,
   Address,
+  Hex,
+  Log,
+  TransactionReceipt,
   decodeAbiParameters,
-  parseAbiParameters,
   numberToHex,
+  parseAbi,
+  parseEventLogs,
+  parseAbiParameters,
 } from 'viem'
 
-export type BridgeInErc721Args = {
-  readonly from: Address
-  readonly to: Address
-  readonly tokenId: bigint
-  readonly data: Hex
-}
-
-export type DeploymentConfig = {
-  readonly config: {
-    readonly contractType: Hex
-    readonly chainType: number
-    readonly salt: Hex
-    readonly byteCode: Hex
-    readonly initCode: Hex
-  }
-
-  readonly signature: {
-    readonly r: Hex
-    readonly s: Hex
-    readonly v: number
-  }
-
-  readonly signer: Address
-}
-
-export type BridgeSettings = {
-  readonly value: bigint
-  readonly gasLimit: bigint
-  readonly gasPrice: bigint
-  readonly toChain: number
-}
-
-export type DecodedEvent = {
-  logIndex: string
-  values: any[]
-}
+import {HOLOGRAPH_EVENTS} from '../constants/events'
+import {lowerCaseAllStrings} from './transformers'
+import {BridgeInErc721Args, DecodedEvent, DeploymentConfig, HolographEventName} from './types'
 
 export function decodeEvent(
   receipt: TransactionReceipt,

@@ -1,4 +1,4 @@
-import {EventInfo, HOLOGRAPH_EVENTS} from '../constants/events'
+import {HOLOGRAPH_EVENTS} from '../constants/events'
 import {Config} from './config.service'
 import {
   Bridge,
@@ -12,6 +12,7 @@ import {
   Treasury,
 } from '../contracts'
 import {HolographLogger} from './logger.service'
+import {EventInfo} from '../utils/types'
 
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
