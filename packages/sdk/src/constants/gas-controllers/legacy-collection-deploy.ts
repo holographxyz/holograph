@@ -1,0 +1,142 @@
+import {networks} from '@holographxyz/networks'
+
+export const LEGACY_COLLECTION_DEPLOY_GAS = {
+  [networks.ethereum.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.ethereumTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.ethereumTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.polygon.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.polygonTestnet.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.binanceSmartChain.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.binanceSmartChainTestnet.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.avalanche.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.avalancheTestnet.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.optimism.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.optimismTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.optimismTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.arbitrumOne.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.arbitrumTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.arbitrumTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.mantle.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.mantleTestnet.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.zora.chain]: {
+    gasPrice: '100000000',
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.zoraTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.zoraTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.base.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.baseTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.baseTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+}

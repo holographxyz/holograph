@@ -23,6 +23,7 @@ import {
   WalletNotFoundError,
 } from '../errors'
 import {Config} from './config.service'
+import {getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
 import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
 import {HolographAccount, HolographWalletArgs} from '../utils/types'
@@ -81,13 +82,20 @@ export class HolographWallet {
   constructor({account, networks, chainsRpc}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
+    let chainsRpc_ = chainsRpc
 
-    if (networks === undefined && chainsRpc === undefined) {
+    if (chainsRpc_ === undefined) {
+      if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
+      const networksConfig = getEnvRpcConfig()
+      chainsRpc_ = networksConfig
+    }
+
+    if (networks === undefined) {
       throw new MissingNetworkInformationError(HolographWallet.name)
     }
 
-    if (networks === undefined && chainsRpc !== undefined) {
-      for (const [networkKey, rpc] of Object.entries(chainsRpc)) {
+    if (networks === undefined && chainsRpc_ !== undefined) {
+      for (const [networkKey, rpc] of Object.entries(chainsRpc_)) {
         const chainId = holographNetworks[networkKey].chain
         this._multiChainWalletClient[chainId] = createWalletClient({
           chain: holographToViemChain(Number(chainId)),

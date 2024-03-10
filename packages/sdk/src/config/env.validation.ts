@@ -1,5 +1,6 @@
 import * as z from 'zod'
 import * as dotenv from 'dotenv'
+import {Environment} from '@holographxyz/environment'
 
 dotenv.config()
 
@@ -7,7 +8,15 @@ export const logLevelSchema = z.enum(['fatal', 'error', 'warn', 'info', 'debug',
 
 export const generalEnvSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'staging', 'test', 'provision']).default('development'),
-  HOLOGRAPH_ENVIRONMENT: z.enum(['localhost', 'experimental', 'develop', 'testnet', 'mainnet']).default('develop'),
+  HOLOGRAPH_ENVIRONMENT: z
+    .enum([
+      Environment.localhost,
+      Environment.experimental,
+      Environment.develop,
+      Environment.testnet,
+      Environment.mainnet,
+    ])
+    .default(Environment.develop),
   LOG_LEVEL: logLevelSchema,
 })
 

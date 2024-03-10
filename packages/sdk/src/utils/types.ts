@@ -4,11 +4,13 @@ import {Abi, AbiParameterToPrimitiveType, Address, Hex} from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
 import {Network, NetworkKey} from '@holographxyz/networks'
+import * as z from 'zod'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {HolographWallet} from '../services'
+import {collectionInfoSchema, createLegacyCollectionSchema} from '../assets/collection.validation'
 
-type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'uint32'}> // NOTICE: use this to figure out which primitive type to use
+type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'bytes32'}> // NOTICE: use this to figure out which primitive type to use
 
 export type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
 
@@ -42,10 +44,26 @@ export type DeploymentConfig = {
   readonly signature: {
     readonly r: Hex
     readonly s: Hex
-    readonly v: number
+    readonly v: Hex | number
   }
 
   readonly signer: Address
+}
+
+export type Signature = DeploymentConfig['signature']
+
+export type Erc721Config = {
+  erc721Hash: Hex
+  erc721Config: DeploymentConfig['config']
+  erc721ConfigHash: Hex
+  erc721ConfigHashBytes: Uint8Array
+  erc721FutureAddress: Hex
+}
+
+export type SignDeploy = {
+  readonly account: Address
+  readonly erc721Config: Erc721Config
+  readonly signature: Signature
 }
 
 export type BridgeSettings = {
@@ -198,3 +216,21 @@ export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs
 }
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
+
+export type HolographMoeSaleConfigV1 = {
+  publicSalePrice: number | bigint
+  maxSalePurchasePerAddress: number
+  publicSaleStart: number
+  publicSaleEnd: number
+  presaleStart: number
+  presaleEnd: number
+  presaleMerkleRoot: string
+}
+
+export type CreateHolographMoeV1 = CreateLegacyCollection & {
+  saleConfig: HolographMoeSaleConfigV1
+}
+
+export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
+
+export type CollectionInfo = z.infer<typeof collectionInfoSchema>
