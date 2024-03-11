@@ -116,4 +116,39 @@ export class Addresses {
         throw new InvalidHolographEnvironmentError(this.holograph.name)
     }
   }
+
+  static editionsMetadataRendererV1(): Address {
+    return '0x4d393Bd460B6Ba0957818e947364eA358600396b'.toLowerCase() as Address
+  }
+
+  static editionsMetadataRenderer(environment: Environment, chainId?: number): Address {
+    switch (environment) {
+      case Environment.localhost: {
+        switch (chainId) {
+          default:
+            return ''.toLowerCase() as Address // TODO: Add address
+        }
+      }
+      case Environment.develop: {
+        switch (chainId) {
+          default:
+            return '0x1564512435fd9B608c86B2349271Bd8793a78A68'.toLowerCase() as Address
+        }
+      }
+      case Environment.testnet: {
+        switch (chainId) {
+          default:
+            return '0xc85E6BcfB14B2f7D78EcC90bB28A370862bedc05'.toLowerCase() as Address
+        }
+      }
+      case Environment.mainnet: {
+        switch (chainId) {
+          default:
+            return '0xc85E6BcfB14B2f7D78EcC90bB28A370862bedc05'.toLowerCase() as Address
+        }
+      }
+      default:
+        throw new InvalidHolographEnvironmentError(this.holograph.name)
+    }
+  }
 }

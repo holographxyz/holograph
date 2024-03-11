@@ -1,7 +1,6 @@
-import {Address} from 'abitype'
-import {encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
+import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
 
-import {collectionInfoSchema} from './collection.validation'
+import {collectionInfoSchema, validate} from './collection.validation'
 import {getEnv} from '../config/env.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {Factory, Registry} from '../contracts'
@@ -39,6 +38,10 @@ export class HolographLegacyCollection {
     return this.collectionInfo.name
   }
 
+  get description(): string | undefined {
+    return this.collectionInfo.description
+  }
+
   get symbol() {
     return this.collectionInfo.symbol
   }
@@ -56,22 +59,32 @@ export class HolographLegacyCollection {
   }
 
   set name(name: string) {
+    validate.name.parse(name)
     this.collectionInfo.name = name
   }
 
+  set description(description: string) {
+    validate.description.parse(description)
+    this.collectionInfo.description = description
+  }
+
   set symbol(symbol: string) {
+    validate.symbol.parse(symbol)
     this.collectionInfo.symbol = symbol
   }
 
   set tokenType(tokenType: CollectionInfo['tokenType']) {
+    validate.tokenType.parse(tokenType)
     this.collectionInfo.tokenType = tokenType
   }
 
   set royalties(royalties: number) {
+    validate.royaltiesBps.parse(royalties)
     this.collectionInfo.royaltiesBps = royalties
   }
 
-  set salt(salt: Address) {
+  set salt(salt: Hex) {
+    validate.salt.parse(salt)
     this.collectionInfo.salt = salt
   }
 
@@ -169,30 +182,25 @@ export class HolographLegacyCollection {
     this.account = account
     const collectionPayload = await this._getCollectionPayload(account)
 
-    const erc721Config = collectionPayload?.config
+    const config = collectionPayload?.config
     const signedMessage = await holographWallet.onChain(this.primaryChainId).signMessage({
       account: holographWallet.account,
-      message: erc721Config?.erc721ConfigHash,
+      message: config?.erc721ConfigHash,
     })
     const signature = destructSignature(signedMessage)
     this.signature = signature
 
     return {
       account,
-      erc721Config,
+      config: config?.erc721Config,
       signature,
     }
   }
 
   async deploy(data: SignDeploy): Promise<unknown> {
-    const {account, erc721Config, signature} = data
+    const {account, config, signature} = data
     // const { gasLimit, gasPrice } = await this.estimateGasForDeployingCollection(data)
-    const tx = await this.factory.deployHolographableContract(
-      this.primaryChainId,
-      erc721Config.erc721Config,
-      signature,
-      account,
-    )
+    const tx = await this.factory.deployHolographableContract(this.primaryChainId, config, signature, account)
     return tx
   }
 

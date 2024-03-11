@@ -43,6 +43,14 @@ export function allEventsEnabled(): string {
   return '0x' + 'ff'.repeat(32)
 }
 
+export function enableDropEvents(): string {
+  return '0x0000000000000000000000000000000000000000000000000000000000065000'
+}
+
+export function enableDropEventsV2(): string {
+  return '0x0000000000000000000000000000000000000000000000000000000000040000'
+}
+
 export function generateRandomSalt(): Hex {
   return ('0x' + Date.now().toString(16).padStart(64, '0')) as Hex
 }
@@ -75,4 +83,27 @@ export function destructSignature(signedMessage: Hex): Signature {
     s: ('0x' + signedMessage.substring(66, 130)) as Hex,
     v: ('0x' + signedMessage.substring(130, 132)) as Hex,
   }
+}
+
+export function strictECDSA(signature: Signature): Signature {
+  const validator = BigInt('0x7FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF5D576E7357A4501DDFE92F46681B20A0')
+  if (Number.parseInt(String(signature.v), 16) < 27) {
+    signature.v = ('0x' + (27).toString(16).padStart(2, '0')) as Hex
+  }
+
+  if (BigInt(signature.s) > validator) {
+    signature.s = toHex(
+      BigInt('0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141') - BigInt(signature.s),
+    )
+    let v = Number.parseInt(String(signature.v), 16)
+    v = v === 27 ? 28 : 27
+    signature.v = ('0x' + v.toString(16).padStart(2, '0')) as Hex
+  }
+
+  return signature
+}
+
+export function parseISODateToTimestampSeconds(date?: string) {
+  if (!date) return 0
+  return Math.floor(new Date(date).getTime() / 1000)
 }

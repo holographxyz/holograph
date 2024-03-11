@@ -8,7 +8,16 @@ import * as z from 'zod'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {HolographWallet} from '../services'
-import {collectionInfoSchema, createLegacyCollectionSchema} from '../assets/collection.validation'
+import {
+  collectionInfoSchema,
+  createHolographMoeSchema,
+  createLegacyCollectionSchema,
+  holographDropERC721InitCodeV1ParamsSchema,
+  holographDropERC721InitCodeV2ParamsSchema,
+  holographERC721InitCodeParamsSchema,
+  holographMoeSaleConfigSchema,
+  nftInfoSchema,
+} from '../assets/collection.validation'
 
 type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'bytes32'}> // NOTICE: use this to figure out which primitive type to use
 
@@ -35,7 +44,7 @@ export type BridgeInErc721Args = {
 export type DeploymentConfig = {
   readonly config: {
     readonly contractType: Hex
-    readonly chainType: number
+    readonly chainType: number | string
     readonly salt: Hex
     readonly byteCode: Hex
     readonly initCode: Hex
@@ -43,8 +52,8 @@ export type DeploymentConfig = {
 
   readonly signature: {
     readonly r: Hex
-    readonly s: Hex
-    readonly v: Hex | number
+    s: Hex
+    v: Hex | number
   }
 
   readonly signer: Address
@@ -62,7 +71,7 @@ export type Erc721Config = {
 
 export type SignDeploy = {
   readonly account: Address
-  readonly erc721Config: Erc721Config
+  readonly config: Erc721Config['erc721Config']
   readonly signature: Signature
 }
 
@@ -193,6 +202,11 @@ export enum TokenUriType {
   ARWEAVE, //   3
 }
 
+export enum HolographVersion {
+  V1 = 'V1',
+  V2 = 'V2',
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address
@@ -217,20 +231,18 @@ export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
 
-export type HolographMoeSaleConfigV1 = {
-  publicSalePrice: number | bigint
-  maxSalePurchasePerAddress: number
-  publicSaleStart: number
-  publicSaleEnd: number
-  presaleStart: number
-  presaleEnd: number
-  presaleMerkleRoot: string
-}
-
-export type CreateHolographMoeV1 = CreateLegacyCollection & {
-  saleConfig: HolographMoeSaleConfigV1
-}
-
 export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
 
 export type CollectionInfo = z.infer<typeof collectionInfoSchema>
+
+export type NftInfo = z.infer<typeof nftInfoSchema>
+
+export type HolographMoeSaleConfig = z.input<typeof holographMoeSaleConfigSchema>
+
+export type CreateHolographMoe = z.input<typeof createHolographMoeSchema>
+
+export type HolographERC721InitCodeParamsSchema = z.infer<typeof holographERC721InitCodeParamsSchema>
+
+export type HolographDropERC721InitCodeV1Params = z.infer<typeof holographDropERC721InitCodeV1ParamsSchema>
+
+export type HolographDropERC721InitCodeV2Params = z.infer<typeof holographDropERC721InitCodeV2ParamsSchema>
