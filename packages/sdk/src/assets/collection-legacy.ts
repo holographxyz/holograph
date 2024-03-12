@@ -1,12 +1,18 @@
 import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
 
 import {collectionInfoSchema, validate} from './collection.validation'
-import {getEnv} from '../config/env.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {Factory, Registry} from '../contracts'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
-import {CollectionInfo, CreateLegacyCollection, Erc721Config, Signature, SignDeploy} from '../utils/types'
+import {
+  CollectionInfo,
+  CreateLegacyCollection,
+  Erc721Config,
+  HolographConfig,
+  Signature,
+  SignDeploy,
+} from '../utils/types'
 import {Config, HolographWallet} from '../services'
 
 export class HolographLegacyCollection {
@@ -21,11 +27,9 @@ export class HolographLegacyCollection {
   private factory: Factory
   private registry: Registry
 
-  constructor({collectionInfo, primaryChainId}: CreateLegacyCollection) {
+  constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
     this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
-    const config = Config.getInstance({
-      environment: getEnv().HOLOGRAPH_ENVIRONMENT,
-    })
+    const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
     this.factory = factory
@@ -88,6 +92,11 @@ export class HolographLegacyCollection {
     this.collectionInfo.salt = salt
   }
 
+  getCollectionInfo() {
+    return this.collectionInfo
+  }
+
+  // TODO: Make all _* methods private after setting up all tests
   async _getFactoryAddress() {
     const factoryAddress = await this.factory.getAddress(this.primaryChainId)
     return factoryAddress
@@ -96,10 +105,6 @@ export class HolographLegacyCollection {
   async _getRegistryAddress() {
     const registryAddress = await this.registry.getAddress(this.primaryChainId)
     return registryAddress
-  }
-
-  getCollectionInfo() {
-    return this.collectionInfo
   }
 
   _getPredictedCollectionAddress(factoryAddress: Address, erc721ConfigHash: string): Address {

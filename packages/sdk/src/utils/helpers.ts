@@ -14,11 +14,14 @@ export function isFrontEnd() {
 
 // The function below is used to automatically get the RPC configuration for the networks via environment variables.
 // @example: const networksConfig = getEnvRpcConfig() -> { ethereum: 'https://mainnet.infura.io/v3/', polygon: 'https://polygon-rpc.com', ...}
-export function getEnvRpcConfig() {
+export function getEnvRpcConfig(config = {shouldThrow: true}) {
   const envData = getEnv()
   const rpcUrls = Object.entries(envData).filter(([key, value]) => key.endsWith('RPC_URL') && value)
 
-  if (!rpcUrls.length) throw new Error('No RPC URL environment variables found')
+  if (!rpcUrls.length) {
+    if (config.shouldThrow) throw new Error('No RPC URL environment variables found')
+    return undefined
+  }
 
   const networksConfig = rpcUrls.reduce((acc, [key, value]) => {
     const chainKey = NETWORK_KEY_BY_RPC_URL[key]
@@ -35,7 +38,7 @@ export function getEnvRpcConfig() {
 // If no networks config is provided, it will automatically use the environment variables through the getEnvRpcConfig function.
 // @example: const chainIds = getChainIdsByNetworksConfig({ ethereum: 'https://mainnet.infura.io/v3/', polygon: 'https://polygon-rpc.com' }) -> [1, 137]
 export function getChainIdsByNetworksConfig(networksConfig?: HolographConfig['networks']) {
-  const networkKeys = Object.keys(networksConfig || getEnvRpcConfig()) as NetworkKey[]
+  const networkKeys = Object.keys(networksConfig || getEnvRpcConfig()!) as NetworkKey[]
   return networkKeys.map(networkKey => networks[networkKey].chain)
 }
 

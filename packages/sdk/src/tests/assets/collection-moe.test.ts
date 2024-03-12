@@ -2,13 +2,13 @@ import {beforeEach, describe, expect, it} from 'vitest'
 
 import {HolographMoeERC721DropV1} from '../../assets/collection-moe'
 import {generateRandomSalt} from '../../utils/helpers'
-import {LOCALHOST2_CHAIN_ID} from '../setup'
+import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 
 describe('Asset class: HolographMoeERC721DropV1', () => {
   let collection: HolographMoeERC721DropV1
 
   beforeEach(() => {
-    collection = new HolographMoeERC721DropV1({
+    collection = new HolographMoeERC721DropV1(configObject, {
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
@@ -73,6 +73,13 @@ describe('Asset class: HolographMoeERC721DropV1', () => {
       expect(info.publicSaleStart).toBe('2025-01-01T00:00:00Z')
       expect(info.publicSaleEnd).toBe('2025-01-02T00:00:00Z')
       expect(info.publicSalePrice).toBe(10000)
+    })
+  })
+
+  describe('_getRegistryAddress()', () => {
+    it('should be able to get the correct registry address', async () => {
+      const registryAddress = await collection._getRegistryAddress()
+      expect(registryAddress).toBe(localhostContractAddresses.holographRegistry)
     })
   })
 })

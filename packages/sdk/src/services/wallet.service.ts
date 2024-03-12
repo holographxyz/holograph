@@ -84,14 +84,11 @@ export class HolographWallet {
     this._account = account
     let chainsRpc_ = chainsRpc
 
-    if (chainsRpc_ === undefined) {
+    if (networks === undefined && chainsRpc === undefined) {
       if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
-      const networksConfig = getEnvRpcConfig()
+      const networksConfig = getEnvRpcConfig({shouldThrow: false})
       chainsRpc_ = networksConfig
-    }
-
-    if (networks === undefined) {
-      throw new MissingNetworkInformationError(HolographWallet.name)
+      if (chainsRpc_ === undefined) throw new MissingNetworkInformationError(HolographWallet.name)
     }
 
     if (networks === undefined && chainsRpc_ !== undefined) {

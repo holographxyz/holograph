@@ -8,8 +8,17 @@ import {bytecodes} from '../constants/bytecodes'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {
+  destructSignature,
+  enableDropEvents,
+  enableDropEventsV2,
+  generateRandomSalt,
+  parseISODateToTimestampSeconds,
+  strictECDSA,
+} from '../utils/helpers'
+import {
   CollectionInfo,
   CreateHolographMoe,
+  HolographConfig,
   HolographDropERC721InitCodeV1Params,
   HolographDropERC721InitCodeV2Params,
   HolographERC721InitCodeParamsSchema,
@@ -19,14 +28,6 @@ import {
   SignDeploy,
   Signature,
 } from '../utils/types'
-import {
-  destructSignature,
-  enableDropEvents,
-  enableDropEventsV2,
-  generateRandomSalt,
-  parseISODateToTimestampSeconds,
-  strictECDSA,
-} from '../utils/helpers'
 import {remove0x} from '../utils/transformers'
 
 export class HolographMoeERC721DropV1 {
@@ -43,13 +44,14 @@ export class HolographMoeERC721DropV1 {
   private factory: Factory
   private registry: Registry
 
-  constructor({collectionInfo, nftInfo, primaryChainId, saleConfig}: CreateHolographMoe) {
+  constructor(
+    configObject: HolographConfig,
+    {collectionInfo, nftInfo, primaryChainId, saleConfig}: CreateHolographMoe,
+  ) {
     this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
     this.nftInfo = nftInfoSchema.parse(nftInfo)
     this.saleConfig = holographMoeSaleConfigSchema.parse(saleConfig)
-    const config = Config.getInstance({
-      environment: getEnv().HOLOGRAPH_ENVIRONMENT,
-    })
+    const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
     this.factory = factory
@@ -197,6 +199,7 @@ export class HolographMoeERC721DropV1 {
     return {...this.collectionInfo, ...this.nftInfo, ...this.saleConfig}
   }
 
+  // TODO: Make all _* methods private after setting up all tests
   async _getRegistryAddress() {
     const registryAddress = await this.registry.getAddress(this.primaryChainId)
     return registryAddress
@@ -461,8 +464,11 @@ export class HolographMoeERC721DropV1 {
 }
 
 export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
-  constructor({collectionInfo, nftInfo, primaryChainId, saleConfig}: CreateHolographMoe) {
-    super({collectionInfo, nftInfo, primaryChainId, saleConfig})
+  constructor(
+    configObject: HolographConfig,
+    {collectionInfo, nftInfo, primaryChainId, saleConfig}: CreateHolographMoe,
+  ) {
+    super(configObject, {collectionInfo, nftInfo, primaryChainId, saleConfig})
   }
 
   __getCollectionPayloadWithVersion(account: Address) {

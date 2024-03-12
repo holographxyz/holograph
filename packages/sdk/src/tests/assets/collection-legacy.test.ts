@@ -2,13 +2,13 @@ import {beforeEach, describe, expect, it} from 'vitest'
 
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {generateRandomSalt} from '../../utils/helpers'
-import {LOCALHOST2_CHAIN_ID} from '../setup'
+import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 
 describe('Asset class: HolographLegacyCollection', () => {
   let collection: HolographLegacyCollection
 
   beforeEach(() => {
-    collection = new HolographLegacyCollection({
+    collection = new HolographLegacyCollection(configObject, {
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
@@ -47,6 +47,20 @@ describe('Asset class: HolographLegacyCollection', () => {
       expect(collectionInfo.symbol).toBe('HOLO')
       expect(collectionInfo.royaltiesBps).toBe(1000)
       expect(collectionInfo.tokenType).toBe('ERC721')
+    })
+  })
+
+  describe('_getFactoryAddress()', () => {
+    it('should be able to get the correct factory address', async () => {
+      const factoryAddress = await collection._getFactoryAddress()
+      expect(factoryAddress).toBe(localhostContractAddresses.holographFactory)
+    })
+  })
+
+  describe('_getRegistryAddress()', () => {
+    it('should be able to get the correct registry address', async () => {
+      const registryAddress = await collection._getRegistryAddress()
+      expect(registryAddress).toBe(localhostContractAddresses.holographRegistry)
     })
   })
 })

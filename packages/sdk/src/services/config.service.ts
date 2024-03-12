@@ -24,7 +24,7 @@ export class Config {
     } else {
       if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
       const networksConfig = getEnvRpcConfig()
-      this.setNetworks(networksConfig)
+      this.setNetworks(networksConfig!)
     }
   }
 
