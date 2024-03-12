@@ -3,7 +3,8 @@ import {Environment} from '@holographxyz/environment'
 
 import {Holograph} from '../src/contracts/holograph.contract'
 import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
-import {Config, HolographConfig} from '../src/services/config.service'
+import {Config} from '../src/services/config.service'
+import {HolographConfig} from '../src/utils/types'
 
 config()
 

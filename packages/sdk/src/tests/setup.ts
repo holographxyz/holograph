@@ -1,9 +1,9 @@
 import {Environment} from '@holographxyz/environment'
 import {Address, Hex, createTestClient, http} from 'viem'
 
-import {HolographAccountFactory, HolographConfig} from '../services'
+import {HolographAccountFactory} from '../services'
 import {holographToViemChain} from '../utils/transformers'
-import HolographBridge from '../constants/abi/develop/HolographBridge'
+import {HolographConfig} from '../utils/types'
 
 console.log('Setting up tests...')
 

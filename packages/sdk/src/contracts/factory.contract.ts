@@ -1,12 +1,12 @@
 import {Address} from 'abitype'
+import {Hex} from 'viem'
 
 import {Holograph} from '.'
 import {HolographFactoryABI} from '../constants/abi/develop'
-import {BridgeSettings, DeploymentConfig} from '../utils/decoders'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
-import {Hex} from 'viem'
+import {BridgeSettings, DeploymentConfig, GetContractFunctionArgs, Signature} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts
@@ -149,7 +149,7 @@ export class Factory extends HolographBaseContract {
   async deployHolographableContract(
     chainId: number,
     config: DeploymentConfig['config'],
-    signature: DeploymentConfig['signature'],
+    signature: Signature,
     signer: Address,
     wallet?: {account: string | HolographWallet},
   ) {
@@ -174,7 +174,7 @@ export class Factory extends HolographBaseContract {
   async deployHolographableContractMultiChain(
     chainId: number,
     config: DeploymentConfig['config'],
-    signature: DeploymentConfig['signature'],
+    signature: Signature,
     signer: Address,
     deployOnCurrentChain = true,
     bridgeSettings: BridgeSettings[] = [],

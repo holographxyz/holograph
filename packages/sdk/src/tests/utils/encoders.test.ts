@@ -1,7 +1,8 @@
 import {Hex} from 'viem'
 import {describe, expect, it} from 'vitest'
+
 import {create2address, deploymentConfigHash, storageSlot} from '../../utils/encoders'
-import {DeploymentConfig} from '../../utils/decoders'
+import {DeploymentConfig} from '../../utils/types'
 
 describe('Utils: encoders', () => {
   const deploymentConfig: DeploymentConfig = {

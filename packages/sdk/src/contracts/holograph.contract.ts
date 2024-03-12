@@ -4,7 +4,8 @@ import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
 import {HolographLogger, Config} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
+import {GetContractFunctionArgs} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts

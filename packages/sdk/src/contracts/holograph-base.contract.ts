@@ -1,32 +1,10 @@
 import {Network} from '@holographxyz/networks'
-import {ExtractAbiFunctionNames} from 'abitype'
 import {Abi, Address, GetContractReturnType, getContract} from 'viem'
 
 import {Providers, HolographLogger, Config, HolographWallet, HolographWalletManager} from '../services'
 import {isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, HolographError, ViemError, isCallException} from '../errors'
-
-export type ReadContractArgs<TAbi extends Abi> = {
-  chainId: number
-  address: Address
-  functionName: ExtractAbiFunctionNames<TAbi>
-  args?: any[]
-}
-
-export type WriteContractArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
-  wallet?: {account: string | HolographWallet}
-}
-
-export type GetContractFunctionArgs<TAbi extends Abi> = {
-  chainId: number
-  functionName: ExtractAbiFunctionNames<TAbi>
-  wallet?: {account: string | HolographWallet}
-  args?: any[]
-}
-
-export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
-  address: Address
-}
+import {CallContractFunctionArgs, ReadContractArgs, WriteContractArgs} from '../utils/types'
 
 /**
  * @group Contracts

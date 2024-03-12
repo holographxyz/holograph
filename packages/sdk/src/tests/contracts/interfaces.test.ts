@@ -1,9 +1,10 @@
 import {Address} from 'abitype'
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {ChainIdType, InterfaceType, Interfaces, TokenUriType} from '../../contracts'
+import {Interfaces} from '../../contracts'
 import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
+import {ChainIdType, InterfaceType, TokenUriType} from '../../utils/types'
 
 import {configObject, localhostContractAddresses} from '../setup'
 

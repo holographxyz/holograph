@@ -2,9 +2,10 @@ import {Address, Hex} from 'viem'
 
 import {Holograph} from './index'
 import {HolographOperatorABI} from '../constants/abi/develop'
-import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {HolographLogger, Config, HolographWallet} from '../services'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
+import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
+import {GetContractFunctionArgs} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts

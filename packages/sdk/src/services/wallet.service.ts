@@ -12,7 +12,7 @@ import {
   publicActions,
   isAddress,
 } from 'viem'
-import {privateKeyToAccount, mnemonicToAccount, Account, toAccount} from 'viem/accounts'
+import {privateKeyToAccount, mnemonicToAccount, toAccount} from 'viem/accounts'
 import {Network, networks as holographNetworks} from '@holographxyz/networks'
 
 import {
@@ -22,22 +22,11 @@ import {
   UnavailableNetworkError,
   WalletNotFoundError,
 } from '../errors'
-import {Config, NetworkRpc} from './config.service'
+import {Config} from './config.service'
+import {getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
 import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
-
-export type HolographAccountsMap = {
-  default: HolographAccount | undefined
-  [account: Address]: HolographAccount
-}
-
-export type HolographAccount = Account
-
-export type HolographWalletArgs = {
-  account: HolographAccount
-  networks?: Network[]
-  chainsRpc?: NetworkRpc
-}
+import {HolographAccount, HolographWalletArgs} from '../utils/types'
 
 /**
  * HolographAccountFactory
@@ -93,13 +82,17 @@ export class HolographWallet {
   constructor({account, networks, chainsRpc}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
+    let chainsRpc_ = chainsRpc
 
     if (networks === undefined && chainsRpc === undefined) {
-      throw new MissingNetworkInformationError(HolographWallet.name)
+      if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
+      const networksConfig = getEnvRpcConfig({shouldThrow: false})
+      chainsRpc_ = networksConfig
+      if (chainsRpc_ === undefined) throw new MissingNetworkInformationError(HolographWallet.name)
     }
 
-    if (networks === undefined && chainsRpc !== undefined) {
-      for (const [networkKey, rpc] of Object.entries(chainsRpc)) {
+    if (networks === undefined && chainsRpc_ !== undefined) {
+      for (const [networkKey, rpc] of Object.entries(chainsRpc_)) {
         const chainId = holographNetworks[networkKey].chain
         this._multiChainWalletClient[chainId] = createWalletClient({
           chain: holographToViemChain(Number(chainId)),

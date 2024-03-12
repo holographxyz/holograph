@@ -4,16 +4,8 @@ import {Addresses} from '../constants/addresses'
 import {LayerZeroModuleABI} from '../constants/abi/develop'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs, HolographBaseContract} from './holograph-base.contract'
-
-export type GasParameters = {
-  msgBaseGas: bigint
-  msgGasPerByte: bigint
-  jobBaseGas: bigint
-  jobGasPerByte: bigint
-  minGasPrice: bigint
-  maxGasLimit: bigint
-}
+import {GetContractFunctionArgs, GasParameters} from '../utils/types'
+import {HolographBaseContract} from './holograph-base.contract'
 
 /**
  * @group Contracts

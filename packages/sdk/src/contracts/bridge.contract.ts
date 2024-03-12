@@ -1,14 +1,13 @@
 import {getContract, Hex} from 'viem'
 import {Network} from '@holographxyz/networks'
-import {Address, ExtractAbiFunctionNames} from 'abitype'
+import {Address} from 'abitype'
 
 import {HolographByNetworksResponse, getSelectedNetworks, isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, ViemError, HolographError, isCallException} from '../errors'
 import {Providers, HolographLogger, Config} from '../services'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {Holograph} from '.'
-
-type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
+import {HolographBridgeFunctionNames} from '../utils/types'
 
 /**
  * @group Contracts

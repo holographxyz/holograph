@@ -1,24 +1,10 @@
 import {Environment, setEnvironment} from '@holographxyz/environment'
-import {Network, NetworkKey, getNetworkByChainId} from '@holographxyz/networks'
+import {Network, getNetworkByChainId} from '@holographxyz/networks'
 
 import {UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
 import {HolographLogger} from './logger.service'
 import {getChainIdsByNetworksConfig, getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
-import {HolographAccount} from './wallet.service'
-
-export type AccountsConfig = {
-  default: HolographAccount
-  [accountName: string]: HolographAccount
-}
-
-export type NetworkRpc = {[key in NetworkKey]?: string}
-
-export type HolographConfig = {
-  accounts?: AccountsConfig
-  networks?: NetworkRpc
-  environment?: Environment
-  logLevel?: string
-}
+import {AccountsConfig, HolographConfig, NetworkRpc} from '../utils/types'
 
 export class Config {
   private static _instance?: Config
@@ -38,7 +24,7 @@ export class Config {
     } else {
       if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
       const networksConfig = getEnvRpcConfig()
-      this.setNetworks(networksConfig)
+      this.setNetworks(networksConfig!)
     }
   }
 
