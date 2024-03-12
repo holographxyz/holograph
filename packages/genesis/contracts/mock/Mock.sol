@@ -99,7 +99,7 @@
 
 */
 
-pragma solidity undefined;
+pragma solidity 0.8.17;
 
 import "../abstract/Initializable.sol";
 import "../abstract/Owner.sol";
