@@ -115,7 +115,7 @@ task('abi', 'Create standalone ABI files for all smart contracts')
   .addOptionalParam('silent', 'Provide less details in the output', false, types.boolean)
   .setAction(async (args, hre) => {
     if (!fs.existsSync('./artifacts')) {
-      throw new Error('The directory "artifacts" was not found. Make sure you run "pnpm compile" first.');
+      throw new Error('The directory "artifacts" was not found. Make sure you run "yarn compile" first.');
     }
     const recursiveDelete = function (dir: string) {
       const files = fs.readdirSync(dir, { withFileTypes: true });
