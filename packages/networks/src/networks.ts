@@ -76,7 +76,7 @@ export const networks = {
     tokenSymbol: 'ETH',
     explorer: 'https://explorer.sepolia.mantle.xyz/',
     lzEndpoint: '0x6edce65403992e310a62460808c4b910d972f10f'.toLocaleLowerCase(),
-    lzId: 40181, // TODO: Not supported yet
+    lzId: 40181,
     ccipEndpoint: ''.toLowerCase(),
     ccipId: '',
     active: true,
