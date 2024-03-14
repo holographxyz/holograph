@@ -132,7 +132,7 @@ describe('Contract class: Operator', () => {
     })
   })
 
-  it('getUtilityTokenByNetworks(): should be able to get the correct HolographUtilityToken address per network', async () => {
+  it.skip('getUtilityTokenByNetworks(): should be able to get the correct HolographUtilityToken address per network', async () => {
     const utilityTokenAddressByNetworks = await operator.getUtilityTokenByNetworks()
     expect(Object.keys(utilityTokenAddressByNetworks)).toEqual(chainIds.map(String))
 

@@ -18,7 +18,7 @@ export const localhostContractAddresses = {
   holographTreasury: '0x65115A3Be2Aa1F267ccD7499e720088060c7ccd2',
   holographInterfaces: '0x67F6394693bd2B46BBE87627F0E581faD80C7B57',
   holographRoyalties: '0xbF8f7474D7aCbb87E270FEDA9A5CBB7f766887E3',
-  holographUtilityToken: '0xdc3a7Ca164FB637CddF7Ec04D7318BDE9efDd4ee',
+  holographUtilityToken: '0x56BA455232a82784F17C33c577124EF208D931ED',
   hToken: '0x0533A3bfB526Af481FEA67BDC6dF1E09e91084ec',
   messageModule: '0x350856f758d9A1b8c24540d8E10cd6AB45B1466d',
   ovmGasPriceOracle: '0xca971c5F8B071E0921913d4d167B9Bfaaa9Fd029',
