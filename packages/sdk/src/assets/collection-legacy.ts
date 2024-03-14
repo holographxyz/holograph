@@ -2,6 +2,7 @@ import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiPara
 
 import {collectionInfoSchema, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
+import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
@@ -9,6 +10,7 @@ import {
   CollectionInfo,
   CreateLegacyCollection,
   Erc721Config,
+  GasFee,
   HolographConfig,
   Signature,
   SignDeploy,
@@ -107,7 +109,8 @@ export class HolographLegacyCollection {
     return registryAddress
   }
 
-  _getPredictedCollectionAddress(factoryAddress: Address, erc721ConfigHash: string): Address {
+  async _getPredictedCollectionAddress(erc721ConfigHash: string): Promise<Address> {
+    const factoryAddress = await this._getFactoryAddress()
     const futureAddressSuffix = keccak256(
       `0xff${remove0x(factoryAddress)}${remove0x(erc721ConfigHash)}${remove0x(bytecodes.Holographer)}`,
     )
@@ -141,7 +144,6 @@ export class HolographLegacyCollection {
     const chainId = BigInt(evm2hlg(this.primaryChainId))
     const erc721Hash = parseBytes('HolographERC721')
     const salt = this.salt || generateRandomSalt()
-    const factoryAddress = await this._getFactoryAddress()
     const initCode = await this._generateInitCode(account)
 
     const erc721Config = {
@@ -168,7 +170,7 @@ export class HolographLegacyCollection {
     this.erc721ConfigHash = erc721ConfigHash
 
     const erc721ConfigHashBytes = toBytes(erc721ConfigHash)
-    const erc721FutureAddress = this._getPredictedCollectionAddress(factoryAddress, erc721ConfigHash)
+    const erc721FutureAddress = await this._getPredictedCollectionAddress(erc721ConfigHash)
 
     return {
       config: {
@@ -179,6 +181,48 @@ export class HolographLegacyCollection {
         erc721FutureAddress,
       },
       salt,
+    }
+  }
+
+  async _estimateGasForDeployingCollection(data: SignDeploy): Promise<GasFee> {
+    const {account, config, signature} = data
+    const chainId = this.primaryChainId
+
+    let gasLimit: bigint, gasPrice: bigint
+
+    const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
+
+    if (gasController?.gasPrice) {
+      gasPrice = BigInt(gasController.gasPrice!)
+    } else {
+      gasPrice = await this.factory.getGasPrice(chainId)
+    }
+
+    if (gasController?.gasLimit) {
+      gasLimit = BigInt(gasController.gasLimit)
+    } else {
+      gasLimit = await this.factory.estimateGasForDeployingHolographableContract(
+        this.primaryChainId,
+        config,
+        signature,
+        account,
+      )
+    }
+
+    if (gasController?.gasLimitMultiplier) {
+      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
+    }
+
+    if (gasController?.gasPriceMultiplier) {
+      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
+    }
+
+    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+
+    return {
+      gasPrice,
+      gasLimit,
+      gas,
     }
   }
 
@@ -204,42 +248,16 @@ export class HolographLegacyCollection {
 
   async deploy(data: SignDeploy): Promise<unknown> {
     const {account, config, signature} = data
-    // const { gasLimit, gasPrice } = await this.estimateGasForDeployingCollection(data)
-    const tx = await this.factory.deployHolographableContract(this.primaryChainId, config, signature, account)
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(data)
+    const tx = await this.factory.deployHolographableContract(
+      this.primaryChainId,
+      config,
+      signature,
+      account,
+      undefined,
+      {gasPrice, gas: gasLimit},
+    )
     return tx
-  }
-
-  // TODO: Do later
-  async estimateGasForDeployingCollection(data: SignDeploy) {
-    const holographFactory = this.factory
-    const chainId = this.primaryChainId
-    let gasLimit, gasPrice
-
-    // if (GAS_CONTROLLER.legacyCollectionDeploy[chainId]?.gasPrice) {
-    //   gasPrice = BigInt(GAS_CONTROLLER.legacyCollectionDeploy[chainId].gasPrice)
-    // } else {
-    //   gasPrice = await this.getChainGasPrice()
-    // }
-
-    // if (GAS_CONTROLLER.legacyCollectionDeploy[chainId]?.gasLimit) {
-    //   gasLimit = BigInt(GAS_CONTROLLER.legacyCollectionDeploy[chainId].gasLimit)
-    // } else {
-    //   gasLimit = await holographFactory.estimateGas.deployHolographableContract(erc721Config, signature, account)
-    // }
-
-    // if (GAS_CONTROLLER.legacyCollectionDeploy[chainId]?.gasLimitMultiplier) {
-    //   gasLimit = (BigInt(gasLimit) * GAS_CONTROLLER.legacyCollectionDeploy[chainId].gasLimitMultiplier!) / 100
-    // }
-
-    // if (GAS_CONTROLLER.legacyCollectionDeploy[chainId]?.gasPriceMultiplier) {
-    //   gasPrice = (BigInt(gasPrice) * GAS_CONTROLLER.legacyCollectionDeploy[chainId].gasPriceMultiplier!) / 100
-    // }
-
-    return {
-      gasPrice,
-      gasLimit,
-      gas: gasPrice.mul(gasLimit),
-    }
   }
 
   // TODO: Do later
