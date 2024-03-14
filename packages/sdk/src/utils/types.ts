@@ -1,6 +1,6 @@
 import {ExtractAbiFunctionNames} from 'abitype'
 import pino from 'pino'
-import {Abi, AbiParameterToPrimitiveType, Address, Hex} from 'viem'
+import {Abi, AbiParameterToPrimitiveType, Address, Hex, WriteContractParameters} from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
 import {Network, NetworkKey} from '@holographxyz/networks'
@@ -207,6 +207,12 @@ export enum HolographVersion {
   V2 = 'V2',
 }
 
+export type GasFee = {
+  gasPrice: bigint
+  gasLimit: bigint
+  gas: bigint
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address
@@ -216,6 +222,7 @@ export type ReadContractArgs<TAbi extends Abi> = {
 
 export type WriteContractArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
   wallet?: {account: string | HolographWallet}
+  options?: WriteContractOptions
 }
 
 export type GetContractFunctionArgs<TAbi extends Abi> = {
@@ -223,11 +230,17 @@ export type GetContractFunctionArgs<TAbi extends Abi> = {
   functionName: ExtractAbiFunctionNames<TAbi>
   wallet?: {account: string | HolographWallet}
   args?: any[]
+  options?: WriteContractOptions
 }
 
 export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
   address: Address
+  options?: WriteContractOptions
 }
+
+export type WriteContractOptions = Partial<
+  Omit<WriteContractParameters, 'abi' | 'address' | 'args' | 'client' | 'functionName'>
+>
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
 

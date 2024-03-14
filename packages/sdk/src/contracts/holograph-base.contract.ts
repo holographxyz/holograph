@@ -37,13 +37,7 @@ export class HolographBaseContract {
     }
   }
 
-  protected async _writeContract<TAbi extends Abi>({
-    chainId,
-    address,
-    functionName,
-    wallet,
-    args,
-  }: WriteContractArgs<TAbi>) {
+  protected validateWallet = (wallet?: HolographWallet | {account: HolographWallet | string}) => {
     let walletClient: HolographWallet
 
     if (wallet === undefined && this._walletManager !== undefined) {
@@ -54,25 +48,56 @@ export class HolographBaseContract {
       walletClient = wallet.account as HolographWallet
     } else {
       throw new Error(
-        'Missing wallet or wallet manager to call read functions. Please provide a valid wallet or configure a wallet manager.',
+        'Missing wallet or wallet manager to call write functions. Please provide a valid wallet or configure a wallet manager.',
       )
     }
 
+    return walletClient
+  }
+
+  protected async _estimateGas<TAbi extends Abi>({
+    chainId,
+    address,
+    functionName,
+    wallet,
+    args,
+  }: WriteContractArgs<TAbi>) {
+    const walletClient = this.validateWallet(wallet)
+
     let client = {wallet: walletClient.onChain(chainId)}
-    //@ts-ignore TODO: fix this type error
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
-    return await contract.write[functionName](args as unknown[])
+    return contract.estimateGas[functionName](args as any)
+  }
+
+  protected async _writeContract<TAbi extends Abi>({
+    chainId,
+    address,
+    functionName,
+    wallet,
+    args,
+    options,
+  }: WriteContractArgs<TAbi>) {
+    const walletClient = this.validateWallet(wallet)
+
+    let client = {wallet: walletClient.onChain(chainId)}
+    const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
+
+    return await contract.write[functionName](args as unknown[], options || {})
   }
 
   protected async _readContract<TAbi extends Abi>({chainId, address, functionName, args}: ReadContractArgs<TAbi>) {
     const provider = this._providers.byChainId(chainId)
 
     let client = {public: provider}
-    //@ts-ignore TODO: fix this type error
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
     return await contract.read[functionName](args as unknown[])
+  }
+
+  protected _getGasPrice = (chainId: number) => {
+    const provider = this._providers.byChainId(chainId)
+    return provider.getGasPrice()
   }
 
   protected async _callContractFunction<TAbi extends Abi>({
@@ -81,6 +106,7 @@ export class HolographBaseContract {
     functionName,
     wallet,
     args,
+    options,
   }: CallContractFunctionArgs<TAbi>) {
     const logger = this._logger.addContext({functionName})
 
@@ -100,6 +126,7 @@ export class HolographBaseContract {
           functionName,
           wallet,
           args,
+          options,
         })
       }
     } catch (error: any) {
