@@ -73,6 +73,7 @@ export type SignDeploy = {
   readonly account: Address
   readonly config: Erc721Config['erc721Config']
   readonly signature: Signature
+  readonly chainId?: number
 }
 
 export type BridgeSettings = {

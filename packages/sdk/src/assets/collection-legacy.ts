@@ -1,9 +1,10 @@
 import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
 
-import {collectionInfoSchema, validate} from './collection.validation'
+import {collectionInfoSchema, primaryChainIdSchema, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
+import {Config, HolographWallet} from '../services'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
 import {
@@ -15,7 +16,6 @@ import {
   Signature,
   SignDeploy,
 } from '../utils/types'
-import {Config, HolographWallet} from '../services'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
@@ -25,18 +25,19 @@ export class HolographLegacyCollection {
   erc721ConfigHash?: Hex
   predictedCollectionAddress?: Address
   signature?: Signature
+  txHash?: string
 
   private factory: Factory
   private registry: Registry
 
   constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
     this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
+    this.primaryChainId = primaryChainIdSchema.parse(primaryChainId)
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
     this.factory = factory
     this.registry = registry
-    this.primaryChainId = primaryChainId
     this.chainIds = []
   }
 
@@ -98,30 +99,31 @@ export class HolographLegacyCollection {
     return this.collectionInfo
   }
 
-  // TODO: Make all _* methods private after setting up all tests
-  async _getFactoryAddress() {
-    const factoryAddress = await this.factory.getAddress(this.primaryChainId)
+  async _getFactoryAddress(chainId = this.primaryChainId) {
+    const factoryAddress = await this.factory.getAddress(chainId)
     return factoryAddress
   }
 
-  async _getRegistryAddress() {
-    const registryAddress = await this.registry.getAddress(this.primaryChainId)
+  async _getRegistryAddress(chainId = this.primaryChainId) {
+    const registryAddress = await this.registry.getAddress(chainId)
     return registryAddress
   }
 
-  async _getPredictedCollectionAddress(erc721ConfigHash: string): Promise<Address> {
-    const factoryAddress = await this._getFactoryAddress()
+  async _getPredictedCollectionAddress(erc721ConfigHash: string, chainId = this.primaryChainId): Promise<Address> {
+    const factoryAddress = await this._getFactoryAddress(chainId)
     const futureAddressSuffix = keccak256(
-      `0xff${remove0x(factoryAddress)}${remove0x(erc721ConfigHash)}${remove0x(bytecodes.Holographer)}`,
+      `0xff${remove0x(factoryAddress)}${remove0x(erc721ConfigHash)}${keccak256(
+        remove0x(bytecodes.Holographer) as Hex,
+      )}`,
     )
-    const erc721FutureAddress = `0x${futureAddressSuffix}`.slice(26) as Hex
+    const erc721FutureAddress = `0x${futureAddressSuffix.slice(26)}` as Hex
     this.predictedCollectionAddress = erc721FutureAddress
 
     return erc721FutureAddress
   }
 
-  async _generateInitCode(account: Address) {
-    const registryAddress = await this._getRegistryAddress()
+  async _generateInitCode(account: Address, chainId = this.primaryChainId) {
+    const registryAddress = await this._getRegistryAddress(chainId)
     const creatorEncoded = encodeAbiParameters(parseAbiParameters('address'), [account])
     const initCodeEncoded = encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
       parseBytes('CxipERC721'),
@@ -140,15 +142,18 @@ export class HolographLegacyCollection {
     ])
   }
 
-  async _getCollectionPayload(account: Address): Promise<{salt: Hex; config: Erc721Config}> {
-    const chainId = BigInt(evm2hlg(this.primaryChainId))
+  async _getCollectionPayload(
+    account: Address,
+    chainId = this.primaryChainId,
+  ): Promise<{salt: Hex; config: Erc721Config}> {
+    const chainType = BigInt(evm2hlg(chainId)) as unknown as number
     const erc721Hash = parseBytes('HolographERC721')
     const salt = this.salt || generateRandomSalt()
-    const initCode = await this._generateInitCode(account)
+    const initCode = await this._generateInitCode(account, chainId)
 
     const erc721Config = {
       contractType: erc721Hash,
-      chainType: chainId as unknown as number,
+      chainType,
       byteCode: bytecodes.CxipERC721,
       initCode,
       salt,
@@ -170,7 +175,7 @@ export class HolographLegacyCollection {
     this.erc721ConfigHash = erc721ConfigHash
 
     const erc721ConfigHashBytes = toBytes(erc721ConfigHash)
-    const erc721FutureAddress = await this._getPredictedCollectionAddress(erc721ConfigHash)
+    const erc721FutureAddress = await this._getPredictedCollectionAddress(erc721ConfigHash, chainId)
 
     return {
       config: {
@@ -184,12 +189,9 @@ export class HolographLegacyCollection {
     }
   }
 
-  async _estimateGasForDeployingCollection(data: SignDeploy): Promise<GasFee> {
+  async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
     const {account, config, signature} = data
-    const chainId = this.primaryChainId
-
     let gasLimit: bigint, gasPrice: bigint
-
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
 
     if (gasController?.gasPrice) {
@@ -201,12 +203,7 @@ export class HolographLegacyCollection {
     if (gasController?.gasLimit) {
       gasLimit = BigInt(gasController.gasLimit)
     } else {
-      gasLimit = await this.factory.estimateGasForDeployingHolographableContract(
-        this.primaryChainId,
-        config,
-        signature,
-        account,
-      )
+      gasLimit = await this.factory.estimateGasForDeployingHolographableContract(chainId, config, signature, account)
     }
 
     if (gasController?.gasLimitMultiplier) {
@@ -226,13 +223,18 @@ export class HolographLegacyCollection {
     }
   }
 
-  async signDeploy(holographWallet: HolographWallet): Promise<SignDeploy> {
+  /**
+   * @param holographWallet - The HolographWallet instance to sign the deploy.
+   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
+   * @returns - The signature data with the config and signature to deploy the collection contract.
+   */
+  async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
-    const collectionPayload = await this._getCollectionPayload(account)
+    const collectionPayload = await this._getCollectionPayload(account, chainId)
 
     const config = collectionPayload?.config
-    const signedMessage = await holographWallet.onChain(this.primaryChainId).signMessage({
+    const signedMessage = await holographWallet.onChain(chainId).signMessage({
       account: holographWallet.account,
       message: config?.erc721ConfigHash,
     })
@@ -241,23 +243,27 @@ export class HolographLegacyCollection {
 
     return {
       account,
+      chainId,
       config: config?.erc721Config,
       signature,
     }
   }
 
-  async deploy(data: SignDeploy): Promise<unknown> {
-    const {account, config, signature} = data
-    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(data)
-    const tx = await this.factory.deployHolographableContract(
-      this.primaryChainId,
-      config,
-      signature,
-      account,
-      undefined,
-      {gasPrice, gas: gasLimit},
-    )
-    return tx
+  /**
+   * @param signatureData - The signature data returned from signDeploy function.
+   * @returns - A transaction hash.
+   */
+  async deploy(signatureData: SignDeploy): Promise<unknown> {
+    const {account, chainId, config, signature} = signatureData
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
+    const txHash = await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
+      gasPrice,
+      gas: gasLimit,
+    })
+
+    this.chainIds?.push(chainId!)
+    this.txHash = String(txHash)
+    return txHash
   }
 
   // TODO: Do later

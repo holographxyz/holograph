@@ -2,6 +2,7 @@ import {config} from 'dotenv'
 import {Log, PublicClient, createPublicClient, http, parseAbi} from 'viem'
 
 import {HOLOGRAPH_EVENTS} from '../src/constants/events'
+import {sleep} from '../src/utils/helpers'
 
 config()
 
@@ -23,8 +24,6 @@ type LogsParams = {
   canFail?: boolean
   interval?: number
 }
-
-const sleep = (ms: number): Promise<unknown> => new Promise(resolve => setTimeout(resolve, ms))
 
 async function retry<T>(network: string, func: () => Promise<T>, attempts = 10, interval = 5000): Promise<T | null> {
   for (let i = 0; i < attempts; i++) {

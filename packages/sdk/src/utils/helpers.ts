@@ -110,3 +110,7 @@ export function parseISODateToTimestampSeconds(date?: string) {
   if (!date) return 0
   return Math.floor(new Date(date).getTime() / 1000)
 }
+
+export function sleep(ms: number): Promise<unknown> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
