@@ -2,7 +2,7 @@ import {Hex} from 'viem'
 import * as z from 'zod'
 
 import {generateRandomSalt, getAddressTypeSchema} from '../utils/helpers'
-import {TokenType} from '../utils/types'
+import {HolographVersion, TokenType} from '../utils/types'
 
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().optional()
@@ -19,7 +19,7 @@ const saltSchema = z
   .default(generateRandomSalt())
   .transform(salt => salt as Hex)
 const tokenTypeSchema = z.enum([TokenType.ERC721, TokenType.ERC1155]).default(TokenType.ERC721)
-const primaryChainIdSchema = z.number().int().min(1)
+export const primaryChainIdSchema = z.number().int().min(1)
 
 const publicSalePriceSchema = z.number().int().min(0)
 const maxSalePurchasePerAddressSchema = z.number().int().min(1, {message: 'Must be at least 1'})
@@ -116,4 +116,118 @@ export const validate = {
   presaleMerkleRoot: presaleMerkleRootSchema,
   nftIpfsUrl: nftIpfsUrlSchema,
   nftIpfsImageCid: nftIpfsImageCidSchema,
+}
+
+export const DROP_INIT_CODE_ABI_PARAMETERS = {
+  [HolographVersion.V1]: [
+    {
+      type: 'tuple',
+      components: [
+        {
+          type: 'address',
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'uint64',
+        },
+        {
+          type: 'uint16',
+        },
+        {
+          type: 'bool',
+        },
+        {
+          type: 'tuple',
+          components: [
+            {
+              type: 'uint104',
+            },
+            {
+              type: 'uint32',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'bytes32',
+            },
+          ],
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'bytes',
+        },
+      ],
+    },
+  ],
+  [HolographVersion.V2]: [
+    {
+      type: 'tuple',
+      components: [
+        {
+          type: 'address',
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'uint64',
+        },
+        {
+          type: 'uint16',
+        },
+        {
+          type: 'tuple',
+          components: [
+            {
+              type: 'uint104',
+            },
+            {
+              type: 'uint32',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'uint64',
+            },
+            {
+              type: 'bytes32',
+            },
+          ],
+        },
+        {
+          type: 'address',
+        },
+        {
+          type: 'bytes',
+        },
+      ],
+    },
+  ],
 }

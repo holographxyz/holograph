@@ -126,7 +126,7 @@ export class Addresses {
       case Environment.localhost: {
         switch (chainId) {
           default:
-            return ''.toLowerCase() as Address // TODO: Add address
+            return '0xdF26982B2D5A4904757f6099b939c0eBcFE70668'.toLowerCase() as Address
         }
       }
       case Environment.develop: {

@@ -19,6 +19,7 @@ export const localhostContractAddresses = {
   holographInterfaces: '0x67F6394693bd2B46BBE87627F0E581faD80C7B57',
   holographRoyalties: '0xbF8f7474D7aCbb87E270FEDA9A5CBB7f766887E3',
   holographUtilityToken: '0x56BA455232a82784F17C33c577124EF208D931ED',
+  editionsMetadataRenderer: '0xdF26982B2D5A4904757f6099b939c0eBcFE70668',
   hToken: '0x0533A3bfB526Af481FEA67BDC6dF1E09e91084ec',
   messageModule: '0x350856f758d9A1b8c24540d8E10cd6AB45B1466d',
   ovmGasPriceOracle: '0xca971c5F8B071E0921913d4d167B9Bfaaa9Fd029',

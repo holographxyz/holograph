@@ -253,7 +253,6 @@ export class Factory extends HolographBaseContract {
   }
 
   /**
-   *
    * @param chainId  The chain id of the network to send the transaction.
    * @param config The contract deployment configurations.
    * @param signature The signature by the wallet that created the original payload.

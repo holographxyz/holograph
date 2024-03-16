@@ -4,7 +4,7 @@ import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {ContractRevertError} from '../../errors'
 import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
-import {generateRandomSalt} from '../../utils/helpers'
+import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
 describe('Asset class: HolographLegacyCollection', () => {
@@ -19,7 +19,7 @@ describe('Asset class: HolographLegacyCollection', () => {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
         symbol: 'HOLO',
-        royaltiesBps: 1000,
+        royaltiesBps: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
@@ -52,7 +52,7 @@ describe('Asset class: HolographLegacyCollection', () => {
       expect(collectionInfo.name).toBe('NFTs Without Boundaries')
       expect(collectionInfo.description).toBe('Probably nothing')
       expect(collectionInfo.symbol).toBe('HOLO')
-      expect(collectionInfo.royaltiesBps).toBe(1000)
+      expect(collectionInfo.royaltiesBps).toBe(2000)
       expect(collectionInfo.tokenType).toBe('ERC721')
     })
   })
@@ -83,7 +83,7 @@ describe('Asset class: HolographLegacyCollection', () => {
     })
   })
 
-  describe('_generateInitCode', () => {
+  describe('_generateInitCode()', () => {
     it('should be able to generate the correct init code', async () => {
       const initCode = await collection._generateInitCode(accountAddress)
 
@@ -95,6 +95,15 @@ describe('Asset class: HolographLegacyCollection', () => {
   describe('_getCollectionPayload()', () => {
     it('should be able to get the correct collection payload', async () => {
       const collectionPayload = await collection._getCollectionPayload(accountAddress)
+      const {
+        config: {
+          erc721Config: {byteCode, chainType, contractType, initCode, salt},
+          erc721ConfigHash,
+          erc721FutureAddress,
+          erc721Hash,
+        },
+      } = collectionPayload
+      const properties = [byteCode, contractType, erc721Hash, erc721ConfigHash, erc721FutureAddress, initCode, salt]
 
       expect(collectionPayload).toHaveProperty('config')
       expect(collectionPayload).toHaveProperty('salt')
@@ -103,46 +112,55 @@ describe('Asset class: HolographLegacyCollection', () => {
       expect(collectionPayload.config).toHaveProperty('erc721ConfigHash')
       expect(collectionPayload.config).toHaveProperty('erc721ConfigHashBytes')
       expect(collectionPayload.config).toHaveProperty('erc721FutureAddress')
+
+      properties.forEach(property => {
+        expect(property).not.toBeUndefined()
+        expect(property).to.be.an('string')
+        expect(property.toString().startsWith('0x')).to.be.true
+      })
+
+      expect(chainType).not.toBeUndefined()
+      expect(chainType).to.be.a('bigint')
     })
   })
 
-  describe('_estimateGasForDeployingCollection', () => {
+  describe('_estimateGasForDeployingCollection()', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
-      const result = await collection._estimateGasForDeployingCollection(signatureData)
-      const gasPrice = Number(result.gasPrice)
-      const gasLimit = Number(result.gasLimit)
-      const gas = Number(result.gas)
+      const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
+      const gasPrice = Number(gasEstimation.gasPrice)
+      const gasLimit = Number(gasEstimation.gasLimit)
+      const gas = Number(gasEstimation.gas)
 
-      expect(result).toHaveProperty('gasPrice')
-      expect(result).toHaveProperty('gasLimit')
+      expect(gasEstimation).toHaveProperty('gasPrice')
+      expect(gasEstimation).toHaveProperty('gasLimit')
       expect(gasPrice).toBeGreaterThan(0)
       expect(gasLimit).toBeGreaterThan(0)
       expect(gas).toBe(gasPrice * gasLimit)
     })
   })
 
-  describe('signDeploy', () => {
+  describe('signDeploy()', () => {
     it('should be able to sign the collection deployment', async () => {
-      const result = await collection.signDeploy(wallet)
+      const signatureData = await collection.signDeploy(wallet)
 
-      expect(result).toHaveProperty('account')
-      expect(result).toHaveProperty('config')
-      expect(result).toHaveProperty('signature')
-      expect(result.config).toHaveProperty('contractType')
-      expect(result.config).toHaveProperty('chainType')
-      expect(result.config).toHaveProperty('salt')
-      expect(result.config).toHaveProperty('byteCode')
-      expect(result.config).toHaveProperty('initCode')
-      expect(result.signature).toHaveProperty('r')
-      expect(result.signature).toHaveProperty('s')
-      expect(result.signature).toHaveProperty('v')
+      expect(signatureData).toHaveProperty('account')
+      expect(signatureData).toHaveProperty('config')
+      expect(signatureData).toHaveProperty('signature')
+      expect(signatureData.config).toHaveProperty('contractType')
+      expect(signatureData.config).toHaveProperty('chainType')
+      expect(signatureData.config).toHaveProperty('salt')
+      expect(signatureData.config).toHaveProperty('byteCode')
+      expect(signatureData.config).toHaveProperty('initCode')
+      expect(signatureData.signature).toHaveProperty('r')
+      expect(signatureData.signature).toHaveProperty('s')
+      expect(signatureData.signature).toHaveProperty('v')
 
       const {
         account,
         config: {byteCode, chainType, contractType, initCode, salt},
         signature: {r, s, v},
-      } = result
+      } = signatureData
 
       const properties = [account, byteCode, contractType, initCode, salt, r, s, v]
 
@@ -153,12 +171,13 @@ describe('Asset class: HolographLegacyCollection', () => {
       })
 
       expect(chainType).not.toBeUndefined()
-      expect(chainType).to.be.an('bigint')
+      expect(chainType).to.be.a('bigint')
     })
   })
 
   describe('deploy()', () => {
     it('should be able to deploy a collection', async () => {
+      await sleep(250) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
       const txHash = await collection.deploy(signatureData)
 

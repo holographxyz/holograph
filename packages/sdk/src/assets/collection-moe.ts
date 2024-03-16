@@ -1,10 +1,18 @@
 import {Address, Hex, encodeAbiParameters, keccak256, parseAbiParameters, stringToHex, toBytes} from 'viem'
 import {networks} from '@holographxyz/networks'
 
-import {collectionInfoSchema, holographMoeSaleConfigSchema, nftInfoSchema, validate} from './collection.validation'
+import {
+  DROP_INIT_CODE_ABI_PARAMETERS,
+  collectionInfoSchema,
+  holographMoeSaleConfigSchema,
+  nftInfoSchema,
+  primaryChainIdSchema,
+  validate,
+} from './collection.validation'
 import {getEnv} from '../config/env.validation'
 import {Addresses} from '../constants/addresses'
 import {bytecodes} from '../constants/bytecodes'
+import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {
@@ -15,9 +23,11 @@ import {
   parseISODateToTimestampSeconds,
   strictECDSA,
 } from '../utils/helpers'
+import {remove0x} from '../utils/transformers'
 import {
   CollectionInfo,
   CreateHolographMoe,
+  GasFee,
   HolographConfig,
   HolographDropERC721InitCodeV1Params,
   HolographDropERC721InitCodeV2Params,
@@ -28,7 +38,6 @@ import {
   SignDeploy,
   Signature,
 } from '../utils/types'
-import {remove0x} from '../utils/transformers'
 
 export class HolographMoeERC721DropV1 {
   collectionInfo: CollectionInfo
@@ -38,8 +47,8 @@ export class HolographMoeERC721DropV1 {
   account?: Address
   chainIds?: number[]
   erc721ConfigHash?: Hex
-  predictedCollectionAddress?: Address
   signature?: Signature
+  txHash?: string
 
   private factory: Factory
   private registry: Registry
@@ -51,12 +60,12 @@ export class HolographMoeERC721DropV1 {
     this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
     this.nftInfo = nftInfoSchema.parse(nftInfo)
     this.saleConfig = holographMoeSaleConfigSchema.parse(saleConfig)
+    this.primaryChainId = primaryChainIdSchema.parse(primaryChainId)
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
     this.factory = factory
     this.registry = registry
-    this.primaryChainId = primaryChainId
     this.chainIds = []
   }
 
@@ -199,21 +208,20 @@ export class HolographMoeERC721DropV1 {
     return {...this.collectionInfo, ...this.nftInfo, ...this.saleConfig}
   }
 
-  // TODO: Make all _* methods private after setting up all tests
-  async _getRegistryAddress() {
-    const registryAddress = await this.registry.getAddress(this.primaryChainId)
+  async _getRegistryAddress(chainId = this.primaryChainId) {
+    const registryAddress = await this.registry.getAddress(chainId)
     return registryAddress
   }
 
-  _getMetadataRendererAddress(version: HolographVersion) {
+  _getMetadataRendererAddress(version: HolographVersion, chainId = this.primaryChainId) {
     const isV2 = version === HolographVersion.V2
     if (isV2) {
-      return Addresses.editionsMetadataRenderer(getEnv().HOLOGRAPH_ENVIRONMENT, this.primaryChainId)
+      return Addresses.editionsMetadataRenderer(getEnv().HOLOGRAPH_ENVIRONMENT, chainId)
     }
     return Addresses.editionsMetadataRendererV1()
   }
 
-  _generateMetadataRendererInitCode(description: string, imageURI: string, animationURI: string) {
+  _generateMetadataRendererInitCode(description: string, imageURI: string, animationURI = '') {
     return encodeAbiParameters(parseAbiParameters('string, string, string'), [description, imageURI, animationURI])
   }
 
@@ -233,25 +241,20 @@ export class HolographMoeERC721DropV1 {
       salesConfigArray,
     } = data
 
-    const moeDataInitCode = encodeAbiParameters(
-      parseAbiParameters(
-        'tuple(address,address,address,address,uint64,uint16,bool,tuple(uint104,uint32,uint64,uint64,uint64,uint64,bytes32),address,bytes)',
-      ),
+    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V1, [
       [
-        [
-          erc721TransferHelper,
-          marketFilterAddress,
-          initialOwner,
-          fundsRecipient,
-          numOfEditions,
-          royaltyBps,
-          enableOpenSeaRoyaltyRegistry,
-          salesConfigArray,
-          metadataRendererAddress,
-          metadataRendererInitCode,
-        ],
+        erc721TransferHelper,
+        marketFilterAddress,
+        initialOwner,
+        fundsRecipient,
+        numOfEditions,
+        royaltyBps,
+        enableOpenSeaRoyaltyRegistry,
+        salesConfigArray,
+        metadataRendererAddress,
+        metadataRendererInitCode,
       ],
-    )
+    ])
 
     return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
       contractType as Hex,
@@ -273,22 +276,17 @@ export class HolographMoeERC721DropV1 {
       salesConfigArray,
     } = data
 
-    const moeDataInitCode = encodeAbiParameters(
-      parseAbiParameters(
-        'tuple(address,address,uint64,uint16,tuple(uint104,uint32,uint64,uint64,uint64,uint64,bytes32),address,bytes)',
-      ),
+    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V2, [
       [
-        [
-          initialOwner,
-          fundsRecipient,
-          numOfEditions,
-          royaltyBps,
-          salesConfigArray,
-          metadataRendererAddress,
-          metadataRendererInitCode,
-        ],
+        initialOwner,
+        fundsRecipient,
+        numOfEditions,
+        royaltyBps,
+        salesConfigArray,
+        metadataRendererAddress,
+        metadataRendererInitCode,
       ],
-    )
+    ])
 
     return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
       contractType as Hex,
@@ -310,22 +308,22 @@ export class HolographMoeERC721DropV1 {
     ])
   }
 
-  async _getCollectionPayload(account: Address, version: HolographVersion) {
+  async _getCollectionPayload(account: Address, version: HolographVersion, chainId = this.primaryChainId) {
     const contractType = ('0x' + stringToHex('HolographERC721').slice(2).padStart(64, '0')) as Hex
     const isV2 = version === HolographVersion.V2
     const dropVersion = isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721'
     const dropContractType = '0x' + stringToHex(dropVersion).substring(2).padStart(64, '0')
-    const registryAddress = await this._getRegistryAddress()
-    const metadataRendererAddress = this._getMetadataRendererAddress(version)
+    const registryAddress = await this._getRegistryAddress(chainId)
+    const metadataRendererAddress = this._getMetadataRendererAddress(version, chainId)
     const numOfEditions = 0
 
     const saleConfig = {
-      publicSalePrice: this.publicSalePrice * Math.pow(10, 6), // in USD
+      publicSalePrice: this.publicSalePrice * Math.pow(10, 6), // In USD
       maxSalePurchasePerAddress: this.maxSalePurchasePerAddress,
       publicSaleStart: parseISODateToTimestampSeconds(this.publicSaleStart),
       publicSaleEnd: parseISODateToTimestampSeconds(this.publicSaleEnd),
-      presaleStart: 0, // no presale
-      presaleEnd: 0, // no presale
+      presaleStart: 0, // No presale
+      presaleEnd: 0, // No presale
       presaleMerkleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000', // No presale
     }
     const salesConfigArray = Object.values(saleConfig)
@@ -336,7 +334,6 @@ export class HolographMoeERC721DropV1 {
     const metadataRendererInitCode = this._generateMetadataRendererInitCode(
       JSON.stringify(this.description).slice(1, -1),
       `ipfs://${imageCid}/${imageFileName}`,
-      '',
     )
 
     const dropInitCode = isV2
@@ -375,7 +372,7 @@ export class HolographMoeERC721DropV1 {
       holographDropERC721InitCode: dropInitCode,
     })
 
-    const networkKey = Object.keys(networks).find(network => networks[network].chain === this.primaryChainId)
+    const networkKey = Object.keys(networks).find(network => networks[network].chain === chainId)
     const chainType = '0x' + networks[networkKey!].holographId.toString(16).padStart(8, '0')
     const salt = this.salt || generateRandomSalt()
     const byteCode = bytecodes.HolographDropERC721
@@ -390,21 +387,60 @@ export class HolographMoeERC721DropV1 {
     )
     const configHashBytes = toBytes(configHash)
 
-    return {configHash, configHashBytes, contractType, salt, byteCode, chainType, initCode}
+    return {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt}
   }
 
-  _getCollectionPayloadWithVersion(account: Address) {
-    return this._getCollectionPayload(account, HolographVersion.V1)
+  _getCollectionPayloadWithVersion(account: Address, chainId = this.primaryChainId) {
+    return this._getCollectionPayload(account, HolographVersion.V1, chainId)
   }
 
-  async signDeploy(holographWallet: HolographWallet): Promise<SignDeploy> {
+  async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
+    const {account, config, signature} = data
+    let gasLimit: bigint, gasPrice: bigint
+    const gasController = GAS_CONTROLLER.moeCollectionDeploy[chainId]
+
+    if (gasController?.gasPrice) {
+      gasPrice = BigInt(gasController.gasPrice!)
+    } else {
+      gasPrice = await this.factory.getGasPrice(chainId)
+    }
+
+    if (gasController?.gasLimit) {
+      gasLimit = BigInt(gasController.gasLimit)
+    } else {
+      gasLimit = await this.factory.estimateGasForDeployingHolographableContract(chainId, config, signature, account)
+    }
+
+    if (gasController?.gasLimitMultiplier) {
+      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
+    }
+
+    if (gasController?.gasPriceMultiplier) {
+      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
+    }
+
+    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+
+    return {
+      gasPrice,
+      gasLimit,
+      gas,
+    }
+  }
+
+  /**
+   * @param holographWallet - The HolographWallet instance to sign the deploy.
+   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
+   * @returns - The signature data with the config and signature to deploy the collection contract.
+   */
+  async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
-    const collectionPayload = await this._getCollectionPayloadWithVersion(account)
+    const collectionPayload = await this._getCollectionPayloadWithVersion(account, chainId)
 
     const {configHash, configHashBytes, ...config} = collectionPayload
 
-    const signedMessage = await holographWallet.onChain(this.primaryChainId).signMessage({
+    const signedMessage = await holographWallet.onChain(chainId).signMessage({
       account: holographWallet.account,
       message: configHash,
     })
@@ -414,49 +450,27 @@ export class HolographMoeERC721DropV1 {
 
     return {
       account,
+      chainId,
       config,
       signature: parsedSignature,
     }
   }
 
-  async deploy(data: SignDeploy): Promise<unknown> {
-    const {account, config, signature} = data
-    // const { gasLimit, gasPrice } = await this.estimateGasForDeployingCollection(data)
-    const tx = await this.factory.deployHolographableContract(this.primaryChainId, config, signature, account)
-    return tx
-  }
-
-  // TODO: Do later
-  async estimateGasForDeployingCollection(data: SignDeploy) {
-    const holographFactory = this.factory
-    const chainId = this.primaryChainId
-    let gasLimit, gasPrice
-
-    // if (GAS_CONTROLLER.moeCollectionDeploy[chainId]?.gasPrice) {
-    //   gasPrice = BigInt(GAS_CONTROLLER.moeCollectionDeploy[chainId].gasPrice)
-    // } else {
-    //   gasPrice = await this.getChainGasPrice()
-    // }
-
-    // if (GAS_CONTROLLER.moeCollectionDeploy[chainId]?.gasLimit) {
-    //   gasLimit = BigInt(GAS_CONTROLLER.moeCollectionDeploy[chainId].gasLimit)
-    // } else {
-    //   gasLimit = await holographFactory.estimateGas.deployHolographableContract(erc721Config, signature, account)
-    // }
-
-    // if (GAS_CONTROLLER.moeCollectionDeploy[chainId]?.gasLimitMultiplier) {
-    //   gasLimit = (BigInt(gasLimit) * GAS_CONTROLLER.moeCollectionDeploy[chainId].gasLimitMultiplier!) / 100
-    // }
-
-    // if (GAS_CONTROLLER.moeCollectionDeploy[chainId]?.gasPriceMultiplier) {
-    //   gasPrice = (BigInt(gasPrice) * GAS_CONTROLLER.moeCollectionDeploy[chainId].gasPriceMultiplier!) / 100
-    // }
-
-    return {
+  /**
+   * @param signatureData - The signature data returned from signDeploy function.
+   * @returns - A transaction hash.
+   */
+  async deploy(signatureData: SignDeploy): Promise<unknown> {
+    const {account, chainId, config, signature} = signatureData
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
+    const txHash = await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
       gasPrice,
-      gasLimit,
-      gas: gasPrice.mul(gasLimit),
-    }
+      gas: gasLimit,
+    })
+
+    this.chainIds?.push(chainId!)
+    this.txHash = String(txHash)
+    return txHash
   }
 
   // TODO: Do later
@@ -471,7 +485,7 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
     super(configObject, {collectionInfo, nftInfo, primaryChainId, saleConfig})
   }
 
-  __getCollectionPayloadWithVersion(account: Address) {
-    return this._getCollectionPayload(account, HolographVersion.V2)
+  _getCollectionPayloadWithVersion(account: Address, chainId = this.primaryChainId) {
+    return this._getCollectionPayload(account, HolographVersion.V2, chainId)
   }
 }
