@@ -5,8 +5,8 @@ import {bytecodes} from '../../constants/bytecodes'
 import {ContractRevertError} from '../../errors'
 import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
-import {generateRandomSalt} from '../../utils/helpers'
-import {HolographAccount, HolographVersion} from '../../utils/types'
+import {enableDropEventsV2, generateRandomSalt} from '../../utils/helpers'
+import {HolographAccount} from '../../utils/types'
 
 describe('Asset class: HolographMoeERC721DropV2', () => {
   const account: HolographAccount = configObject.accounts?.default!
@@ -41,11 +41,12 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     expect(collection).toHaveProperty('_getRegistryAddress')
     expect(collection).toHaveProperty('_getMetadataRendererAddress')
     expect(collection).toHaveProperty('_generateMetadataRendererInitCode')
-    expect(collection).toHaveProperty('_generateHolographDropERC721InitCodeV1')
-    expect(collection).toHaveProperty('_generateHolographDropERC721InitCodeV2')
+    expect(collection).toHaveProperty('_getDropContractType')
+    expect(collection).toHaveProperty('_getDropInitCode')
+    expect(collection).toHaveProperty('_getEventConfig')
+    expect(collection).toHaveProperty('_generateHolographDropERC721InitCode')
     expect(collection).toHaveProperty('_generateHolographERC721InitCode')
     expect(collection).toHaveProperty('_getCollectionPayload')
-    expect(collection).toHaveProperty('_getCollectionPayloadWithVersion')
     expect(collection).toHaveProperty('_estimateGasForDeployingCollection')
     expect(collection).toHaveProperty('getCollectionInfo')
     expect(collection).toHaveProperty('signDeploy')
@@ -92,8 +93,17 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
   describe('_getMetadataRendererAddress()', () => {
     it('should be able to get the correct metadata renderer address', async () => {
-      const metadataRendererAddress = collection._getMetadataRendererAddress(HolographVersion.V2)
+      const metadataRendererAddress = collection._getMetadataRendererAddress()
+
       expect(metadataRendererAddress).toBe(localhostContractAddresses.editionsMetadataRenderer.toLowerCase())
+    })
+  })
+
+  describe('_getEventConfig()', () => {
+    it('should be able to get the correct event config', async () => {
+      const eventConfig = collection._getEventConfig()
+
+      expect(eventConfig).toBe(enableDropEventsV2())
     })
   })
 
@@ -113,7 +123,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
   describe('_getCollectionPayload()', () => {
     it('should be able to get the correct collection payload', async () => {
-      const collectionPayload = await collection._getCollectionPayload(accountAddress, HolographVersion.V2)
+      const collectionPayload = await collection._getCollectionPayload(accountAddress)
       const {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt} = collectionPayload
       const properties = [byteCode, chainType, configHash, contractType, initCode, salt]
 
@@ -203,6 +213,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
         await collection.deploy(signatureData)
       } catch (err: unknown) {
         const errorMessage = (err as ContractRevertError).message
+
         expect(errorMessage).toContain('HOLOGRAPH: already deployed')
       }
     })

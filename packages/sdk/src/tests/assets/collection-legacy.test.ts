@@ -60,6 +60,7 @@ describe('Asset class: HolographLegacyCollection', () => {
   describe('_getFactoryAddress()', () => {
     it('should be able to get the correct factory address', async () => {
       const factoryAddress = await collection._getFactoryAddress()
+
       expect(factoryAddress).toBe(localhostContractAddresses.holographFactory)
     })
   })
@@ -194,6 +195,7 @@ describe('Asset class: HolographLegacyCollection', () => {
         await collection.deploy(signatureData)
       } catch (err: unknown) {
         const errorMessage = (err as ContractRevertError).message
+
         expect(errorMessage).toContain('HOLOGRAPH: already deployed')
       }
     })
