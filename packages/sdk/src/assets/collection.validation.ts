@@ -118,64 +118,63 @@ export const validate = {
   nftIpfsImageCid: nftIpfsImageCidSchema,
 }
 
-// TODO: Label the following items or at least add a link to the protocol repo
 export const DROP_INIT_CODE_ABI_PARAMETERS = {
   [HolographVersion.V1]: [
     {
       type: 'tuple',
       components: [
         {
-          type: 'address',
+          type: 'address', // erc721TransferHelper
         },
         {
-          type: 'address',
+          type: 'address', // marketFilterAddress
         },
         {
-          type: 'address',
+          type: 'address', // initialOwner
         },
         {
-          type: 'address',
+          type: 'address', // fundsRecipient
         },
         {
-          type: 'uint64',
+          type: 'uint64', // numOfEditions
         },
         {
-          type: 'uint16',
+          type: 'uint16', // royaltyBps
         },
         {
-          type: 'bool',
+          type: 'bool', // enableOpenSeaRoyaltyRegistry
         },
         {
-          type: 'tuple',
+          type: 'tuple', // salesConfig
           components: [
             {
-              type: 'uint104',
+              type: 'uint104', // publicSalePrice
             },
             {
-              type: 'uint32',
+              type: 'uint32', // maxSalePurchasePerAddress
             },
             {
-              type: 'uint64',
+              type: 'uint64', // publicSaleStart
             },
             {
-              type: 'uint64',
+              type: 'uint64', // publicSaleEnd
             },
             {
-              type: 'uint64',
+              type: 'uint64', // presaleStart
             },
             {
-              type: 'uint64',
+              type: 'uint64', // presaleEnd
             },
             {
-              type: 'bytes32',
+              type: 'bytes32', // presaleMerkleRoot
             },
           ],
         },
         {
-          type: 'address',
+          type: 'address', // metadataRendererAddress
         },
         {
-          type: 'bytes',
+          type: 'bytes', // metadataRendererInitCode
         },
       ],
     },
@@ -185,48 +184,48 @@ export const DROP_INIT_CODE_ABI_PARAMETERS = {
       type: 'tuple',
       components: [
         {
-          type: 'address',
+          type: 'address', // initialOwner
         },
         {
-          type: 'address',
+          type: 'address', // fundsRecipient
         },
         {
-          type: 'uint64',
+          type: 'uint64', // numOfEditions
         },
         {
-          type: 'uint16',
+          type: 'uint16', // royaltyBps
         },
         {
-          type: 'tuple',
+          type: 'tuple', // salesConfig
           components: [
             {
-              type: 'uint104',
+              type: 'uint104', // publicSalePrice
             },
             {
-              type: 'uint32',
+              type: 'uint32', // maxSalePurchasePerAddress
             },
             {
-              type: 'uint64',
+              type: 'uint64', // publicSaleStart
             },
             {
-              type: 'uint64',
+              type: 'uint64', // publicSaleEnd
             },
             {
-              type: 'uint64',
+              type: 'uint64', // presaleStart
             },
             {
-              type: 'uint64',
+              type: 'uint64', // presaleEnd
             },
             {
-              type: 'bytes32',
+              type: 'bytes32', // presaleMerkleRoot
             },
           ],
         },
         {
-          type: 'address',
+          type: 'address', // metadataRendererAddress
         },
         {
-          type: 'bytes',
+          type: 'bytes', // metadataRendererInitCode
         },
       ],
     },
