@@ -100,13 +100,11 @@ export class HolographLegacyCollection {
   }
 
   async _getFactoryAddress(chainId = this.primaryChainId) {
-    const factoryAddress = await this.factory.getAddress(chainId)
-    return factoryAddress
+    return this.factory.getAddress(chainId)
   }
 
   async _getRegistryAddress(chainId = this.primaryChainId) {
-    const registryAddress = await this.registry.getAddress(chainId)
-    return registryAddress
+    return this.registry.getAddress(chainId)
   }
 
   async _getPredictedCollectionAddress(erc721ConfigHash: string, chainId = this.primaryChainId): Promise<Address> {

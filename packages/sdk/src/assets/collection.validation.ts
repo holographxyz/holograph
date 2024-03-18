@@ -118,6 +118,7 @@ export const validate = {
   nftIpfsImageCid: nftIpfsImageCidSchema,
 }
 
+// TODO: Label the following items or at least add a link to the protocol repo
 export const DROP_INIT_CODE_ABI_PARAMETERS = {
   [HolographVersion.V1]: [
     {

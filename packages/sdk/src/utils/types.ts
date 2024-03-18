@@ -243,6 +243,14 @@ export type WriteContractOptions = Partial<
   Omit<WriteContractParameters, 'abi' | 'address' | 'args' | 'client' | 'functionName'>
 >
 
+export type GetDropInitCodeParams = {
+  account: Address
+  registryAddress: Address
+  metadataRendererAddress: Address
+  metadataRendererInitCode: Hex
+  salesConfigArray: Array<string | number>
+}
+
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
 
 export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>

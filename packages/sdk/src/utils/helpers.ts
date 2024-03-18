@@ -46,11 +46,11 @@ export function allEventsEnabled(): string {
   return '0x' + 'ff'.repeat(32)
 }
 
-export function enableDropEvents(): string {
+export function enableDropEvents(): Hex {
   return '0x0000000000000000000000000000000000000000000000000000000000065000'
 }
 
-export function enableDropEventsV2(): string {
+export function enableDropEventsV2(): Hex {
   return '0x0000000000000000000000000000000000000000000000000000000000040000'
 }
 

@@ -28,12 +28,12 @@ import {
   CollectionInfo,
   CreateHolographMoe,
   GasFee,
+  GetDropInitCodeParams,
   HolographConfig,
   HolographDropERC721InitCodeV1Params,
   HolographDropERC721InitCodeV2Params,
   HolographERC721InitCodeParamsSchema,
   HolographMoeSaleConfig,
-  HolographVersion,
   NftInfo,
   SignDeploy,
   Signature,
@@ -209,23 +209,26 @@ export class HolographMoeERC721DropV1 {
   }
 
   async _getRegistryAddress(chainId = this.primaryChainId) {
-    const registryAddress = await this.registry.getAddress(chainId)
-    return registryAddress
+    return this.registry.getAddress(chainId)
   }
 
-  _getMetadataRendererAddress(version: HolographVersion, chainId = this.primaryChainId) {
-    const isV2 = version === HolographVersion.V2
-    if (isV2) {
-      return Addresses.editionsMetadataRenderer(getEnv().HOLOGRAPH_ENVIRONMENT, chainId)
-    }
+  _getMetadataRendererAddress(chainId = this.primaryChainId) {
     return Addresses.editionsMetadataRendererV1()
+  }
+
+  _getDropContractType() {
+    return '0x' + stringToHex('HolographDropERC721').substring(2).padStart(64, '0')
+  }
+
+  _getEventConfig() {
+    return enableDropEvents()
   }
 
   _generateMetadataRendererInitCode(description: string, imageURI: string, animationURI = '') {
     return encodeAbiParameters(parseAbiParameters('string, string, string'), [description, imageURI, animationURI])
   }
 
-  _generateHolographDropERC721InitCodeV1(data: HolographDropERC721InitCodeV1Params) {
+  _generateHolographDropERC721InitCode(data: HolographDropERC721InitCodeV1Params) {
     const {
       contractType,
       enableOpenSeaRoyaltyRegistry,
@@ -263,38 +266,6 @@ export class HolographMoeERC721DropV1 {
     ])
   }
 
-  _generateHolographDropERC721InitCodeV2(data: HolographDropERC721InitCodeV2Params) {
-    const {
-      contractType,
-      fundsRecipient,
-      initialOwner,
-      metadataRendererAddress,
-      metadataRendererInitCode,
-      numOfEditions,
-      royaltyBps,
-      registryAddress,
-      salesConfigArray,
-    } = data
-
-    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V2, [
-      [
-        initialOwner,
-        fundsRecipient,
-        numOfEditions,
-        royaltyBps,
-        salesConfigArray,
-        metadataRendererAddress,
-        metadataRendererInitCode,
-      ],
-    ])
-
-    return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
-      contractType as Hex,
-      registryAddress,
-      moeDataInitCode,
-    ])
-  }
-
   _generateHolographERC721InitCode(data: HolographERC721InitCodeParamsSchema) {
     const {collectionName, collectionSymbol, royaltyBps, eventConfig, skipInit, holographDropERC721InitCode} = data
     return encodeAbiParameters(parseAbiParameters('string, string, uint16, uint256, bool, bytes'), [
@@ -308,15 +279,9 @@ export class HolographMoeERC721DropV1 {
     ])
   }
 
-  async _getCollectionPayload(account: Address, version: HolographVersion, chainId = this.primaryChainId) {
-    const contractType = ('0x' + stringToHex('HolographERC721').slice(2).padStart(64, '0')) as Hex
-    const isV2 = version === HolographVersion.V2
-    const dropVersion = isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721'
-    const dropContractType = '0x' + stringToHex(dropVersion).substring(2).padStart(64, '0')
+  async _getInitialPayload(chainId = this.primaryChainId) {
     const registryAddress = await this._getRegistryAddress(chainId)
-    const metadataRendererAddress = this._getMetadataRendererAddress(version, chainId)
-    const numOfEditions = 0
-
+    const metadataRendererAddress = this._getMetadataRendererAddress(chainId)
     const saleConfig = {
       publicSalePrice: this.publicSalePrice * Math.pow(10, 6), // In USD
       maxSalePurchasePerAddress: this.maxSalePurchasePerAddress,
@@ -326,8 +291,8 @@ export class HolographMoeERC721DropV1 {
       presaleEnd: 0, // No presale
       presaleMerkleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000', // No presale
     }
-    const salesConfigArray = Object.values(saleConfig)
 
+    const salesConfigArray = Object.values(saleConfig)
     const imagePinataLink = this.nftIpfsUrl
     const imageCid = this.nftIpfsImageCid
     const imageFileName = imagePinataLink.split('/').at(-1)
@@ -335,47 +300,53 @@ export class HolographMoeERC721DropV1 {
       JSON.stringify(this.description).slice(1, -1),
       `ipfs://${imageCid}/${imageFileName}`,
     )
+    const dropContractType = this._getDropContractType()
 
-    const dropInitCode = isV2
-      ? this._generateHolographDropERC721InitCodeV2({
-          contractType: dropContractType,
-          registryAddress,
-          initialOwner: account,
-          fundsRecipient: account,
-          metadataRendererAddress,
-          metadataRendererInitCode,
-          numOfEditions,
-          royaltyBps: this.royaltiesBps,
-          salesConfigArray,
-        })
-      : this._generateHolographDropERC721InitCodeV1({
-          contractType: dropContractType,
-          registryAddress,
-          erc721TransferHelper: '0x0000000000000000000000000000000000000000',
-          marketFilterAddress: '0x0000000000000000000000000000000000000000',
-          initialOwner: account,
-          fundsRecipient: account,
-          numOfEditions,
-          royaltyBps: this.royaltiesBps,
-          enableOpenSeaRoyaltyRegistry: false,
-          salesConfigArray,
-          metadataRendererAddress,
-          metadataRendererInitCode,
-        })
+    return {dropContractType, metadataRendererAddress, metadataRendererInitCode, registryAddress, salesConfigArray}
+  }
 
+  _getDropInitCode({
+    account,
+    metadataRendererAddress,
+    metadataRendererInitCode,
+    registryAddress,
+    salesConfigArray,
+  }: GetDropInitCodeParams): Hex {
+    const dropContractType = this._getDropContractType()
+
+    return this._generateHolographDropERC721InitCode({
+      contractType: dropContractType,
+      enableOpenSeaRoyaltyRegistry: false,
+      erc721TransferHelper: '0x0000000000000000000000000000000000000000',
+      fundsRecipient: account,
+      initialOwner: account,
+      marketFilterAddress: '0x0000000000000000000000000000000000000000',
+      metadataRendererAddress,
+      metadataRendererInitCode,
+      numOfEditions: 0,
+      registryAddress,
+      royaltyBps: this.royaltiesBps,
+      salesConfigArray,
+    })
+  }
+
+  async _getCollectionPayload(account: Address, chainId = this.primaryChainId) {
+    const initialPayload = await this._getInitialPayload(chainId)
+    const dropInitCode = this._getDropInitCode({...initialPayload, account})
     const initCode = this._generateHolographERC721InitCode({
       collectionName: JSON.stringify(this.name).slice(1, -1),
       collectionSymbol: JSON.stringify(this.symbol).slice(1, -1),
       royaltyBps: this.royaltiesBps,
-      eventConfig: isV2 ? enableDropEventsV2() : enableDropEvents(),
+      eventConfig: this._getEventConfig(),
       skipInit: false,
       holographDropERC721InitCode: dropInitCode,
     })
 
     const networkKey = Object.keys(networks).find(network => networks[network].chain === chainId)
-    const chainType = '0x' + networks[networkKey!].holographId.toString(16).padStart(8, '0')
-    const salt = this.salt || generateRandomSalt()
     const byteCode = bytecodes.HolographDropERC721
+    const chainType = '0x' + networks[networkKey!].holographId.toString(16).padStart(8, '0')
+    const contractType = ('0x' + stringToHex('HolographERC721').slice(2).padStart(64, '0')) as Hex
+    const salt = this.salt || generateRandomSalt()
     const configHash = keccak256(
       ('0x' +
         remove0x(contractType) +
@@ -388,10 +359,6 @@ export class HolographMoeERC721DropV1 {
     const configHashBytes = toBytes(configHash)
 
     return {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt}
-  }
-
-  _getCollectionPayloadWithVersion(account: Address, chainId = this.primaryChainId) {
-    return this._getCollectionPayload(account, HolographVersion.V1, chainId)
   }
 
   async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
@@ -436,7 +403,7 @@ export class HolographMoeERC721DropV1 {
   async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
-    const collectionPayload = await this._getCollectionPayloadWithVersion(account, chainId)
+    const collectionPayload = await this._getCollectionPayload(account, chainId)
 
     const {configHash, configHashBytes, ...config} = collectionPayload
 
@@ -485,7 +452,69 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
     super(configObject, {collectionInfo, nftInfo, primaryChainId, saleConfig})
   }
 
-  _getCollectionPayloadWithVersion(account: Address, chainId = this.primaryChainId) {
-    return this._getCollectionPayload(account, HolographVersion.V2, chainId)
+  _getMetadataRendererAddress(chainId = this.primaryChainId) {
+    return Addresses.editionsMetadataRenderer(getEnv().HOLOGRAPH_ENVIRONMENT, chainId)
+  }
+
+  _getDropContractType() {
+    return '0x' + stringToHex('HolographDropERC721V2').substring(2).padStart(64, '0')
+  }
+
+  _getEventConfig() {
+    return enableDropEventsV2()
+  }
+
+  _generateHolographDropERC721InitCode(data: HolographDropERC721InitCodeV2Params) {
+    const {
+      contractType,
+      fundsRecipient,
+      initialOwner,
+      metadataRendererAddress,
+      metadataRendererInitCode,
+      numOfEditions,
+      royaltyBps,
+      registryAddress,
+      salesConfigArray,
+    } = data
+
+    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V2, [
+      [
+        initialOwner,
+        fundsRecipient,
+        numOfEditions,
+        royaltyBps,
+        salesConfigArray,
+        metadataRendererAddress,
+        metadataRendererInitCode,
+      ],
+    ])
+
+    return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
+      contractType as Hex,
+      registryAddress,
+      moeDataInitCode,
+    ])
+  }
+
+  _getDropInitCode({
+    account,
+    metadataRendererAddress,
+    metadataRendererInitCode,
+    registryAddress,
+    salesConfigArray,
+  }: GetDropInitCodeParams): Hex {
+    const dropContractType = this._getDropContractType()
+
+    return this._generateHolographDropERC721InitCode({
+      contractType: dropContractType,
+      fundsRecipient: account,
+      initialOwner: account,
+      metadataRendererAddress,
+      metadataRendererInitCode,
+      numOfEditions: 0,
+      registryAddress,
+      royaltyBps: this.royaltiesBps,
+      salesConfigArray,
+    })
   }
 }
