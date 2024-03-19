@@ -63,6 +63,25 @@ export const networks = {
     protocolMultisig: undefined,
   },
   // TEST NETWORKS
+  lineaTestnetSepolia: {
+    name: 'Linea Testnet Sepolia',
+    type: NetworkType.testnet,
+    key: 'lineaTestnetSepolia',
+    shortKey: 'lineaTestnet',
+    color: '#ADD8E6',
+    chain: 59141,
+    rpc: process.env.LINEA_TESTNET_SEPOLIA_RPC_URL || 'https://rpc.sepolia.linea.build',
+    holographId: 4000000081,
+    tokenName: 'Linea Sepolia ETH',
+    tokenSymbol: 'ETH',
+    explorer: 'https://sepolia.lineascan.build',
+    lzEndpoint: ''.toLocaleLowerCase(), // TODO: Not supported yet
+    lzId: 0, // TODO: Not supported yet
+    ccipEndpoint: ''.toLowerCase(),
+    ccipId: '',
+    active: true,
+    protocolMultisig: undefined,
+  },
   mantleTestnetSepolia: {
     name: 'Mantle Testnet Sepolia',
     type: NetworkType.testnet,
