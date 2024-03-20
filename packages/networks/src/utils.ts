@@ -1,15 +1,15 @@
 import { BigNumber, BigNumberish } from '@ethersproject/bignumber';
 import { Environment, getEnvironment } from '@holographxyz/environment';
 import { Network, NetworkHelper, NetworkType } from '../types';
-import { NetworkKey, networks } from './networks';
+import { networks } from './networks';
 
-export function getSupportedNetworks(environment?: Environment): NetworkKey[] {
+export function getSupportedNetworks(environment?: Environment): string[] {
   if (environment === undefined) {
     environment = getEnvironment();
   }
 
-  const supportedNetworks = (Object.keys(networks) as NetworkKey[]).filter((networkKey) => {
-    const network = networks[networkKey];
+  const supportedNetworks: string[] = Object.keys(networks).filter((networkKey: string) => {
+    const network: Network = networks[networkKey];
 
     switch (environment) {
       case Environment.localhost:
@@ -49,7 +49,7 @@ export function getSupportedNetworks(environment?: Environment): NetworkKey[] {
   return supportedNetworks;
 }
 
-export const supportedNetworks = getSupportedNetworks();
+export const supportedNetworks: string[] = getSupportedNetworks();
 
 function networkHelperConstructor(): NetworkHelper {
   const helper: NetworkHelper = {

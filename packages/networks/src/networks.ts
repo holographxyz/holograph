@@ -2,8 +2,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { NetworkType } from './network-type';
+import { Networks } from '../types';
 
-export const networks = {
+export const _networks = {
   // LOCAL NETWORKS
   hardhat: {
     name: 'Hardhat',
@@ -3077,7 +3078,9 @@ export const networks = {
   },
 };
 
-export type NetworkKey = keyof typeof networks;
+export const networks: Networks = { ..._networks };
+
+export type NetworkKey = keyof typeof _networks;
 
 export const NETWORK_KEY_BY_RPC_URL = {
   ARBITRUM_TESTNET_SEPOLIA_RPC_URL: networks.arbitrumTestnetSepolia.key,
