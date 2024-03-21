@@ -1,6 +1,13 @@
 import {ExtractAbiFunctionNames} from 'abitype'
 import pino from 'pino'
-import {Abi, AbiParameterToPrimitiveType, Address, Hex, WriteContractParameters} from 'viem'
+import {
+  Abi,
+  AbiParameterToPrimitiveType,
+  Address,
+  EstimateContractGasParameters,
+  Hex,
+  WriteContractParameters,
+} from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
 import {Network, NetworkKey} from '@holographxyz/networks'
@@ -226,6 +233,11 @@ export type WriteContractArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
   options?: WriteContractOptions
 }
 
+export type EstimateContractGasArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
+  wallet?: {account: string | HolographWallet}
+  options?: EstimateContractGasOptions
+}
+
 export type GetContractFunctionArgs<TAbi extends Abi> = {
   chainId: number
   functionName: ExtractAbiFunctionNames<TAbi>
@@ -238,6 +250,14 @@ export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs
   address: Address
   options?: WriteContractOptions
 }
+
+export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
+  options?: EstimateContractGasOptions
+}
+
+export type EstimateContractGasOptions = Partial<
+  Omit<EstimateContractGasParameters, 'abi' | 'address' | 'args' | 'functionName'>
+>
 
 export type WriteContractOptions = Partial<
   Omit<WriteContractParameters, 'abi' | 'address' | 'args' | 'client' | 'functionName'>
