@@ -201,7 +201,11 @@ export class HolographLegacyCollection {
     if (gasController?.gasLimit) {
       gasLimit = BigInt(gasController.gasLimit)
     } else {
-      gasLimit = await this.factory.estimateGasForDeployingHolographableContract(chainId, config, signature, account)
+      gasLimit = await this.factory.estimateContractFunctionGas({
+        args: [config, signature, account],
+        chainId,
+        functionName: 'deployHolographableContract',
+      })
     }
 
     if (gasController?.gasLimitMultiplier) {

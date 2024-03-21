@@ -8,6 +8,7 @@ import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contrac
 import {
   BridgeSettings,
   DeploymentConfig,
+  EstimateContractFunctionGasArgs,
   GetContractFunctionArgs,
   Signature,
   WriteContractOptions,
@@ -64,14 +65,15 @@ export class Factory extends HolographBaseContract {
     return this._callContractFunction({chainId, address, functionName, wallet, args, options})
   }
 
-  private async _estimateGasForContractFunction({
+  async estimateContractFunctionGas({
     chainId,
     functionName,
     wallet,
     args,
-  }: GetContractFunctionArgs<typeof HolographFactoryABI>) {
+    options,
+  }: EstimateContractFunctionGasArgs<typeof HolographFactoryABI>) {
     const address = await this.getAddress(chainId)
-    return this._estimateGas({chainId, address, functionName, wallet, args})
+    return this._estimateContractGas({chainId, address, functionName, wallet, args, options})
   }
 
   /**
@@ -240,38 +242,5 @@ export class Factory extends HolographBaseContract {
     wallet?: {account: string | HolographWallet},
   ) {
     return this._getContractFunction({chainId, wallet, functionName: 'bridgeOut', args: [toChain, sender, payload]})
-  }
-
-  /**
-   * @readonly
-   * Get the current gas price for a certain network.
-   * @param chainId The chain id of the network to get the result from.
-   * @returns The gas price in wei.
-   */
-  async getGasPrice(chainId: number) {
-    return this._getGasPrice(chainId)
-  }
-
-  /**
-   * @param chainId  The chain id of the network to send the transaction.
-   * @param config The contract deployment configurations.
-   * @param signature The signature by the wallet that created the original payload.
-   * @param signer The address of the signer.
-   * @param wallet Holograph wallet instance, optional param.
-   * @returns The estimated gas for the transaction in wei.
-   */
-  async estimateGasForDeployingHolographableContract(
-    chainId: number,
-    config: DeploymentConfig['config'],
-    signature: Signature,
-    signer: Address,
-    wallet?: {account: string | HolographWallet},
-  ) {
-    return this._estimateGasForContractFunction({
-      chainId,
-      wallet,
-      functionName: 'deployHolographableContract',
-      args: [config, signature, signer],
-    })
   }
 }

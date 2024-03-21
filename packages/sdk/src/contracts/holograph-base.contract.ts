@@ -1,10 +1,10 @@
 import {Network} from '@holographxyz/networks'
-import {Abi, Address, GetContractReturnType, getContract} from 'viem'
+import {Abi, Address, GetContractReturnType, WriteContractParameters, getContract} from 'viem'
 
 import {Providers, HolographLogger, Config, HolographWallet, HolographWalletManager} from '../services'
 import {isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, HolographError, ViemError, isCallException} from '../errors'
-import {CallContractFunctionArgs, ReadContractArgs, WriteContractArgs} from '../utils/types'
+import {CallContractFunctionArgs, EstimateContractGasArgs, ReadContractArgs, WriteContractArgs} from '../utils/types'
 
 /**
  * @group Contracts
@@ -55,19 +55,20 @@ export class HolographBaseContract {
     return walletClient
   }
 
-  protected async _estimateGas<TAbi extends Abi>({
+  protected async _estimateContractGas<TAbi extends Abi>({
     chainId,
     address,
     functionName,
     wallet,
     args,
-  }: WriteContractArgs<TAbi>) {
+    options,
+  }: EstimateContractGasArgs<TAbi>) {
     const walletClient = this.validateWallet(wallet)
 
     let client = {wallet: walletClient.onChain(chainId)}
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
-    return contract.estimateGas[functionName](args as any)
+    return contract.estimateGas[functionName](args as any, (options as WriteContractParameters) || {})
   }
 
   protected async _writeContract<TAbi extends Abi>({
@@ -93,11 +94,6 @@ export class HolographBaseContract {
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
     return await contract.read[functionName](args as unknown[])
-  }
-
-  protected _getGasPrice = (chainId: number) => {
-    const provider = this._providers.byChainId(chainId)
-    return provider.getGasPrice()
   }
 
   protected async _callContractFunction<TAbi extends Abi>({
@@ -143,5 +139,16 @@ export class HolographBaseContract {
       throw holographError
     }
     return mapReturnType(result)
+  }
+
+  /**
+   * @readonly
+   * Get the current gas price for a certain network.
+   * @param chainId The chain id of the network to get the result from.
+   * @returns The gas price in wei.
+   */
+  getGasPrice = (chainId: number) => {
+    const provider = this._providers.byChainId(chainId)
+    return provider.getGasPrice()
   }
 }
