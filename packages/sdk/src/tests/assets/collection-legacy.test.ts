@@ -178,7 +178,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('deploy()', () => {
     it('should be able to deploy a collection', async () => {
-      await sleep(250) // Sleep to avoid nonce issues
+      await sleep(500) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
       const txHash = await collection.deploy(signatureData)
 

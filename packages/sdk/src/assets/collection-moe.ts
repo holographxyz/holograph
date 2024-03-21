@@ -2,11 +2,14 @@ import {Address, Hex, encodeAbiParameters, keccak256, parseAbiParameters, string
 import {networks} from '@holographxyz/networks'
 
 import {
+  CollectionInfo,
+  CreateHolographMoe,
+  HolographDropERC721InitCodeV1Params,
+  HolographDropERC721InitCodeV2Params,
+  HolographERC721InitCodeParamsSchema,
+  HolographMoeSaleConfig,
+  NftInfo,
   DROP_INIT_CODE_ABI_PARAMETERS,
-  collectionInfoSchema,
-  holographMoeSaleConfigSchema,
-  nftInfoSchema,
-  primaryChainIdSchema,
   validate,
 } from './collection.validation'
 import {getEnv} from '../config/env.validation'
@@ -24,20 +27,7 @@ import {
   strictECDSA,
 } from '../utils/helpers'
 import {remove0x} from '../utils/transformers'
-import {
-  CollectionInfo,
-  CreateHolographMoe,
-  GasFee,
-  GetDropInitCodeParams,
-  HolographConfig,
-  HolographDropERC721InitCodeV1Params,
-  HolographDropERC721InitCodeV2Params,
-  HolographERC721InitCodeParamsSchema,
-  HolographMoeSaleConfig,
-  NftInfo,
-  SignDeploy,
-  Signature,
-} from '../utils/types'
+import {GasFee, GetDropInitCodeParams, HolographConfig, SignDeploy, Signature} from '../utils/types'
 
 export class HolographMoeERC721DropV1 {
   collectionInfo: CollectionInfo
@@ -57,10 +47,10 @@ export class HolographMoeERC721DropV1 {
     configObject: HolographConfig,
     {collectionInfo, nftInfo, primaryChainId, saleConfig}: CreateHolographMoe,
   ) {
-    this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
-    this.nftInfo = nftInfoSchema.parse(nftInfo)
-    this.saleConfig = holographMoeSaleConfigSchema.parse(saleConfig)
-    this.primaryChainId = primaryChainIdSchema.parse(primaryChainId)
+    this.collectionInfo = validate.collectionInfo.parse(collectionInfo)
+    this.nftInfo = validate.nftInfo.parse(nftInfo)
+    this.saleConfig = validate.saleConfig.parse(saleConfig)
+    this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)

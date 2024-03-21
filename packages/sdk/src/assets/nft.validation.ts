@@ -9,6 +9,7 @@ const ownerSchema = z.string().refine(isAddress, {message: 'Invalid owner addres
 const fileSchema = z.string().url({message: 'Invalid file URL'})
 const tokenIdSchema = z.string().refine(tokenId => !isNaN(Number(tokenId)), {message: 'Invalid token id'})
 const chainIdSchema = z.coerce.number().gt(0, {message: 'Invalid chain id'})
+const collectionAddressSchema = z.string().min(1, {message: 'Collection address is required'})
 
 const metadataSchema = z.object({
   name: nameSchema,
@@ -17,7 +18,11 @@ const metadataSchema = z.object({
   attributes: attributesSchema.optional(),
 })
 
-export type HolographNFTMetadata = z.infer<typeof metadataSchema>
+export const createNftSchema = z.object({
+  metadata: metadataSchema,
+  chainId: chainIdSchema,
+  collectionAddress: collectionAddressSchema,
+})
 
 export const validate = {
   name: nameSchema,
@@ -29,4 +34,11 @@ export const validate = {
   file: fileSchema,
   tokenId: tokenIdSchema,
   chainId: chainIdSchema,
+  collectionAddress: collectionAddressSchema,
 }
+
+export type CreateNft = z.infer<typeof createNftSchema>
+
+export type HolographNFTMetadata = z.infer<typeof metadataSchema>
+
+export const DEFAULT_TOKEN_URI = 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX/metadata.json'

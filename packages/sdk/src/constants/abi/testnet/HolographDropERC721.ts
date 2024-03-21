@@ -50,6 +50,11 @@ export default narrow([
   },
   {
     inputs: [],
+    name: 'FeePaymentFailed',
+    type: 'error',
+  },
+  {
+    inputs: [],
     name: 'MarketFilterAddressNotSupportedForChain',
     type: 'error',
   },
@@ -195,18 +200,6 @@ export default narrow([
         name: 'amount',
         type: 'uint256',
       },
-      {
-        indexed: false,
-        internalType: 'address',
-        name: 'feeRecipient',
-        type: 'address',
-      },
-      {
-        indexed: false,
-        internalType: 'uint256',
-        name: 'feeAmount',
-        type: 'uint256',
-      },
     ],
     name: 'FundsWithdrawn',
     type: 'event',
@@ -321,6 +314,19 @@ export default narrow([
   {
     stateMutability: 'payable',
     type: 'fallback',
+  },
+  {
+    inputs: [],
+    name: 'HOLOGRAPH_MINT_FEE',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [
@@ -505,6 +511,44 @@ export default narrow([
     name: 'finalizeOpenEdition',
     outputs: [],
     stateMutability: 'nonpayable',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'quantity',
+        type: 'uint256',
+      },
+    ],
+    name: 'getHolographFeeUsd',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: 'fee',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+  },
+  {
+    inputs: [
+      {
+        internalType: 'uint256',
+        name: 'quantity',
+        type: 'uint256',
+      },
+    ],
+    name: 'getHolographFeeWei',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -1085,13 +1129,7 @@ export default narrow([
       },
     ],
     name: 'updateMarketFilterSettings',
-    outputs: [
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-    ],
+    outputs: [],
     stateMutability: 'nonpayable',
     type: 'function',
   },

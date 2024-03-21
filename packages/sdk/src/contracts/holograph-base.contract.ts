@@ -4,7 +4,13 @@ import {Abi, Address, GetContractReturnType, WriteContractParameters, getContrac
 import {Providers, HolographLogger, Config, HolographWallet, HolographWalletManager} from '../services'
 import {isReadFunction, mapReturnType} from '../utils/contracts'
 import {ContractRevertError, HolographError, ViemError, isCallException} from '../errors'
-import {CallContractFunctionArgs, EstimateContractGasArgs, ReadContractArgs, WriteContractArgs} from '../utils/types'
+import {
+  CallContractFunctionArgs,
+  EstimateContractGasArgs,
+  ReadContractArgs,
+  ViemPublicClient,
+  WriteContractArgs,
+} from '../utils/types'
 
 /**
  * @group Contracts
@@ -84,7 +90,7 @@ export class HolographBaseContract {
     let client = {wallet: walletClient.onChain(chainId)}
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
-    return await contract.write[functionName](args as unknown[], options || {})
+    return contract.write[functionName](args as unknown[], options || {})
   }
 
   protected async _readContract<TAbi extends Abi>({chainId, address, functionName, args}: ReadContractArgs<TAbi>) {
@@ -93,7 +99,7 @@ export class HolographBaseContract {
     let client = {public: provider}
     const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
 
-    return await contract.read[functionName](args as unknown[])
+    return contract.read[functionName](args as unknown[])
   }
 
   protected async _callContractFunction<TAbi extends Abi>({
@@ -139,6 +145,16 @@ export class HolographBaseContract {
       throw holographError
     }
     return mapReturnType(result)
+  }
+
+  /**
+   * @readonly
+   * Get the Viem client for a certain network.
+   * @param chainId The chain id of the network to get the result from.
+   * @returns The Viem client object.
+   */
+  async getClientByChainId(chainId: number): Promise<ViemPublicClient> {
+    return this._providers.byChainId(chainId)
   }
 
   /**

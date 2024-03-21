@@ -116,6 +116,10 @@ export const validate = {
   presaleMerkleRoot: presaleMerkleRootSchema,
   nftIpfsUrl: nftIpfsUrlSchema,
   nftIpfsImageCid: nftIpfsImageCidSchema,
+  collectionInfo: collectionInfoSchema,
+  nftInfo: nftInfoSchema,
+  saleConfig: holographMoeSaleConfigSchema,
+  primaryChainId: primaryChainIdSchema,
 }
 
 export const DROP_INIT_CODE_ABI_PARAMETERS = {
@@ -231,3 +235,19 @@ export const DROP_INIT_CODE_ABI_PARAMETERS = {
     },
   ],
 }
+
+export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
+
+export type CollectionInfo = z.infer<typeof collectionInfoSchema>
+
+export type NftInfo = z.infer<typeof nftInfoSchema>
+
+export type HolographMoeSaleConfig = z.input<typeof holographMoeSaleConfigSchema>
+
+export type CreateHolographMoe = z.input<typeof createHolographMoeSchema>
+
+export type HolographERC721InitCodeParamsSchema = z.infer<typeof holographERC721InitCodeParamsSchema>
+
+export type HolographDropERC721InitCodeV1Params = z.infer<typeof holographDropERC721InitCodeV1ParamsSchema>
+
+export type HolographDropERC721InitCodeV2Params = z.infer<typeof holographDropERC721InitCodeV2ParamsSchema>

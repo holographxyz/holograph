@@ -1,21 +1,13 @@
 import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
 
-import {collectionInfoSchema, primaryChainIdSchema, validate} from './collection.validation'
+import {CollectionInfo, CreateLegacyCollection, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
-import {
-  CollectionInfo,
-  CreateLegacyCollection,
-  Erc721Config,
-  GasFee,
-  HolographConfig,
-  Signature,
-  SignDeploy,
-} from '../utils/types'
+import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy} from '../utils/types'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
@@ -31,8 +23,8 @@ export class HolographLegacyCollection {
   private registry: Registry
 
   constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
-    this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
-    this.primaryChainId = primaryChainIdSchema.parse(primaryChainId)
+    this.collectionInfo = validate.collectionInfo.parse(collectionInfo)
+    this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)

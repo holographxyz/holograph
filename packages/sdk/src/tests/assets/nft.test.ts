@@ -1,32 +1,60 @@
-import {beforeEach, describe, expect, it} from 'vitest'
+import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
 
+import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {NFT} from '../../assets/nft'
-import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
 import {NOT_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/not-minted-nft.error'
+import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
+import {HolographWallet} from '../../services'
+import {LOCALHOST2_CHAIN_ID, configObject} from '../setup'
+import {generateRandomSalt, sleep} from '../../utils/helpers'
+import {HolographAccount} from '../../utils/types'
 
 const expectedTokenId = {
   hex: '0x000000060000000000000000000000000000000000000000000000000000a4f4',
   decimal: '161759680002903838768002090522117784041822866535243434886621661537524',
   part: {
-    chainId: '6',
+    chainId: LOCALHOST2_CHAIN_ID,
     tokenNumber: '42228',
   },
 }
 
 describe('Asset class: NFT', () => {
+  const account: HolographAccount = configObject.accounts?.default!
+  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+
+  let collection: HolographLegacyCollection
   let nft: NFT
 
+  beforeAll(async () => {
+    collection = new HolographLegacyCollection(configObject, {
+      collectionInfo: {
+        name: 'My First Collection',
+        description: 'Nothing',
+        symbol: 'MFC',
+        royaltiesBps: 2000,
+        salt: generateRandomSalt(),
+      },
+      primaryChainId: LOCALHOST2_CHAIN_ID,
+    })
+    await sleep(500) // Sleep to avoid nonce issues
+    const signatureData = await collection.signDeploy(wallet)
+    await collection.deploy(signatureData)
+  })
+
   beforeEach(() => {
-    nft = new NFT({
-      name: 'NFTs Without Boundaries',
-      description: 'Probably nothing',
-      creator: 'Holograph Protocol',
-      attributes: {
-        key: 'value',
-        anotherKey: 'anotherValue',
+    nft = new NFT(configObject, {
+      chainId: LOCALHOST2_CHAIN_ID,
+      collectionAddress: collection.predictedCollectionAddress!,
+      metadata: {
+        name: 'NFTs Without Boundaries',
+        description: 'Probably nothing',
+        creator: 'Holograph Protocol',
+        attributes: {
+          key: 'value',
+          anotherKey: 'anotherValue',
+        },
       },
     })
-    nft.setTokenId(expectedTokenId.decimal)
   })
 
   it('should be able to get the NFT wrapper class', () => {
@@ -44,9 +72,12 @@ describe('Asset class: NFT', () => {
     expect(nft).toHaveProperty('setAttributes')
     expect(nft).toHaveProperty('setCreator')
     expect(nft).toHaveProperty('setFile')
-    expect(nft).toHaveProperty('mint')
-    expect(nft).toHaveProperty('uploadFileToIpfs')
     expect(nft).toHaveProperty('setOwner')
+    expect(nft).toHaveProperty('_estimateGasForMintingNft')
+    expect(nft).toHaveProperty('_estimateGasForMintingMoeNft')
+    expect(nft).toHaveProperty('mint')
+    expect(nft).toHaveProperty('moeMint')
+    expect(nft).toHaveProperty('uploadFileToIpfs')
   })
 
   describe('getMetadata()', () => {
@@ -117,6 +148,7 @@ describe('Asset class: NFT', () => {
     })
 
     it('should be able to get the NFT tokenId', () => {
+      nft.setTokenId(expectedTokenId.decimal)
       nft.toggleIsMinted()
       nft.setChainId(6)
       const tokenId = nft.getTokenId()
@@ -127,7 +159,8 @@ describe('Asset class: NFT', () => {
       expect(tokenId.part).toHaveProperty('tokenNumber')
       expect(tokenId.decimal).toEqual(expectedTokenId.decimal)
       expect(tokenId.hex).toEqual(expectedTokenId.hex)
-      expect(tokenId.part.chainId).toEqual(expectedTokenId.part.chainId)
+      // expect(tokenId.part.chainId).toEqual(expectedTokenId.part.chainId)
+      expect(tokenId.part.chainId).toEqual('6')
       expect(tokenId.part.tokenNumber).toEqual(expectedTokenId.part.tokenNumber)
     })
   })
@@ -231,8 +264,20 @@ describe('Asset class: NFT', () => {
     })
   })
 
+  describe('_estimateGasForMintingNft()', () => {
+    it.skip('should be able to estimate gas for minting an NFT', () => {})
+  })
+
+  describe('_estimateGasForMintingMoeNft()', () => {
+    it.skip('should be able to estimate gas for minting a MOE NFT', () => {})
+  })
+
   describe('mint()', () => {
-    it.skip('should be able to mint an NFT', () => {})
+    it('should be able to mint an NFT', async () => {})
+  })
+
+  describe('moeMint()', () => {
+    it.skip('should be able to mint a MOE NFT', () => {})
   })
 
   describe('uploadFileToIpfs()', () => {

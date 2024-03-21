@@ -1,5 +1,7 @@
 import {LEGACY_COLLECTION_DEPLOY_GAS} from './legacy-collection-deploy'
 import {MOE_COLLECTION_DEPLOY_GAS} from './moe-collection-deploy'
+import {MOE_NFT_MINT_GAS} from './moe-nft-mint'
+import {NFT_MINT_GAS} from './nft-mint'
 
 type GasParams = {
   gasPrice?: string // in wei
@@ -11,9 +13,13 @@ type GasParams = {
 type GasController = {
   legacyCollectionDeploy: Record<number, GasParams>
   moeCollectionDeploy: Record<number, GasParams>
+  moeNftMint: Record<number, GasParams>
+  nftMint: Record<number, GasParams>
 }
 
 export const GAS_CONTROLLER = {
   legacyCollectionDeploy: LEGACY_COLLECTION_DEPLOY_GAS,
   moeCollectionDeploy: MOE_COLLECTION_DEPLOY_GAS,
+  moeNftMint: MOE_NFT_MINT_GAS,
+  nftMint: NFT_MINT_GAS,
 } as GasController

@@ -147,3 +147,18 @@ export function decodeDeploymentConfig(input: Hex): DeploymentConfig {
     signer: decodedConfig[2].toLowerCase(),
   }
 }
+
+export function queryTokenIdFromReceipt(receipt: TransactionReceipt, address: Address): string | undefined {
+  try {
+    if (receipt) {
+      const logs = decodeErc721TransferEvent(receipt, address)
+      if (logs === undefined) {
+        return
+      } else {
+        return logs[2]?.values[0]?.toString()
+      }
+    }
+  } catch (error) {
+    return
+  }
+}
