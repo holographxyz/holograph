@@ -21,7 +21,7 @@ const saltSchema = z
 const tokenTypeSchema = z.enum([TokenType.ERC721, TokenType.ERC1155]).default(TokenType.ERC721)
 export const primaryChainIdSchema = z.number().int().min(1)
 
-const publicSalePriceSchema = z.number().int().min(0)
+const publicSalePriceSchema = z.number().gt(0, {message: 'Must be greater than 0'})
 const maxSalePurchasePerAddressSchema = z.number().int().min(1, {message: 'Must be at least 1'})
 const publicSaleStartSchema = z.string().datetime()
 const publicSaleEndSchema = z.string().datetime()
@@ -32,10 +32,10 @@ const presaleMerkleRootSchema = z
   .optional()
   .default('0x0000000000000000000000000000000000000000000000000000000000000000')
 
-const nftIpfsUrlSchema = z.string().url().startsWith('ipfs://')
+const nftIpfsUrlSchema = z.string().url()
 const nftIpfsImageCidSchema = z.string().length(46).startsWith('Qm')
 
-export const holographMoeSaleConfigSchema = z.object({
+export const holographMoeSalesConfigSchema = z.object({
   publicSalePrice: publicSalePriceSchema,
   maxSalePurchasePerAddress: maxSalePurchasePerAddressSchema,
   publicSaleStart: publicSaleStartSchema,
@@ -68,7 +68,7 @@ export const createHolographMoeSchema = z.object({
   collectionInfo: collectionInfoSchema,
   nftInfo: nftInfoSchema,
   primaryChainId: primaryChainIdSchema,
-  saleConfig: holographMoeSaleConfigSchema,
+  salesConfig: holographMoeSalesConfigSchema,
 })
 
 export const holographDropERC721InitCodeV2ParamsSchema = z.object({
@@ -78,7 +78,7 @@ export const holographDropERC721InitCodeV2ParamsSchema = z.object({
   fundsRecipient: getAddressTypeSchema('Funds recipient'),
   numOfEditions: z.number().int().min(0),
   royaltyBps: royaltiesBpsSchema,
-  salesConfigArray: z.array(z.union([z.number(), z.string()])),
+  salesConfigArray: z.array(z.union([z.number(), z.string(), z.bigint()])),
   metadataRendererAddress: getAddressTypeSchema('Metadata renderer'),
   metadataRendererInitCode: z.string(),
 })
@@ -118,7 +118,7 @@ export const validate = {
   nftIpfsImageCid: nftIpfsImageCidSchema,
   collectionInfo: collectionInfoSchema,
   nftInfo: nftInfoSchema,
-  saleConfig: holographMoeSaleConfigSchema,
+  salesConfig: holographMoeSalesConfigSchema,
   primaryChainId: primaryChainIdSchema,
 }
 
@@ -242,7 +242,7 @@ export type CollectionInfo = z.infer<typeof collectionInfoSchema>
 
 export type NftInfo = z.infer<typeof nftInfoSchema>
 
-export type HolographMoeSaleConfig = z.input<typeof holographMoeSaleConfigSchema>
+export type HolographMoeSalesConfig = z.input<typeof holographMoeSalesConfigSchema>
 
 export type CreateHolographMoe = z.input<typeof createHolographMoeSchema>
 

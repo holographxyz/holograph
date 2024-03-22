@@ -7,6 +7,7 @@ import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {enableDropEventsV2, generateRandomSalt} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
+import {isAddress} from 'viem'
 
 describe('Asset class: HolographMoeERC721DropV2', () => {
   const account: HolographAccount = configObject.accounts?.default!
@@ -27,7 +28,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
         ipfsUrl: 'ipfs://fileurl.com/file://',
         ipfsImageCid: 'QmQJNvXvNqfDAV4srQ8dRr8s4FYBKB67RnWhvWLvE72osu',
       },
-      saleConfig: {
+      salesConfig: {
         maxSalePurchasePerAddress: 10,
         publicSaleStart: '2025-01-01T00:00:00Z',
         publicSaleEnd: '2025-01-02T00:00:00Z',
@@ -198,11 +199,14 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   describe('deploy()', () => {
     it('should be able to deploy a collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
-      const txHash = await collection.deploy(signatureData)
+      const {collectionAddress, txHash} = await collection.deploy(signatureData)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
       expect(String(txHash).startsWith('0x')).to.be.true
+      expect(collectionAddress).to.be.an('string')
+      expect(collectionAddress).to.have.length(42)
+      expect(isAddress(collectionAddress)).to.be.true
     })
 
     it('should throw an error if the collection is already deployed', async () => {

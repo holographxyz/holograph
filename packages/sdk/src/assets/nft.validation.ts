@@ -1,6 +1,8 @@
 import {isAddress} from 'viem'
 import * as z from 'zod'
 
+import {HolographVersion} from '../utils/types'
+
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().min(1, {message: 'Description is required'})
 const creatorSchema = z.string().min(1, {message: 'Creator is required'})
@@ -10,6 +12,17 @@ const fileSchema = z.string().url({message: 'Invalid file URL'})
 const tokenIdSchema = z.string().refine(tokenId => !isNaN(Number(tokenId)), {message: 'Invalid token id'})
 const chainIdSchema = z.coerce.number().gt(0, {message: 'Invalid chain id'})
 const collectionAddressSchema = z.string().min(1, {message: 'Collection address is required'})
+const versionSchema = z.enum([HolographVersion.V1, HolographVersion.V2]).optional()
+const ipfsUrlSchema = z.string().url()
+const ipfsImageCidSchema = z.string().length(46).startsWith('Qm')
+const tokenUriSchema = z.string().min(46).startsWith('Qm')
+
+const ipfsInfoSchema = z
+  .object({
+    ipfsImageCid: ipfsImageCidSchema,
+    ipfsUrl: ipfsUrlSchema.optional(),
+  })
+  .optional()
 
 const metadataSchema = z.object({
   name: nameSchema,
@@ -22,6 +35,8 @@ export const createNftSchema = z.object({
   metadata: metadataSchema,
   chainId: chainIdSchema,
   collectionAddress: collectionAddressSchema,
+  ipfsInfo: ipfsInfoSchema,
+  version: versionSchema,
 })
 
 export const validate = {
@@ -35,10 +50,16 @@ export const validate = {
   tokenId: tokenIdSchema,
   chainId: chainIdSchema,
   collectionAddress: collectionAddressSchema,
+  ipfsUrl: ipfsUrlSchema,
+  ipfsImageCid: ipfsImageCidSchema,
+  ipfsInfo: ipfsInfoSchema,
+  tokenUri: tokenUriSchema,
 }
 
 export type CreateNft = z.infer<typeof createNftSchema>
 
 export type HolographNFTMetadata = z.infer<typeof metadataSchema>
+
+export type NftIpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export const DEFAULT_TOKEN_URI = 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX/metadata.json'

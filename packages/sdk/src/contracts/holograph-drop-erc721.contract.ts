@@ -1,11 +1,17 @@
 import {Address} from 'abitype'
 
-import {HolographDropERC721ABI, HolographERC721ABI} from '../constants/abi/develop'
+import {HolographDropERC721ABI, HolographDropERC721V2ABI, HolographERC721ABI} from '../constants/abi/develop'
 import {HolographBaseContract} from './holograph-base.contract'
 import {HolographLogger, Config, HolographWallet} from '../services'
-import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, WriteContractOptions} from '../utils/types'
+import {
+  EstimateContractFunctionGasArgs,
+  GetContractFunctionArgs,
+  HolographVersion,
+  WriteContractOptions,
+} from '../utils/types'
 
 const ABIs = [...HolographDropERC721ABI, ...HolographERC721ABI]
+const V2ABIs = [...HolographDropERC721V2ABI, ...HolographERC721ABI]
 
 /**
  * @group Contracts
@@ -14,8 +20,14 @@ const ABIs = [...HolographDropERC721ABI, ...HolographERC721ABI]
  */
 export class HolographDropERC721 extends HolographBaseContract {
   private collectionAddress: Address
+  private abis: typeof ABIs | typeof V2ABIs
 
-  constructor(_config: Config, collectionAddress: Address, parentLogger?: HolographLogger) {
+  constructor(
+    _config: Config,
+    collectionAddress: Address,
+    version = HolographVersion.V2,
+    parentLogger?: HolographLogger,
+  ) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -24,8 +36,11 @@ export class HolographDropERC721 extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: HolographDropERC721.name})
     }
 
-    super(_config, logger, ABIs, 'HolographDropERC721')
+    const isV2 = version === HolographVersion.V2
+    const abis = isV2 ? V2ABIs : ABIs
+    super(_config, logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721')
     this.collectionAddress = collectionAddress
+    this.abis = abis
   }
 
   private async _getContractFunction({
@@ -34,7 +49,7 @@ export class HolographDropERC721 extends HolographBaseContract {
     wallet,
     args,
     options,
-  }: GetContractFunctionArgs<typeof ABIs>) {
+  }: GetContractFunctionArgs<typeof this.abis>) {
     return this._callContractFunction({address: this.collectionAddress, chainId, functionName, wallet, args, options})
   }
 
@@ -44,7 +59,7 @@ export class HolographDropERC721 extends HolographBaseContract {
     wallet,
     args,
     options,
-  }: EstimateContractFunctionGasArgs<typeof ABIs>) {
+  }: EstimateContractFunctionGasArgs<typeof this.abis>) {
     return this._estimateContractGas({address: this.collectionAddress, chainId, functionName, wallet, args, options})
   }
 
@@ -66,7 +81,7 @@ export class HolographDropERC721 extends HolographBaseContract {
    * @returns The holograph fee in wei.
    */
   async getHolographFeeWei(chainId: number, quantity: number) {
-    return this._getContractFunction({args: [quantity], chainId, functionName: 'getHolographFeeWei'})
+    return this._getContractFunction({args: [BigInt(quantity)], chainId, functionName: 'getHolographFeeWei'})
   }
 
   /**

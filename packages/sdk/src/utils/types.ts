@@ -260,7 +260,13 @@ export type GetDropInitCodeParams = {
   registryAddress: Address
   metadataRendererAddress: Address
   metadataRendererInitCode: Hex
-  salesConfigArray: Array<string | number>
+  salesConfigArray: Array<string | number | bigint>
+}
+
+export type MintConfig = {
+  chainId?: number
+  quantity?: number
+  tokenUri?: string
 }
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>

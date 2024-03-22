@@ -8,6 +8,7 @@ import {Config, HolographWallet} from '../services'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
 import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy} from '../utils/types'
+import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
@@ -16,6 +17,7 @@ export class HolographLegacyCollection {
   chainIds?: number[]
   erc721ConfigHash?: Hex
   predictedCollectionAddress?: Address
+  collectionAddress?: Address
   signature?: Signature
   txHash?: string
 
@@ -247,17 +249,29 @@ export class HolographLegacyCollection {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
-  async deploy(signatureData: SignDeploy): Promise<unknown> {
+  async deploy(signatureData: SignDeploy): Promise<{
+    collectionAddress: Address
+    txHash: Hex
+  }> {
     const {account, chainId, config, signature} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
       gasPrice,
       gas: gasLimit,
-    })
+    })) as Hex
 
+    const client = await this.factory.getClientByChainId(chainId!)
+    const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
+    const deployedCollectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+
+    this.collectionAddress = deployedCollectionAddress
     this.chainIds?.push(chainId!)
-    this.txHash = String(txHash)
-    return txHash
+    this.txHash = txHash
+
+    return {
+      collectionAddress: deployedCollectionAddress,
+      txHash: txHash,
+    }
   }
 
   // TODO: Do later

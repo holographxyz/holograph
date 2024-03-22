@@ -1,71 +1,63 @@
-import {Address} from 'abitype'
-import {Hex, numberToHex, pad, toHex} from 'viem'
+import {Address, Hex, numberToHex, pad, toHex} from 'viem'
 
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
+import {CxipERC721} from '../contracts'
 import {NotMintedNftError} from '../errors/assets/not-minted-nft.error'
-import {CreateNft, DEFAULT_TOKEN_URI, HolographNFTMetadata, validate} from './nft.validation'
+import {CreateNft, DEFAULT_TOKEN_URI, HolographNFTMetadata, NftIpfsInfo, validate} from './nft.validation'
 import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
-import {HolographConfig, TokenUriType} from '../utils/types'
-import {CxipERC721, HolographDropERC721} from '../contracts'
+import {HolographConfig, MintConfig, TokenUriType} from '../utils/types'
 
 export class NFT {
   isMinted: boolean
-  private metadata: HolographNFTMetadata
-  private chainId: number
-  private collectionAddress?: Address
-  private file?: string
-  private owner?: string
-  private tokenId?: string // Decimal tokenId string
-  private txHash?: string
+  metadata: HolographNFTMetadata
+  protected chainId: number
+  protected collectionAddress?: Address
+  protected ipfsInfo?: NftIpfsInfo
+  protected tokenId?: string // Decimal tokenId string
+  protected txHash?: string
 
   private cxipERC721: CxipERC721
-  private holographDropERC721: HolographDropERC721
 
-  constructor(configObject: HolographConfig, {chainId, collectionAddress, metadata}: CreateNft) {
+  constructor(configObject: HolographConfig, {chainId, collectionAddress, ipfsInfo, metadata}: CreateNft) {
     this.chainId = validate.chainId.parse(chainId)
     this.collectionAddress = validate.collectionAddress.parse(collectionAddress) as Address
     this.metadata = validate.metadata.parse(metadata)
+    this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
     const config = Config.getInstance(configObject)
     const cxipERC721 = new CxipERC721(config, this.collectionAddress)
-    const holographDropERC721 = new HolographDropERC721(config, this.collectionAddress)
     this.cxipERC721 = cxipERC721
-    this.holographDropERC721 = holographDropERC721
     this.isMinted = false
   }
 
-  getMetadata() {
-    return this.metadata
-  }
-
-  getName() {
+  get name() {
     return this.metadata.name
   }
 
-  getDescription() {
+  get description() {
     return this.metadata.description
   }
 
-  getCreator() {
+  get creator() {
     return this.metadata.creator
   }
 
   // AKA the NFT traits
-  getAttributes() {
+  get attributes() {
     return this.metadata.attributes
   }
 
-  getOwner() {
-    return this.owner
+  get ipfsUrl() {
+    return this.ipfsInfo?.ipfsUrl
   }
 
-  getFile() {
-    return this.file
+  get ipfsImageCid() {
+    return this.ipfsInfo?.ipfsImageCid
   }
 
-  getTokenId() {
-    if (!this.chainId || !this.tokenId) throw new NotMintedNftError(this.getTokenId.name)
+  getParsedTokenId() {
+    if (!this.chainId || !this.tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
     const tokenIdHex = numberToHex(BigInt(this.tokenId), {size: 32})
     const chainIdHex = tokenIdHex.slice(0, 10)
     const tokenNumberHex = tokenIdHex.slice(10)
@@ -111,13 +103,21 @@ export class NFT {
   }
 
   @IsNotMinted()
-  setFile(file: string) {
-    validate.file.parse(file)
-    this.file = file
+  setIpfsUrl(ipfsUrl: string) {
+    validate.ipfsUrl.parse(ipfsUrl)
+    this.ipfsInfo!.ipfsUrl = ipfsUrl
   }
 
-  async _estimateGasForMintingNft(chainId = this.chainId, tokenUri = '') {
-    let gasPrice, gasLimit
+  @IsNotMinted()
+  setIpfsImageCid(ipfsImageCid: string) {
+    validate.ipfsImageCid.parse(ipfsImageCid)
+    this.ipfsInfo!.ipfsImageCid = ipfsImageCid
+  }
+
+  async _estimateGasForMintingNft({chainId: chainId_, tokenUri}: MintConfig = {}) {
+    const chainId = chainId_ || this.chainId
+
+    let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 
     if (gasController.gasPrice) {
@@ -153,128 +153,55 @@ export class NFT {
     }
   }
 
-  async _estimateGasForMintingMoeNft(chainId = this.chainId, quantity = 1) {
-    let gasPrice, gasLimit
-    const gasController = GAS_CONTROLLER.moeNftMint[this.chainId]
+  async mint({chainId: chainId_, tokenUri}: MintConfig = {}) {
+    const chainId = chainId_ || this.chainId
+    validate.tokenUri.parse(tokenUri)
 
-    const value = await this.holographDropERC721.getNativePrice(chainId)
-    const protocolFee = await this.holographDropERC721.getHolographFeeWei(chainId, quantity)
-    const total = BigInt(String(value)) * BigInt(quantity) + BigInt(String(protocolFee))
-
-    // 5% slippage
-    const slippage = (BigInt(total) * BigInt(5)) / BigInt(100)
-
-    if (gasController.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice)
-    } else {
-      gasPrice = await this.holographDropERC721.getGasPrice(chainId)
-    }
-
-    if (gasController.gasPriceMultiplier) {
-      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier!)) / BigInt(100)
-    }
-
-    if (gasController.gasLimit) {
-      gasLimit = BigInt(gasController.gasLimit)
-    } else {
-      gasLimit = await this.holographDropERC721.estimateContractFunctionGas({
-        args: [quantity],
-        chainId,
-        functionName: 'purchase',
-        options: {
-          value: total + slippage,
-        },
-      })
-    }
-
-    if (gasController.gasLimitMultiplier) {
-      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier!)) / BigInt(100)
-    }
-
-    const gas = BigInt(gasPrice) * BigInt(gasLimit)
-
-    return {
-      gasPrice,
-      gasLimit,
-      gas,
-    }
-  }
-
-  async mint(tokenUri: string, chainId = this.chainId) {
     const client = await this.cxipERC721.getClientByChainId(chainId)
-    const {gasLimit, gasPrice} = await this._estimateGasForMintingNft(chainId, tokenUri)
+    const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({
+      chainId,
+      tokenUri,
+    })
 
-    const txHash = await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, tokenUri, undefined, {
+    const txHash = (await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, tokenUri!, undefined, {
       gas: gasLimit,
       gasPrice,
-    })
+    })) as Hex
 
     const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
     const tokenId = queryTokenIdFromReceipt(receipt, this.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
-    this.txHash = String(txHash)
+
     this.tokenId = tokenIdBytesString
+    this.txHash = txHash
+    this.isMinted = true
 
     return {
-      tx: txHash,
       tokenId: tokenIdBytesString,
+      txHash,
     }
   }
 
-  async moeMint(chainId = this.chainId, quantity = 1) {
-    const client = await this.cxipERC721.getClientByChainId(chainId)
-    const {gasLimit, gasPrice} = await this._estimateGasForMintingMoeNft(chainId, quantity)
-    const value = await this.holographDropERC721.getNativePrice(chainId)
-    const protocolFee = await this.holographDropERC721.getHolographFeeWei(chainId, quantity)
-    const total = BigInt(String(value)) * BigInt(quantity) + BigInt(String(protocolFee))
-
-    // 5% slippage
-    const slippage = (BigInt(total) * BigInt(5)) / BigInt(100)
-
-    const txHash = await this.holographDropERC721.purchase(chainId, quantity, undefined, {
-      gas: gasLimit,
-      gasPrice,
-      value: total + slippage,
-    })
-
-    const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
-    const tokenId = queryTokenIdFromReceipt(receipt, this.collectionAddress!)
-    const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
-    this.txHash = String(txHash)
-    this.tokenId = tokenIdBytesString
-
-    return {
-      tx: txHash,
-      tokenId: tokenIdBytesString,
-    }
-  }
-
-  async exists(tokenId: string, chainId = this.chainId): Promise<boolean> {
+  async tokenIdExists(tokenId: string, chainId = this.chainId): Promise<boolean> {
     const exists = await this.cxipERC721.exists(chainId, tokenId)
-    return !!(exists || exists === 'true')
+    return exists === 'true'
   }
 
-  async isOwner(account: string, tokenId: string, chainId = this.chainId): Promise<boolean> {
+  async getOwner(tokenId = this.tokenId, chainId = this.chainId) {
+    if (!tokenId) throw new NotMintedNftError()
+    const owner = (await this.cxipERC721.ownerOf(chainId, tokenId)) as Address
+    return owner
+  }
+
+  async isOwner(account: Address, tokenId: string, chainId = this.chainId): Promise<boolean> {
     const owner = await this.cxipERC721.ownerOf(chainId, tokenId)
     return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
-
-  // TODO: Do later
-  setOwner(owner: string) {
-    validate.owner.parse(owner)
-  }
-
-  uploadFileToIpfs() {}
 
   // TODO: Functions below are used for easy testing while in development. Remove before public release.
   setTokenId(tokenId: string) {
     validate.tokenId.parse(tokenId)
     this.tokenId = tokenId
-  }
-
-  setChainId(chainId: number) {
-    validate.chainId.parse(chainId)
-    this.chainId = chainId
   }
 
   toggleIsMinted() {

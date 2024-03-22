@@ -152,11 +152,10 @@ export function queryTokenIdFromReceipt(receipt: TransactionReceipt, address: Ad
   try {
     if (receipt) {
       const logs = decodeErc721TransferEvent(receipt, address)
-      if (logs === undefined) {
-        return
-      } else {
-        return logs[2]?.values[0]?.toString()
-      }
+
+      if (logs === undefined) return
+
+      return logs[0]?.values[2]
     }
   } catch (error) {
     return
