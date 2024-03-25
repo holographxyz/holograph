@@ -264,7 +264,7 @@ export type GetDropInitCodeParams = {
 }
 
 export type MintConfig = {
-  chainId?: number
+  chainId: number
   quantity?: number
   tokenUri?: string
 }

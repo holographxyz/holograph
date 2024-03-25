@@ -18,6 +18,7 @@ import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
+import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {
   destructSignature,
   enableDropEvents,
@@ -28,7 +29,6 @@ import {
 } from '../utils/helpers'
 import {remove0x} from '../utils/transformers'
 import {GasFee, GetDropInitCodeParams, HolographConfig, SignDeploy, Signature} from '../utils/types'
-import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 
 export class HolographMoeERC721DropV1 {
   collectionInfo: CollectionInfo
@@ -359,7 +359,7 @@ export class HolographMoeERC721DropV1 {
     const gasController = GAS_CONTROLLER.moeCollectionDeploy[chainId]
 
     if (gasController?.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice!)
+      gasPrice = BigInt(gasController.gasPrice)
     } else {
       gasPrice = await this.factory.getGasPrice(chainId)
     }
@@ -382,7 +382,7 @@ export class HolographMoeERC721DropV1 {
       gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
-    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+    const gas = gasPrice * gasLimit
 
     return {
       gasPrice,
@@ -425,7 +425,7 @@ export class HolographMoeERC721DropV1 {
    */
   async deploy(signatureData: SignDeploy): Promise<{
     collectionAddress: Address
-    txHash: string
+    txHash: Hex
   }> {
     const {account, chainId, config, signature} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
@@ -435,16 +435,16 @@ export class HolographMoeERC721DropV1 {
     })) as Hex
 
     const client = await this.factory.getClientByChainId(chainId!)
-    const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
-    const deployedCollectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
+    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
 
-    this.collectionAddress = deployedCollectionAddress
+    this.collectionAddress = collectionAddress
     this.chainIds?.push(chainId!)
     this.txHash = txHash
 
     return {
-      collectionAddress: deployedCollectionAddress,
-      txHash: txHash,
+      collectionAddress,
+      txHash,
     }
   }
 

@@ -21,8 +21,8 @@ const saltSchema = z
 const tokenTypeSchema = z.enum([TokenType.ERC721, TokenType.ERC1155]).default(TokenType.ERC721)
 export const primaryChainIdSchema = z.number().int().min(1)
 
-const publicSalePriceSchema = z.number().gt(0, {message: 'Must be greater than 0'})
-const maxSalePurchasePerAddressSchema = z.number().int().min(1, {message: 'Must be at least 1'})
+const publicSalePriceSchema = z.number().min(0)
+const maxSalePurchasePerAddressSchema = z.number().int().min(1)
 const publicSaleStartSchema = z.string().datetime()
 const publicSaleEndSchema = z.string().datetime()
 const presaleStartSchema = z.string().datetime().optional()

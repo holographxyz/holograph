@@ -12,7 +12,6 @@ import {HolographConfig, MintConfig, TokenUriType} from '../utils/types'
 export class NFT {
   isMinted: boolean
   metadata: HolographNFTMetadata
-  protected chainId: number
   protected collectionAddress?: Address
   protected ipfsInfo?: NftIpfsInfo
   protected tokenId?: string // Decimal tokenId string
@@ -20,8 +19,7 @@ export class NFT {
 
   private cxipERC721: CxipERC721
 
-  constructor(configObject: HolographConfig, {chainId, collectionAddress, ipfsInfo, metadata}: CreateNft) {
-    this.chainId = validate.chainId.parse(chainId)
+  constructor(configObject: HolographConfig, {collectionAddress, ipfsInfo, metadata}: CreateNft) {
     this.collectionAddress = validate.collectionAddress.parse(collectionAddress) as Address
     this.metadata = validate.metadata.parse(metadata)
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
@@ -57,7 +55,7 @@ export class NFT {
   }
 
   getParsedTokenId() {
-    if (!this.chainId || !this.tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
+    if (!this.tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
     const tokenIdHex = numberToHex(BigInt(this.tokenId), {size: 32})
     const chainIdHex = tokenIdHex.slice(0, 10)
     const tokenNumberHex = tokenIdHex.slice(10)
@@ -114,37 +112,35 @@ export class NFT {
     this.ipfsInfo!.ipfsImageCid = ipfsImageCid
   }
 
-  async _estimateGasForMintingNft({chainId: chainId_, tokenUri}: MintConfig = {}) {
-    const chainId = chainId_ || this.chainId
-
+  async _estimateGasForMintingNft({chainId, tokenUri}: MintConfig) {
     let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 
     if (gasController.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice!)
+      gasPrice = BigInt(gasController.gasPrice)
     } else {
       gasPrice = await this.cxipERC721.getGasPrice(chainId)
     }
 
     if (gasController.gasPriceMultiplier) {
-      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier!)) / BigInt(100)
+      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
     if (gasController.gasLimit) {
       gasLimit = BigInt(gasController.gasLimit)
     } else {
       gasLimit = await this.cxipERC721.estimateContractFunctionGas({
-        args: [0, 1, tokenUri || DEFAULT_TOKEN_URI],
+        args: [0, TokenUriType.IPFS, tokenUri || DEFAULT_TOKEN_URI],
         chainId,
         functionName: 'cxipMint',
       })
     }
 
     if (gasController.gasLimitMultiplier) {
-      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier!)) / BigInt(100)
+      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
     }
 
-    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+    const gas = gasPrice * gasLimit
 
     return {
       gasPrice,
@@ -153,8 +149,7 @@ export class NFT {
     }
   }
 
-  async mint({chainId: chainId_, tokenUri}: MintConfig = {}) {
-    const chainId = chainId_ || this.chainId
+  async mint({chainId, tokenUri}: MintConfig) {
     validate.tokenUri.parse(tokenUri)
 
     const client = await this.cxipERC721.getClientByChainId(chainId)
@@ -168,7 +163,7 @@ export class NFT {
       gasPrice,
     })) as Hex
 
-    const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
     const tokenId = queryTokenIdFromReceipt(receipt, this.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
 
@@ -182,18 +177,18 @@ export class NFT {
     }
   }
 
-  async tokenIdExists(tokenId: string, chainId = this.chainId): Promise<boolean> {
+  async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
     const exists = await this.cxipERC721.exists(chainId, tokenId)
     return exists === 'true'
   }
 
-  async getOwner(tokenId = this.tokenId, chainId = this.chainId) {
+  async getOwner(tokenId = this.tokenId, chainId: number) {
     if (!tokenId) throw new NotMintedNftError()
     const owner = (await this.cxipERC721.ownerOf(chainId, tokenId)) as Address
     return owner
   }
 
-  async isOwner(account: Address, tokenId: string, chainId = this.chainId): Promise<boolean> {
+  async isOwner(account: Address, tokenId: string, chainId: number): Promise<boolean> {
     const owner = await this.cxipERC721.ownerOf(chainId, tokenId)
     return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }

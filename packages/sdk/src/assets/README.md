@@ -53,7 +53,7 @@ const myCollection = new HolographLegacyCollection(holographConfig, {
 const signatureData = await myCollection.signDeploy(wallet)
 
 // 4) Deploy 🚀
-await myCollection.deploy(signatureData)
+const { collectionAddress, txHash} = await myCollection.deploy(signatureData)
 
 // 5) Wanna to deploy to another chain? 🌐
 const avalancheSignatureData = await myCollection.signDeploy(wallet, networks.avalanche.chain)
@@ -102,7 +102,6 @@ const lastTxHash = myCollection.txHash
 import { NFT } from '@holograph/sdk'
 
 const myNft = new NFT(configObject, {
-  chainId: networks.polygon.chain,
   collectionAddress: myCollection.collectionAddress,
   metadata: {
     name: 'My new NFT',
@@ -114,7 +113,7 @@ const myNft = new NFT(configObject, {
   },
 })
 
-const { tokenId, txHash } = await myNft.mint({ tokenUri: `${myNft.ipfsImageCid}/metadata.json`})
+const { tokenId, txHash } = await myNft.mint({ chainId: networks.polygon.chain, tokenUri: `${myNft.ipfsImageCid}/metadata.json`})
 
 // ps: Here are the differences to mint from an open edition NFT (MOE NFT):
 // 1) You'll have to deploy a collection using the HolographMoeERC721DropV2 class

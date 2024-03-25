@@ -1,4 +1,5 @@
 import {beforeEach, describe, expect, it} from 'vitest'
+import {isAddress} from 'viem'
 
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {ContractRevertError} from '../../errors'
@@ -6,7 +7,6 @@ import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
-import {isAddress} from 'viem'
 
 describe('Asset class: HolographLegacyCollection', () => {
   const account: HolographAccount = configObject.accounts?.default!
@@ -128,12 +128,12 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_estimateGasForDeployingCollection()', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
-      await sleep(250) // Sleep to avoid nonce issues
+      await sleep(500) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
       const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
-      const gasPrice = Number(gasEstimation.gasPrice)
-      const gasLimit = Number(gasEstimation.gasLimit)
-      const gas = Number(gasEstimation.gas)
+      const gasPrice = gasEstimation.gasPrice
+      const gasLimit = gasEstimation.gasLimit
+      const gas = gasEstimation.gas
 
       expect(gasEstimation).toHaveProperty('gasPrice')
       expect(gasEstimation).toHaveProperty('gasLimit')
@@ -180,13 +180,13 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('deploy()', () => {
     it('should be able to deploy a collection', async () => {
-      await sleep(250) // Sleep to avoid nonce issues
+      await sleep(500) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
       const {collectionAddress, txHash} = await collection.deploy(signatureData)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
-      expect(String(txHash).startsWith('0x')).to.be.true
+      expect(txHash.startsWith('0x')).to.be.true
       expect(collectionAddress).to.be.an('string')
       expect(collectionAddress).to.have.length(42)
       expect(isAddress(collectionAddress)).to.be.true

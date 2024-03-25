@@ -5,10 +5,10 @@ import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
+import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
 import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy} from '../utils/types'
-import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
@@ -187,7 +187,7 @@ export class HolographLegacyCollection {
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
 
     if (gasController?.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice!)
+      gasPrice = BigInt(gasController.gasPrice)
     } else {
       gasPrice = await this.factory.getGasPrice(chainId)
     }
@@ -210,7 +210,7 @@ export class HolographLegacyCollection {
       gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
-    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+    const gas = gasPrice * gasLimit
 
     return {
       gasPrice,
@@ -261,16 +261,16 @@ export class HolographLegacyCollection {
     })) as Hex
 
     const client = await this.factory.getClientByChainId(chainId!)
-    const receipt = await client.waitForTransactionReceipt({hash: txHash as Hex})
-    const deployedCollectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
+    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
 
-    this.collectionAddress = deployedCollectionAddress
+    this.collectionAddress = collectionAddress
     this.chainIds?.push(chainId!)
     this.txHash = txHash
 
     return {
-      collectionAddress: deployedCollectionAddress,
-      txHash: txHash,
+      collectionAddress,
+      txHash,
     }
   }
 

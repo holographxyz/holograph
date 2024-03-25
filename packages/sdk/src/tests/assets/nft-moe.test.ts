@@ -1,17 +1,18 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
-import {Hex} from 'viem'
 
+import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
 import {MoeNFT} from '../../assets/nft-moe'
 import {HolographWallet} from '../../services'
 import {LOCALHOST2_CHAIN_ID, configObject} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
-import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
 
 const expectedValues = {
   mintedNftTokenId: '0x0000000000000000000000000000000000000000000000000000000000000001',
   owner: configObject.accounts?.default?.address!,
 }
+
+const FAKE_COLLECTION_ADDRESS = '0x' + '1'.repeat(40)
 
 describe('Asset class: MoeNFT', () => {
   const account: HolographAccount = configObject.accounts?.default!
@@ -19,20 +20,19 @@ describe('Asset class: MoeNFT', () => {
 
   let collection: HolographMoeERC721DropV2
   let nft: MoeNFT
-  let nftTokenId: Hex
 
   beforeAll(async () => {
     collection = new HolographMoeERC721DropV2(configObject, {
       collectionInfo: {
         name: 'My First Collection',
-        description: 'Nothing',
+        description: 'Probably nothing.',
         symbol: 'MFC',
         royaltiesBps: 2000,
         salt: generateRandomSalt(),
       },
       nftInfo: {
-        ipfsImageCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
-        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
+        ipfsImageCid: 'QmVRoVke1wqxw3caH2ARpbNSrQ4M3Q8GFHqRwe352LXQvd',
+        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmbC3ACnaUVHaLoMzcgJvQE6MgGXVBcWoGpaHi5CKkPafc/nft.jpg',
       },
       salesConfig: {
         maxSalePurchasePerAddress: 10,
@@ -42,18 +42,19 @@ describe('Asset class: MoeNFT', () => {
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
-    await sleep(2000) // Sleep to avoid nonce issues
-    const signatureData = await collection.signDeploy(wallet)
-    await collection.deploy(signatureData)
+    // TODO: Uncomment the code below after adjusting the price oracle localhost contracts
+    // await sleep(500) // Sleep to avoid nonce issues
+    // const signatureData = await collection.signDeploy(wallet)
+    // await collection.deploy(signatureData)
   })
 
   beforeEach(() => {
     nft = new MoeNFT(configObject, {
-      chainId: LOCALHOST2_CHAIN_ID,
-      collectionAddress: collection.collectionAddress!,
+      // TODO: Replace the next line with "collectionAddress: collection.collectionAddress!" after adjusting the price oracle localhost contracts
+      collectionAddress: FAKE_COLLECTION_ADDRESS,
       metadata: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
+        description: 'Probably nothing.',
         creator: 'Holograph Protocol',
         attributes: {
           key: 'value',
@@ -87,11 +88,13 @@ describe('Asset class: MoeNFT', () => {
 
   describe('_estimateGasForMintingNft()', () => {
     it.skip('should be able to estimate gas for minting an NFT', async () => {
-      await sleep(250) // Sleep to avoid nonce issues
-      const gasEstimation = await nft._estimateGasForMintingNft()
-      const gasPrice = Number(gasEstimation.gasPrice)
-      const gasLimit = Number(gasEstimation.gasLimit)
-      const gas = Number(gasEstimation.gas)
+      await sleep(500) // Sleep to avoid nonce issues
+      const gasEstimation = await nft._estimateGasForMintingNft({
+        chainId: LOCALHOST2_CHAIN_ID,
+      })
+      const gasPrice = gasEstimation.gasPrice
+      const gasLimit = gasEstimation.gasLimit
+      const gas = gasEstimation.gas
 
       expect(gasEstimation).toHaveProperty('gasPrice')
       expect(gasEstimation).toHaveProperty('gasLimit')
@@ -103,13 +106,15 @@ describe('Asset class: MoeNFT', () => {
 
   describe('mint()', () => {
     it.skip('should be able to mint an NFT', async () => {
-      const {tokenId, txHash} = await nft.mint()
-      nftTokenId = tokenId
+      await sleep(500) // Sleep to avoid nonce issues
+      const {tokenId, txHash} = await nft.mint({
+        chainId: LOCALHOST2_CHAIN_ID,
+      })
 
       expect(nft.isMinted).toBe(true)
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
-      expect(String(txHash).startsWith('0x')).to.be.true
+      expect(txHash.startsWith('0x')).to.be.true
       expect(tokenId).to.be.an('string')
       expect(tokenId).to.be.equals(expectedValues.mintedNftTokenId)
     })
@@ -117,7 +122,7 @@ describe('Asset class: MoeNFT', () => {
 
   describe('getOwner()', () => {
     it.skip('should be able to get the NFT owner', async () => {
-      const owner = await nft.getOwner(nftTokenId)
+      const owner = await nft.getOwner(expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(owner).toBe(expectedValues.owner)
     })

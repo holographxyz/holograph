@@ -1,5 +1,4 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
-import {Hex} from 'viem'
 
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {NFT} from '../../assets/nft'
@@ -30,7 +29,6 @@ describe('Asset class: NFT', () => {
 
   let collection: HolographLegacyCollection
   let nft: NFT
-  let nftTokenId: Hex
 
   beforeAll(async () => {
     collection = new HolographLegacyCollection(configObject, {
@@ -43,18 +41,17 @@ describe('Asset class: NFT', () => {
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
-    await sleep(2000) // Sleep to avoid nonce issues
+    await sleep(500) // Sleep to avoid nonce issues
     const signatureData = await collection.signDeploy(wallet)
     await collection.deploy(signatureData)
   })
 
   beforeEach(() => {
     nft = new NFT(configObject, {
-      chainId: LOCALHOST2_CHAIN_ID,
       collectionAddress: collection.collectionAddress!,
       metadata: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
+        description: 'Probably nothing.',
         creator: 'Holograph Protocol',
         attributes: {
           key: 'value',
@@ -99,7 +96,7 @@ describe('Asset class: NFT', () => {
       expect(metadata).toHaveProperty('creator')
       expect(metadata).toHaveProperty('attributes')
       expect(metadata.name).toBe('NFTs Without Boundaries')
-      expect(metadata.description).toBe('Probably nothing')
+      expect(metadata.description).toBe('Probably nothing.')
       expect(metadata.creator).toBe('Holograph Protocol')
       expect(metadata.attributes).toHaveProperty('key')
       expect(metadata.attributes).toHaveProperty('anotherKey')
@@ -116,7 +113,7 @@ describe('Asset class: NFT', () => {
   it('should be able to get the NFT description', () => {
     const description = nft.description
 
-    expect(description).toBe('Probably nothing')
+    expect(description).toBe('Probably nothing.')
   })
 
   it('should be able to get the NFT creator', () => {
@@ -282,11 +279,11 @@ describe('Asset class: NFT', () => {
 
   describe('_estimateGasForMintingNft()', () => {
     it('should be able to estimate gas for minting an NFT', async () => {
-      await sleep(250) // Sleep to avoid nonce issues
-      const gasEstimation = await nft._estimateGasForMintingNft()
-      const gasPrice = Number(gasEstimation.gasPrice)
-      const gasLimit = Number(gasEstimation.gasLimit)
-      const gas = Number(gasEstimation.gas)
+      await sleep(500) // Sleep to avoid nonce issues
+      const gasEstimation = await nft._estimateGasForMintingNft({chainId: LOCALHOST2_CHAIN_ID})
+      const gasPrice = gasEstimation.gasPrice
+      const gasLimit = gasEstimation.gasLimit
+      const gas = gasEstimation.gas
 
       expect(gasEstimation).toHaveProperty('gasPrice')
       expect(gasEstimation).toHaveProperty('gasLimit')
@@ -299,14 +296,14 @@ describe('Asset class: NFT', () => {
   describe('mint()', () => {
     it('should be able to mint an NFT', async () => {
       const {tokenId, txHash} = await nft.mint({
+        chainId: LOCALHOST2_CHAIN_ID,
         tokenUri: `${nft.ipfsImageCid}/metadata.json`,
       })
-      nftTokenId = tokenId
 
       expect(nft.isMinted).toBe(true)
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
-      expect(String(txHash).startsWith('0x')).to.be.true
+      expect(txHash.startsWith('0x')).to.be.true
       expect(tokenId).to.be.an('string')
       expect(tokenId).to.be.equals(expectedValues.mintedNftTokenId)
     })
@@ -314,7 +311,7 @@ describe('Asset class: NFT', () => {
 
   describe('getOwner()', () => {
     it('should be able to get the NFT owner', async () => {
-      const owner = await nft.getOwner(nftTokenId)
+      const owner = await nft.getOwner(expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(owner).toBe(expectedValues.owner)
     })
@@ -322,21 +319,21 @@ describe('Asset class: NFT', () => {
 
   describe('isOwner()', () => {
     it('should be able to check if an account is the NFT owner', async () => {
-      const isOwner = await nft.isOwner(expectedValues.owner, nftTokenId)
+      const isOwner = await nft.isOwner(expectedValues.owner, expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(isOwner).toBe(true)
     })
   })
 
   describe('tokenIdExists()', () => {
-    it('should be able to check if an NFT exists', async () => {
-      const exists = await nft.tokenIdExists(nftTokenId)
+    it('should be able to check if a minted NFT exists', async () => {
+      const exists = await nft.tokenIdExists(expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(exists).toBe(true)
     })
 
     it('should be able to check if a random NFT token id NFT does not exist', async () => {
-      const exists = await nft.tokenIdExists(expectedValues.notMintedNftTokenId)
+      const exists = await nft.tokenIdExists(expectedValues.notMintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(exists).toBe(false)
     })

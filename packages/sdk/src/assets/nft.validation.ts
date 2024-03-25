@@ -10,7 +10,6 @@ const attributesSchema = z.record(z.string())
 const ownerSchema = z.string().refine(isAddress, {message: 'Invalid owner address'})
 const fileSchema = z.string().url({message: 'Invalid file URL'})
 const tokenIdSchema = z.string().refine(tokenId => !isNaN(Number(tokenId)), {message: 'Invalid token id'})
-const chainIdSchema = z.coerce.number().gt(0, {message: 'Invalid chain id'})
 const collectionAddressSchema = z.string().min(1, {message: 'Collection address is required'})
 const versionSchema = z.enum([HolographVersion.V1, HolographVersion.V2]).optional()
 const ipfsUrlSchema = z.string().url()
@@ -33,7 +32,6 @@ const metadataSchema = z.object({
 
 export const createNftSchema = z.object({
   metadata: metadataSchema,
-  chainId: chainIdSchema,
   collectionAddress: collectionAddressSchema,
   ipfsInfo: ipfsInfoSchema,
   version: versionSchema,
@@ -48,7 +46,6 @@ export const validate = {
   owner: ownerSchema,
   file: fileSchema,
   tokenId: tokenIdSchema,
-  chainId: chainIdSchema,
   collectionAddress: collectionAddressSchema,
   ipfsUrl: ipfsUrlSchema,
   ipfsImageCid: ipfsImageCidSchema,

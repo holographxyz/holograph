@@ -1,4 +1,5 @@
 import {beforeEach, describe, expect, it} from 'vitest'
+import {isAddress} from 'viem'
 
 import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
 import {bytecodes} from '../../constants/bytecodes'
@@ -7,7 +8,6 @@ import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {enableDropEventsV2, generateRandomSalt} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
-import {isAddress} from 'viem'
 
 describe('Asset class: HolographMoeERC721DropV2', () => {
   const account: HolographAccount = configObject.accounts?.default!
@@ -19,7 +19,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     collection = new HolographMoeERC721DropV2(configObject, {
       collectionInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
+        description: 'Probably nothing.',
         symbol: 'HOLO',
         royaltiesBps: 2000,
         salt: generateRandomSalt(),
@@ -72,7 +72,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
       expect(info).toHaveProperty('publicSaleEnd')
       expect(info).toHaveProperty('publicSalePrice')
       expect(info.name).toBe('NFTs Without Boundaries')
-      expect(info.description).toBe('Probably nothing')
+      expect(info.description).toBe('Probably nothing.')
       expect(info.symbol).toBe('HOLO')
       expect(info.royaltiesBps).toBe(2000)
       expect(info.tokenType).toBe('ERC721')
@@ -150,9 +150,9 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
       const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
-      const gasPrice = Number(gasEstimation.gasPrice)
-      const gasLimit = Number(gasEstimation.gasLimit)
-      const gas = Number(gasEstimation.gas)
+      const gasPrice = gasEstimation.gasPrice
+      const gasLimit = gasEstimation.gasLimit
+      const gas = gasEstimation.gas
 
       expect(gasEstimation).toHaveProperty('gasPrice')
       expect(gasEstimation).toHaveProperty('gasLimit')
@@ -203,7 +203,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
-      expect(String(txHash).startsWith('0x')).to.be.true
+      expect(txHash.startsWith('0x')).to.be.true
       expect(collectionAddress).to.be.an('string')
       expect(collectionAddress).to.have.length(42)
       expect(isAddress(collectionAddress)).to.be.true
