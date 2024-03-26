@@ -40,10 +40,9 @@ describe('Asset class: MoeNFT', () => {
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
-    // TODO: Uncomment the code below after adjusting the price oracle localhost contracts
-    // await sleep(500) // Sleep to avoid nonce issues
-    // const signatureData = await collection.signDeploy(wallet)
-    // await collection.deploy(signatureData)
+    await sleep(500) // Sleep to avoid nonce issues
+    const signatureData = await collection.signDeploy(wallet)
+    await collection.deploy(signatureData)
   })
 
   beforeEach(() => {
@@ -61,7 +60,7 @@ describe('Asset class: MoeNFT', () => {
     })
   })
 
-  it('should be able to get the NFT wrapper class', () => {
+  it('should be able to get the MOE NFT wrapper class', () => {
     expect(nft).toHaveProperty('metadata')
     expect(nft).toHaveProperty('name')
     expect(nft).toHaveProperty('description')
@@ -84,7 +83,7 @@ describe('Asset class: MoeNFT', () => {
   })
 
   describe('_estimateGasForMintingNft()', () => {
-    it.skip('should be able to estimate gas for minting an NFT', async () => {
+    it('should be able to estimate gas for minting a MOE NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const gasEstimation = await nft._estimateGasForMintingNft({
         chainId: LOCALHOST2_CHAIN_ID,
@@ -102,7 +101,7 @@ describe('Asset class: MoeNFT', () => {
   })
 
   describe('mint()', () => {
-    it.skip('should be able to mint an NFT', async () => {
+    it('should be able to purchase a MOE NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const {tokenId, txHash} = await nft.mint({
         chainId: LOCALHOST2_CHAIN_ID,
@@ -118,7 +117,7 @@ describe('Asset class: MoeNFT', () => {
   })
 
   describe('getOwner()', () => {
-    it.skip('should be able to get the NFT owner', async () => {
+    it('should be able to get the MOE NFT owner', async () => {
       const owner = await nft.getOwner(expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(owner).toBe(expectedValues.owner)
