@@ -32,6 +32,7 @@ import {GasFee, GetDropInitCodeParams, HolographConfig, SignDeploy, Signature} f
 
 export class HolographMoeERC721DropV1 {
   collectionInfo: CollectionInfo
+  holographConfig: HolographConfig
   nftInfo: NftInfo
   salesConfig: HolographMoeSalesConfig
   primaryChainId: number
@@ -53,6 +54,7 @@ export class HolographMoeERC721DropV1 {
     this.nftInfo = validate.nftInfo.parse(nftInfo)
     this.salesConfig = validate.salesConfig.parse(salesConfig)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
+    this.holographConfig = configObject
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
@@ -427,9 +429,10 @@ export class HolographMoeERC721DropV1 {
     collectionAddress: Address
     txHash: Hex
   }> {
-    const {account, chainId, config, signature} = signatureData
+    const {account, chainId, config, signature, options, wallet} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
+      ...options,
       gasPrice,
       gas: gasLimit,
     })) as Hex

@@ -4,17 +4,17 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {HolographDropERC721} from '../contracts'
 import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
-import {HolographConfig, HolographVersion, MintConfig} from '../utils/types'
+import {HolographVersion, MintConfig} from '../utils/types'
 import {NFT} from './nft'
 import {CreateNft} from './nft.validation'
 
 export class MoeNFT extends NFT {
   private holographDropERC721: HolographDropERC721
 
-  constructor(configObject: HolographConfig, {collectionAddress, metadata, version = HolographVersion.V2}: CreateNft) {
-    super(configObject, {collectionAddress, metadata, version})
-    const config = Config.getInstance(configObject)
-    const holographDropERC721 = new HolographDropERC721(config, this.collectionAddress!, version)
+  constructor({collection, metadata, version = HolographVersion.V2}: CreateNft) {
+    super({collection, metadata, version})
+    const config = Config.getInstance(collection.holographConfig)
+    const holographDropERC721 = new HolographDropERC721(config, collection.collectionAddress!, version)
     this.holographDropERC721 = holographDropERC721
   }
 
@@ -67,9 +67,7 @@ export class MoeNFT extends NFT {
     }
   }
 
-  async mint({chainId, quantity: quantity_}: MintConfig) {
-    const quantity = quantity_ || 1
-
+  async mint({chainId, quantity = 1, options, wallet}: MintConfig) {
     const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({
       chainId,
       quantity,
@@ -81,7 +79,8 @@ export class MoeNFT extends NFT {
     // 5% slippage
     const slippage = (total * BigInt(5)) / BigInt(100)
 
-    const txHash = (await this.holographDropERC721.purchase(chainId, quantity, undefined, {
+    const txHash = (await this.holographDropERC721.purchase(chainId, quantity, wallet, {
+      ...options,
       gas: gasLimit,
       gasPrice,
       value: total + slippage,
@@ -89,7 +88,7 @@ export class MoeNFT extends NFT {
 
     const client = await this.holographDropERC721.getClientByChainId(chainId)
     const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const tokenId = queryTokenIdFromReceipt(receipt, this.collectionAddress!)
+    const tokenId = queryTokenIdFromReceipt(receipt, this.collection.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
     this.txHash = txHash
     this.tokenId = tokenIdBytesString

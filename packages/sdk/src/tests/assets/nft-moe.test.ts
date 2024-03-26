@@ -12,8 +12,6 @@ const expectedValues = {
   owner: configObject.accounts?.default?.address!,
 }
 
-const FAKE_COLLECTION_ADDRESS = '0x' + '1'.repeat(40)
-
 describe('Asset class: MoeNFT', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
@@ -49,9 +47,8 @@ describe('Asset class: MoeNFT', () => {
   })
 
   beforeEach(() => {
-    nft = new MoeNFT(configObject, {
-      // TODO: Replace the next line with "collectionAddress: collection.collectionAddress!" after adjusting the price oracle localhost contracts
-      collectionAddress: FAKE_COLLECTION_ADDRESS,
+    nft = new MoeNFT({
+      collection,
       metadata: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',

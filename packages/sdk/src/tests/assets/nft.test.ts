@@ -41,14 +41,14 @@ describe('Asset class: NFT', () => {
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
-    await sleep(500) // Sleep to avoid nonce issues
+    await sleep(1500) // Sleep to avoid nonce issues
     const signatureData = await collection.signDeploy(wallet)
     await collection.deploy(signatureData)
   })
 
   beforeEach(() => {
-    nft = new NFT(configObject, {
-      collectionAddress: collection.collectionAddress!,
+    nft = new NFT({
+      collection,
       metadata: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',
@@ -60,6 +60,7 @@ describe('Asset class: NFT', () => {
       },
       ipfsInfo: {
         ipfsImageCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
+        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
         ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
       },
     })
@@ -143,6 +144,12 @@ describe('Asset class: NFT', () => {
     const ipfsImageCid = nft.ipfsImageCid
 
     expect(ipfsImageCid).toBe('QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32')
+  })
+
+  it('should be able to get the NFT IPFS metadata cid', () => {
+    const ipfsMetadataCid = nft.ipfsMetadataCid
+
+    expect(ipfsMetadataCid).toBe('QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json')
   })
 
   describe('getParsedTokenId()', () => {
@@ -295,10 +302,7 @@ describe('Asset class: NFT', () => {
 
   describe('mint()', () => {
     it('should be able to mint an NFT', async () => {
-      const {tokenId, txHash} = await nft.mint({
-        chainId: LOCALHOST2_CHAIN_ID,
-        tokenUri: `${nft.ipfsImageCid}/metadata.json`,
-      })
+      const {tokenId, txHash} = await nft.mint({chainId: LOCALHOST2_CHAIN_ID})
 
       expect(nft.isMinted).toBe(true)
       expect(txHash).to.be.an('string')

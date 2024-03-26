@@ -1,5 +1,7 @@
 import {Address, Hex, numberToHex, pad, toHex} from 'viem'
 
+import {HolographLegacyCollection} from './collection-legacy'
+import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './collection-moe'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {CxipERC721} from '../contracts'
 import {NotMintedNftError} from '../errors/assets/not-minted-nft.error'
@@ -7,24 +9,24 @@ import {CreateNft, DEFAULT_TOKEN_URI, HolographNFTMetadata, NftIpfsInfo, validat
 import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
-import {HolographConfig, MintConfig, TokenUriType} from '../utils/types'
+import {MintConfig, TokenUriType} from '../utils/types'
 
 export class NFT {
+  collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
   isMinted: boolean
   metadata: HolographNFTMetadata
-  protected collectionAddress?: Address
   protected ipfsInfo?: NftIpfsInfo
   protected tokenId?: string // Decimal tokenId string
   protected txHash?: string
 
   private cxipERC721: CxipERC721
 
-  constructor(configObject: HolographConfig, {collectionAddress, ipfsInfo, metadata}: CreateNft) {
-    this.collectionAddress = validate.collectionAddress.parse(collectionAddress) as Address
+  constructor({collection, ipfsInfo, metadata}: CreateNft) {
     this.metadata = validate.metadata.parse(metadata)
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
-    const config = Config.getInstance(configObject)
-    const cxipERC721 = new CxipERC721(config, this.collectionAddress)
+    this.collection = validate.collection.parse(collection)
+    const config = Config.getInstance(collection.holographConfig)
+    const cxipERC721 = new CxipERC721(config, collection.collectionAddress!)
     this.cxipERC721 = cxipERC721
     this.isMinted = false
   }
@@ -46,12 +48,16 @@ export class NFT {
     return this.metadata.attributes
   }
 
-  get ipfsUrl() {
-    return this.ipfsInfo?.ipfsUrl
-  }
-
   get ipfsImageCid() {
     return this.ipfsInfo?.ipfsImageCid
+  }
+
+  get ipfsMetadataCid() {
+    return this.ipfsInfo?.ipfsMetadataCid
+  }
+
+  get ipfsUrl() {
+    return this.ipfsInfo?.ipfsUrl
   }
 
   getParsedTokenId() {
@@ -101,18 +107,24 @@ export class NFT {
   }
 
   @IsNotMinted()
-  setIpfsUrl(ipfsUrl: string) {
-    validate.ipfsUrl.parse(ipfsUrl)
-    this.ipfsInfo!.ipfsUrl = ipfsUrl
-  }
-
-  @IsNotMinted()
   setIpfsImageCid(ipfsImageCid: string) {
     validate.ipfsImageCid.parse(ipfsImageCid)
     this.ipfsInfo!.ipfsImageCid = ipfsImageCid
   }
 
-  async _estimateGasForMintingNft({chainId, tokenUri}: MintConfig) {
+  @IsNotMinted()
+  setIpfsMetadataCid(ipfsMetadataCid: string) {
+    validate.ipfsMetadataCid.parse(ipfsMetadataCid)
+    this.ipfsInfo!.ipfsMetadataCid = ipfsMetadataCid
+  }
+
+  @IsNotMinted()
+  setIpfsUrl(ipfsUrl: string) {
+    validate.ipfsUrl.parse(ipfsUrl)
+    this.ipfsInfo!.ipfsUrl = ipfsUrl
+  }
+
+  async _estimateGasForMintingNft({chainId}: MintConfig) {
     let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 
@@ -130,7 +142,7 @@ export class NFT {
       gasLimit = BigInt(gasController.gasLimit)
     } else {
       gasLimit = await this.cxipERC721.estimateContractFunctionGas({
-        args: [0, TokenUriType.IPFS, tokenUri || DEFAULT_TOKEN_URI],
+        args: [0, TokenUriType.IPFS, this.ipfsMetadataCid || DEFAULT_TOKEN_URI],
         chainId,
         functionName: 'cxipMint',
       })
@@ -149,22 +161,18 @@ export class NFT {
     }
   }
 
-  async mint({chainId, tokenUri}: MintConfig) {
-    validate.tokenUri.parse(tokenUri)
-
+  async mint({chainId, options, wallet}: MintConfig) {
     const client = await this.cxipERC721.getClientByChainId(chainId)
-    const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({
-      chainId,
-      tokenUri,
-    })
+    const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({chainId})
 
-    const txHash = (await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, tokenUri!, undefined, {
+    const txHash = (await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, this.ipfsMetadataCid!, wallet, {
+      ...options,
       gas: gasLimit,
       gasPrice,
     })) as Hex
 
     const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const tokenId = queryTokenIdFromReceipt(receipt, this.collectionAddress!)
+    const tokenId = queryTokenIdFromReceipt(receipt, this.collection.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
 
     this.tokenId = tokenIdBytesString

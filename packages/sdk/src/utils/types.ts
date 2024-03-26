@@ -73,6 +73,8 @@ export type SignDeploy = {
   readonly config: Erc721Config['erc721Config']
   readonly signature: Signature
   readonly chainId?: number
+  options?: WriteContractOptions
+  wallet?: {account: string | HolographWallet}
 }
 
 export type BridgeSettings = {
@@ -266,7 +268,8 @@ export type GetDropInitCodeParams = {
 export type MintConfig = {
   chainId: number
   quantity?: number
-  tokenUri?: string
+  options?: WriteContractOptions
+  wallet?: {account: string | HolographWallet}
 }
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>

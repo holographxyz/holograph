@@ -15,9 +15,10 @@ export class HolographLegacyCollection {
   primaryChainId: number
   account?: Address
   chainIds?: number[]
-  erc721ConfigHash?: Hex
-  predictedCollectionAddress?: Address
   collectionAddress?: Address
+  erc721ConfigHash?: Hex
+  holographConfig: HolographConfig
+  predictedCollectionAddress?: Address
   signature?: Signature
   txHash?: string
 
@@ -27,6 +28,7 @@ export class HolographLegacyCollection {
   constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
     this.collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
+    this.holographConfig = configObject
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
@@ -253,9 +255,10 @@ export class HolographLegacyCollection {
     collectionAddress: Address
     txHash: Hex
   }> {
-    const {account, chainId, config, signature} = signatureData
+    const {account, chainId, config, signature, options, wallet} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
+      ...options,
       gasPrice,
       gas: gasLimit,
     })) as Hex
