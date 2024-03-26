@@ -5,11 +5,11 @@ import {HolographLegacyCollection} from './collection-legacy'
 import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './collection-moe'
 import {HolographVersion} from '../utils/types'
 
-const nameSchema = z.string().min(1, {message: 'Name is required'})
 const collectionSchema = z
-  .instanceof(HolographMoeERC721DropV2)
+  .instanceof(HolographLegacyCollection)
   .or(z.instanceof(HolographMoeERC721DropV1))
-  .or(z.instanceof(HolographLegacyCollection))
+  .or(z.instanceof(HolographMoeERC721DropV2))
+const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().min(1, {message: 'Description is required'})
 const creatorSchema = z.string().min(1, {message: 'Creator is required'})
 const attributesSchema = z.record(z.string())

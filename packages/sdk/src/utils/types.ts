@@ -73,7 +73,6 @@ export type SignDeploy = {
   readonly config: Erc721Config['erc721Config']
   readonly signature: Signature
   readonly chainId?: number
-  options?: WriteContractOptions
   wallet?: {account: string | HolographWallet}
 }
 
@@ -268,7 +267,6 @@ export type GetDropInitCodeParams = {
 export type MintConfig = {
   chainId: number
   quantity?: number
-  options?: WriteContractOptions
   wallet?: {account: string | HolographWallet}
 }
 

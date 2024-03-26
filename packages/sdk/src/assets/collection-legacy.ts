@@ -8,16 +8,16 @@ import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
-import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy} from '../utils/types'
+import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
+  holographConfig: HolographConfig
   primaryChainId: number
   account?: Address
   chainIds?: number[]
   collectionAddress?: Address
   erc721ConfigHash?: Hex
-  holographConfig: HolographConfig
   predictedCollectionAddress?: Address
   signature?: Signature
   txHash?: string
@@ -251,11 +251,14 @@ export class HolographLegacyCollection {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
-  async deploy(signatureData: SignDeploy): Promise<{
+  async deploy(
+    signatureData: SignDeploy,
+    options?: WriteContractOptions,
+  ): Promise<{
     collectionAddress: Address
     txHash: Hex
   }> {
-    const {account, chainId, config, signature, options, wallet} = signatureData
+    const {account, chainId, config, signature, wallet} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
     const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
       ...options,

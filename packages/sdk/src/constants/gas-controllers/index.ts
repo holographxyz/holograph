@@ -3,7 +3,7 @@ import {MOE_COLLECTION_DEPLOY_GAS} from './moe-collection-deploy'
 import {MOE_NFT_MINT_GAS} from './moe-nft-mint'
 import {NFT_MINT_GAS} from './nft-mint'
 
-type GasParams = {
+export type GasParams = {
   gasPrice?: string // in wei
   gasLimit?: string // in wei
   gasLimitMultiplier?: number // 1.2x = 120, 2x = 200

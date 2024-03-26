@@ -122,13 +122,20 @@ const { tokenId, txHash } = await myNft.mint({ chainId: networks.polygon.chain }
 //    const { tokenId, txHash } = await myNft.mint({ quantity: 2 })
 ```
 
-## Minting using another wallet 💼:
+## Minting an NFT using another wallet 💼:
 
 ```typescript
 const anotherAccount = HolographAccountFactory.createAccountUsingPrivateKey(process.env.ANOTHER_PRIVATE_KEY)
 const anotherWallet = new HolographWallet({ account: anotherAccount, chainsRpc: holographConfig.networks })
 
-const { tokenId, txHash } = await myNft.mint({ chainId: networks.polygon.chain, wallet: anotherWallet,
-  options: {} // You can also pass some config overrides inside the options param
-  })
+const { tokenId, txHash } = await myNft.mint({
+  chainId: networks.polygon.chain,
+  wallet: anotherWallet,
+  options: { // You can also pass the config overrides within the options param
+    gas: BigInt(1000), // These examples are using random values
+    gasLimit: BigInt(1000),
+    nonce: BigInt(75),
+    value: BigInt(2000)
+  },
+})
 ```

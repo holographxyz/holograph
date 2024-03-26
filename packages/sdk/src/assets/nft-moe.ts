@@ -4,7 +4,7 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {HolographDropERC721} from '../contracts'
 import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
-import {HolographVersion, MintConfig} from '../utils/types'
+import {HolographVersion, MintConfig, WriteContractOptions} from '../utils/types'
 import {NFT} from './nft'
 import {CreateNft} from './nft.validation'
 
@@ -67,7 +67,7 @@ export class MoeNFT extends NFT {
     }
   }
 
-  async mint({chainId, quantity = 1, options, wallet}: MintConfig) {
+  async mint({chainId, quantity = 1, wallet}: MintConfig, options?: WriteContractOptions) {
     const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({
       chainId,
       quantity,

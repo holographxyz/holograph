@@ -9,7 +9,7 @@ import {CreateNft, DEFAULT_TOKEN_URI, HolographNFTMetadata, NftIpfsInfo, validat
 import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
-import {MintConfig, TokenUriType} from '../utils/types'
+import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 
 export class NFT {
   collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
@@ -161,7 +161,7 @@ export class NFT {
     }
   }
 
-  async mint({chainId, options, wallet}: MintConfig) {
+  async mint({chainId, wallet}: MintConfig, options?: WriteContractOptions) {
     const client = await this.cxipERC721.getClientByChainId(chainId)
     const {gasLimit, gasPrice} = await this._estimateGasForMintingNft({chainId})
 

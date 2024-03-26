@@ -1,5 +1,7 @@
 import {networks} from '@holographxyz/networks'
 
+import {GasParams} from '.'
+
 export const NFT_MINT_GAS = {
   [networks.ethereum.chain]: {
     gasPrice: undefined,
@@ -151,4 +153,4 @@ export const NFT_MINT_GAS = {
     gasLimitMultiplier: undefined,
     gasPriceMultiplier: 110,
   },
-}
+} as const satisfies Record<number, GasParams>

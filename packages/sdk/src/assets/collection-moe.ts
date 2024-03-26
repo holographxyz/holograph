@@ -28,7 +28,14 @@ import {
   strictECDSA,
 } from '../utils/helpers'
 import {remove0x} from '../utils/transformers'
-import {GasFee, GetDropInitCodeParams, HolographConfig, SignDeploy, Signature} from '../utils/types'
+import {
+  GasFee,
+  GetDropInitCodeParams,
+  HolographConfig,
+  SignDeploy,
+  Signature,
+  WriteContractOptions,
+} from '../utils/types'
 
 export class HolographMoeERC721DropV1 {
   collectionInfo: CollectionInfo
@@ -425,11 +432,14 @@ export class HolographMoeERC721DropV1 {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
-  async deploy(signatureData: SignDeploy): Promise<{
+  async deploy(
+    signatureData: SignDeploy,
+    options?: WriteContractOptions,
+  ): Promise<{
     collectionAddress: Address
     txHash: Hex
   }> {
-    const {account, chainId, config, signature, options, wallet} = signatureData
+    const {account, chainId, config, signature, wallet} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
     const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
       ...options,

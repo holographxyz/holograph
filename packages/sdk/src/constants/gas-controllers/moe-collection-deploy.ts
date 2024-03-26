@@ -1,5 +1,7 @@
 import {networks} from '@holographxyz/networks'
 
+import {GasParams} from '.'
+
 export const MOE_COLLECTION_DEPLOY_GAS = {
   [networks.ethereum.chain]: {
     gasPrice: undefined,
@@ -151,4 +153,4 @@ export const MOE_COLLECTION_DEPLOY_GAS = {
     gasLimitMultiplier: 120,
     gasPriceMultiplier: 110,
   },
-}
+} as const satisfies Record<number, GasParams>
