@@ -1,4 +1,5 @@
 import {beforeEach, describe, expect, it} from 'vitest'
+import {isAddress} from 'viem'
 
 import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
 import {bytecodes} from '../../constants/bytecodes'
@@ -18,7 +19,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     collection = new HolographMoeERC721DropV2(configObject, {
       collectionInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
+        description: 'Probably nothing.',
         symbol: 'HOLO',
         royaltiesBps: 2000,
         salt: generateRandomSalt(),
@@ -27,7 +28,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
         ipfsUrl: 'ipfs://fileurl.com/file://',
         ipfsImageCid: 'QmQJNvXvNqfDAV4srQ8dRr8s4FYBKB67RnWhvWLvE72osu',
       },
-      saleConfig: {
+      salesConfig: {
         maxSalePurchasePerAddress: 10,
         publicSaleStart: '2025-01-01T00:00:00Z',
         publicSaleEnd: '2025-01-02T00:00:00Z',
@@ -71,7 +72,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
       expect(info).toHaveProperty('publicSaleEnd')
       expect(info).toHaveProperty('publicSalePrice')
       expect(info.name).toBe('NFTs Without Boundaries')
-      expect(info.description).toBe('Probably nothing')
+      expect(info.description).toBe('Probably nothing.')
       expect(info.symbol).toBe('HOLO')
       expect(info.royaltiesBps).toBe(2000)
       expect(info.tokenType).toBe('ERC721')
@@ -149,9 +150,9 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
       const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
-      const gasPrice = Number(gasEstimation.gasPrice)
-      const gasLimit = Number(gasEstimation.gasLimit)
-      const gas = Number(gasEstimation.gas)
+      const gasPrice = gasEstimation.gasPrice
+      const gasLimit = gasEstimation.gasLimit
+      const gas = gasEstimation.gas
 
       expect(gasEstimation).toHaveProperty('gasPrice')
       expect(gasEstimation).toHaveProperty('gasLimit')
@@ -198,11 +199,14 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   describe('deploy()', () => {
     it('should be able to deploy a collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
-      const txHash = await collection.deploy(signatureData)
+      const {collectionAddress, txHash} = await collection.deploy(signatureData)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
-      expect(String(txHash).startsWith('0x')).to.be.true
+      expect(txHash.startsWith('0x')).to.be.true
+      expect(collectionAddress).to.be.an('string')
+      expect(collectionAddress).to.have.length(42)
+      expect(isAddress(collectionAddress)).to.be.true
     })
 
     it('should throw an error if the collection is already deployed', async () => {

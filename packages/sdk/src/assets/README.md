@@ -53,7 +53,7 @@ const myCollection = new HolographLegacyCollection(holographConfig, {
 const signatureData = await myCollection.signDeploy(wallet)
 
 // 4) Deploy 🚀
-await myCollection.deploy(signatureData)
+const { collectionAddress, txHash} = await myCollection.deploy(signatureData)
 
 // 5) Wanna to deploy to another chain? 🌐
 const avalancheSignatureData = await myCollection.signDeploy(wallet, networks.avalanche.chain)
@@ -78,7 +78,7 @@ const myCollection = new HolographMoeERC721DropV2(holographConfig, {
     ipfsUrl: 'ipfs://fileurl.com/file',
     ipfsImageCid: 'QmQJNvXvNqfDAV4srQ8dRr8s4FYBKB67RnWhvWLvE72osu',
   },
-  saleConfig: {
+  salesConfig: {
     maxSalePurchasePerAddress: 10,
     publicSaleStart: '2025-01-01T00:00:00Z', // It must be in the ISO format
     publicSaleEnd: '2025-01-02T00:00:00Z',
@@ -91,7 +91,51 @@ const myCollection = new HolographMoeERC721DropV2(holographConfig, {
 ### You can also get relevant info about your collection. Here are some examples:
 
 ```typescript
-const collectionAddress = myCollection.predictedCollectionAddress
+const collectionAddress = myCollection.collectionAddress
 const deployedChainIds = myCollection.chainIds
 const lastTxHash = myCollection.txHash
+```
+
+## How to mint an NFT from the collection you've just deployed ⤵️
+
+```typescript
+import { NFT } from '@holograph/sdk'
+
+const myNft = new NFT(holographConfig, {
+  collectionAddress: myCollection.collectionAddress,
+  metadata: {
+    name: 'My new NFT',
+    description: 'Probably nothing.',
+    creator: 'Holograph Protocol',
+  },
+  ipfsInfo: {
+    ipfsImageCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
+    ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
+  },
+})
+
+const { tokenId, txHash } = await myNft.mint({ chainId: networks.polygon.chain })
+
+// ps: Here are the differences to mint from an open edition NFT (MOE NFT):
+// 1) You'll have to deploy a collection using the HolographMoeERC721DropV2 class
+// 2) You'll have to pass the quantity inside the mint method instead of tokenUri:
+//    const { tokenId, txHash } = await myNft.mint({ quantity: 2 })
+```
+
+## Minting an NFT using another wallet 💼:
+
+```typescript
+const anotherAccount = HolographAccountFactory.createAccountUsingPrivateKey(process.env.ANOTHER_PRIVATE_KEY)
+const anotherWallet = new HolographWallet({ account: anotherAccount, chainsRpc: holographConfig.networks })
+
+const { tokenId, txHash } = await myNft.mint({
+  chainId: networks.polygon.chain,
+  wallet: anotherWallet,
+  options: { // You can also pass the config overrides within the options param
+    gas: BigInt(1000), // These examples are using random values
+    gasLimit: BigInt(1000),
+    nonce: BigInt(75),
+    value: BigInt(2000)
+  },
+})
 ```

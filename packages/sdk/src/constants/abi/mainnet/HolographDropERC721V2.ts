@@ -55,33 +55,12 @@ export default narrow([
   },
   {
     inputs: [],
-    name: 'MarketFilterAddressNotSupportedForChain',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'MarketFilterDAOAddressNotSupportedForChain',
-    type: 'error',
-  },
-  {
-    inputs: [],
     name: 'MintFee_FundsSendFailure',
     type: 'error',
   },
   {
     inputs: [],
     name: 'Mint_SoldOut',
-    type: 'error',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: 'operator',
-        type: 'address',
-      },
-    ],
-    name: 'OperatorNotAllowed',
     type: 'error',
   },
   {
@@ -113,11 +92,6 @@ export default narrow([
       },
     ],
     name: 'Purchase_WrongPrice',
-    type: 'error',
-  },
-  {
-    inputs: [],
-    name: 'RemoteOperatorFilterRegistryCallFailed',
     type: 'error',
   },
   {
@@ -235,6 +209,31 @@ export default narrow([
       {
         indexed: true,
         internalType: 'address',
+        name: 'recipient',
+        type: 'address',
+      },
+      {
+        indexed: true,
+        internalType: 'uint256',
+        name: 'tokenId',
+        type: 'uint256',
+      },
+      {
+        indexed: false,
+        internalType: 'uint256',
+        name: 'id',
+        type: 'uint256',
+      },
+    ],
+    name: 'NFTMinted',
+    type: 'event',
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: 'address',
         name: 'sender',
         type: 'address',
       },
@@ -316,19 +315,6 @@ export default narrow([
     type: 'fallback',
   },
   {
-    inputs: [],
-    name: 'HOLOGRAPH_MINT_FEE',
-    outputs: [
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [
       {
         internalType: 'address',
@@ -369,74 +355,6 @@ export default narrow([
       },
     ],
     stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_from',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-    ],
-    name: 'beforeSafeTransfer',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '_from',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'uint256',
-        name: '',
-        type: 'uint256',
-      },
-      {
-        internalType: 'bytes',
-        name: '',
-        type: 'bytes',
-      },
-    ],
-    name: 'beforeTransfer',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: '',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -495,22 +413,22 @@ export default narrow([
   },
   {
     inputs: [],
-    name: 'erc721TransferHelper',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
+    name: 'finalizeOpenEdition',
+    outputs: [],
+    stateMutability: 'nonpayable',
     type: 'function',
   },
   {
     inputs: [],
-    name: 'finalizeOpenEdition',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    name: 'getHolographFeeFromTreasury',
+    outputs: [
+      {
+        internalType: 'uint256',
+        name: '',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
     type: 'function',
   },
   {
@@ -635,32 +553,6 @@ export default narrow([
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'bool',
-        name: 'enable',
-        type: 'bool',
-      },
-    ],
-    name: 'manageMarketFilterSubscription',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'marketFilterAddress',
-    outputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'metadataRenderer',
     outputs: [
@@ -712,19 +604,6 @@ export default narrow([
   {
     inputs: [
       {
-        internalType: 'address',
-        name: 'newMarketFilterAddress',
-        type: 'address',
-      },
-    ],
-    name: 'modifyMarketFilterAddress',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
         internalType: 'bytes[]',
         name: 'data',
         type: 'bytes[]',
@@ -749,43 +628,6 @@ export default narrow([
         internalType: 'string',
         name: '',
         type: 'string',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [
-      {
-        internalType: 'address',
-        name: '',
-        type: 'address',
-      },
-      {
-        internalType: 'address',
-        name: '_operator',
-        type: 'address',
-      },
-    ],
-    name: 'onIsApprovedForAll',
-    outputs: [
-      {
-        internalType: 'bool',
-        name: 'approved',
-        type: 'bool',
-      },
-    ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [],
-    name: 'openseaOperatorFilterRegistry',
-    outputs: [
-      {
-        internalType: 'contract IOperatorFilterRegistry',
-        name: '',
-        type: 'address',
       },
     ],
     stateMutability: 'view',
@@ -1121,26 +963,13 @@ export default narrow([
     type: 'function',
   },
   {
-    inputs: [
-      {
-        internalType: 'bytes',
-        name: 'args',
-        type: 'bytes',
-      },
-    ],
-    name: 'updateMarketFilterSettings',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-  {
     inputs: [],
     name: 'version',
     outputs: [
       {
-        internalType: 'string',
+        internalType: 'uint32',
         name: '',
-        type: 'string',
+        type: 'uint32',
       },
     ],
     stateMutability: 'pure',

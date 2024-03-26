@@ -4,27 +4,19 @@ import {
   Abi,
   AbiParameterToPrimitiveType,
   Address,
+  Chain,
   EstimateContractGasParameters,
   Hex,
+  PublicClient,
+  Transport,
   WriteContractParameters,
 } from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
 import {Network, NetworkKey} from '@holographxyz/networks'
-import * as z from 'zod'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {HolographWallet} from '../services'
-import {
-  collectionInfoSchema,
-  createHolographMoeSchema,
-  createLegacyCollectionSchema,
-  holographDropERC721InitCodeV1ParamsSchema,
-  holographDropERC721InitCodeV2ParamsSchema,
-  holographERC721InitCodeParamsSchema,
-  holographMoeSaleConfigSchema,
-  nftInfoSchema,
-} from '../assets/collection.validation'
 
 type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'bytes32'}> // NOTICE: use this to figure out which primitive type to use
 
@@ -81,6 +73,7 @@ export type SignDeploy = {
   readonly config: Erc721Config['erc721Config']
   readonly signature: Signature
   readonly chainId?: number
+  wallet?: {account: string | HolographWallet}
 }
 
 export type BridgeSettings = {
@@ -204,10 +197,10 @@ export enum InterfaceType {
  * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/enum/TokenUriType.sol
  */
 export enum TokenUriType {
-  UNDEFINED, // 0
-  IPFS, //      1
-  HTTPS, //     2
-  ARWEAVE, //   3
+  UNDEFINED = 0,
+  IPFS = 1,
+  HTTPS = 2,
+  ARWEAVE = 3,
 }
 
 export enum HolographVersion {
@@ -238,6 +231,10 @@ export type EstimateContractGasArgs<TAbi extends Abi> = ReadContractArgs<TAbi> &
   options?: EstimateContractGasOptions
 }
 
+export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
+  options?: EstimateContractGasOptions
+}
+
 export type GetContractFunctionArgs<TAbi extends Abi> = {
   chainId: number
   functionName: ExtractAbiFunctionNames<TAbi>
@@ -249,10 +246,6 @@ export type GetContractFunctionArgs<TAbi extends Abi> = {
 export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
   address: Address
   options?: WriteContractOptions
-}
-
-export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
-  options?: EstimateContractGasOptions
 }
 
 export type EstimateContractGasOptions = Partial<
@@ -268,23 +261,15 @@ export type GetDropInitCodeParams = {
   registryAddress: Address
   metadataRendererAddress: Address
   metadataRendererInitCode: Hex
-  salesConfigArray: Array<string | number>
+  salesConfigArray: Array<string | number | bigint>
+}
+
+export type MintConfig = {
+  chainId: number
+  quantity?: number
+  wallet?: {account: string | HolographWallet}
 }
 
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
 
-export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
-
-export type CollectionInfo = z.infer<typeof collectionInfoSchema>
-
-export type NftInfo = z.infer<typeof nftInfoSchema>
-
-export type HolographMoeSaleConfig = z.input<typeof holographMoeSaleConfigSchema>
-
-export type CreateHolographMoe = z.input<typeof createHolographMoeSchema>
-
-export type HolographERC721InitCodeParamsSchema = z.infer<typeof holographERC721InitCodeParamsSchema>
-
-export type HolographDropERC721InitCodeV1Params = z.infer<typeof holographDropERC721InitCodeV1ParamsSchema>
-
-export type HolographDropERC721InitCodeV2Params = z.infer<typeof holographDropERC721InitCodeV2ParamsSchema>
+export type ViemPublicClient = PublicClient<Transport, Chain | undefined>

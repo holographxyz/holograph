@@ -47,6 +47,7 @@ export {default as HolographBridgeInterfaceABI} from './HolographBridgeInterface
 export {default as HolographBridgeProxyABI} from './HolographBridgeProxy'
 export {default as HolographDropERC721ABI} from './HolographDropERC721'
 export {default as HolographDropERC721ProxyABI} from './HolographDropERC721Proxy'
+export {default as HolographDropERC721V2ABI} from './HolographDropERC721V2'
 export {default as HolographERC20ABI} from './HolographERC20'
 export {default as HolographERC20InterfaceABI} from './HolographERC20Interface'
 export {default as HolographERC721ABI} from './HolographERC721'

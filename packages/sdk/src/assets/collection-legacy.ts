@@ -1,27 +1,22 @@
 import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
 
-import {collectionInfoSchema, primaryChainIdSchema, validate} from './collection.validation'
+import {CollectionInfo, CreateLegacyCollection, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
+import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
-import {
-  CollectionInfo,
-  CreateLegacyCollection,
-  Erc721Config,
-  GasFee,
-  HolographConfig,
-  Signature,
-  SignDeploy,
-} from '../utils/types'
+import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
 
 export class HolographLegacyCollection {
   collectionInfo: CollectionInfo
+  holographConfig: HolographConfig
   primaryChainId: number
   account?: Address
   chainIds?: number[]
+  collectionAddress?: Address
   erc721ConfigHash?: Hex
   predictedCollectionAddress?: Address
   signature?: Signature
@@ -31,8 +26,9 @@ export class HolographLegacyCollection {
   private registry: Registry
 
   constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
-    this.collectionInfo = collectionInfoSchema.parse(collectionInfo)
-    this.primaryChainId = primaryChainIdSchema.parse(primaryChainId)
+    this.collectionInfo = validate.collectionInfo.parse(collectionInfo)
+    this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
+    this.holographConfig = configObject
     const config = Config.getInstance(configObject)
     const factory = new Factory(config)
     const registry = new Registry(config)
@@ -193,7 +189,7 @@ export class HolographLegacyCollection {
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
 
     if (gasController?.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice!)
+      gasPrice = BigInt(gasController.gasPrice)
     } else {
       gasPrice = await this.factory.getGasPrice(chainId)
     }
@@ -216,7 +212,7 @@ export class HolographLegacyCollection {
       gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
-    const gas = BigInt(gasPrice) * BigInt(gasLimit)
+    const gas = gasPrice * gasLimit
 
     return {
       gasPrice,
@@ -255,17 +251,33 @@ export class HolographLegacyCollection {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
-  async deploy(signatureData: SignDeploy): Promise<unknown> {
-    const {account, chainId, config, signature} = signatureData
+  async deploy(
+    signatureData: SignDeploy,
+    options?: WriteContractOptions,
+  ): Promise<{
+    collectionAddress: Address
+    txHash: Hex
+  }> {
+    const {account, chainId, config, signature, wallet} = signatureData
     const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = await this.factory.deployHolographableContract(chainId!, config, signature, account, undefined, {
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
+      ...options,
       gasPrice,
       gas: gasLimit,
-    })
+    })) as Hex
 
+    const client = await this.factory.getClientByChainId(chainId!)
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
+    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+
+    this.collectionAddress = collectionAddress
     this.chainIds?.push(chainId!)
-    this.txHash = String(txHash)
-    return txHash
+    this.txHash = txHash
+
+    return {
+      collectionAddress,
+      txHash,
+    }
   }
 
   // TODO: Do later

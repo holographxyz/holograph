@@ -1,9 +1,13 @@
+import {Address} from 'abitype'
+
 import {HOLOGRAPH_EVENTS} from '../constants/events'
 import {Config} from './config.service'
 import {
   Bridge,
+  CxipERC721,
   Factory,
   Holograph,
+  HolographDropERC721,
   Interfaces,
   LayerZeroModule,
   Operator,
@@ -26,8 +30,10 @@ export class HolographProtocol {
   private factoryContract!: Factory
   private ovmGasPriceOracleContract!: OVMGasPriceOracle
   private bridgeContract!: Bridge
+  private cxipERC721Contract!: CxipERC721
+  private holographDropERC721Contract!: HolographDropERC721
 
-  constructor(private readonly protocolConfig: Config) {
+  constructor(private readonly protocolConfig: Config, private readonly collectionAddress?: Address) {
     this.logger = HolographLogger.createLogger({serviceName: HolographProtocol.name})
 
     this.holographContract = new Holograph(this.protocolConfig)
@@ -39,6 +45,8 @@ export class HolographProtocol {
     this.factoryContract = new Factory(this.protocolConfig)
     this.ovmGasPriceOracleContract = new OVMGasPriceOracle(this.protocolConfig)
     this.bridgeContract = new Bridge(this.protocolConfig)
+    this.cxipERC721Contract = new CxipERC721(this.protocolConfig, this.collectionAddress!)
+    this.holographDropERC721Contract = new HolographDropERC721(this.protocolConfig, this.collectionAddress!)
   }
 
   get holograph(): Holograph {
@@ -75,5 +83,13 @@ export class HolographProtocol {
 
   get bridge(): Bridge {
     return this.bridgeContract
+  }
+
+  get cxipERC721(): CxipERC721 {
+    return this.cxipERC721Contract
+  }
+
+  get holographDropERC721(): HolographDropERC721 {
+    return this.holographDropERC721Contract
   }
 }
