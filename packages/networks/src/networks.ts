@@ -3127,4 +3127,5 @@ export const NETWORK_KEY_BY_RPC_URL = {
   LINEA_TESTNET_GOERLI_RPC_URL: networks.lineaTestnetGoerli.key,
   LINEA_TESTNET_SEPOLIA_RPC_URL: networks.lineaTestnetSepolia.key,
   LINEA_RPC_URL: networks.linea.key,
+  SEI_TESTNET_ARCTIC_RPC_URL: networks.seiTestnetArctic.key,
 };
