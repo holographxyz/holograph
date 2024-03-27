@@ -64,7 +64,7 @@ export const _networks = {
     protocolMultisig: undefined,
   },
   // TEST NETWORKS
-  seiTestnet: {
+  seiTestnetArctic: {
     name: 'Sei EVM Testnet',
     type: NetworkType.testnet,
     key: 'seiTestnetArctic',
