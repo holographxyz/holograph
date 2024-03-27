@@ -1,11 +1,11 @@
 import {Hex} from 'viem'
 import {describe, expect, it} from 'vitest'
 
-import {create2address, deploymentConfigHash, storageSlot} from '../../utils/encoders'
-import {DeploymentConfig} from '../../utils/types'
+import {create2address, getErc721DeploymentConfigHash, storageSlot} from '../../utils/encoders'
+import {DeploymentConfigSettings} from '../../utils/types'
 
 describe('Utils: encoders', () => {
-  const deploymentConfig: DeploymentConfig = {
+  const deploymentConfig: DeploymentConfigSettings = {
     config: {
       contractType: '0x0000000000000000000000000000000000486f6c6f6772617068455243373231',
       chainType: 4000000011,
@@ -33,7 +33,7 @@ describe('Utils: encoders', () => {
 
   it('deploymentConfigHash', () => {
     const expectedValue = '0x4875df98a47bb96390261e59aadcc40580f8a2e98390bec380cffd60c6c61178'
-    const value = deploymentConfigHash(deploymentConfig)
+    const value = getErc721DeploymentConfigHash(deploymentConfig.config, deploymentConfig.signer)
 
     expect(value).toBe(expectedValue)
   })

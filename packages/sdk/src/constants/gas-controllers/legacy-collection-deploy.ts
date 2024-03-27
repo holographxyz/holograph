@@ -106,7 +106,7 @@ export const LEGACY_COLLECTION_DEPLOY_GAS = {
     gasPriceMultiplier: 110,
   },
   [networks.zora.chain]: {
-    gasPrice: '100000000',
+    gasPrice: BigInt(100000000),
     gasLimit: undefined,
     gasLimitMultiplier: 120,
     gasPriceMultiplier: 110,

@@ -9,114 +9,108 @@ import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
 import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
+import {create2AddressFromDeploymentHash, getErc721DeploymentConfigHash} from '../utils/encoders'
 
 export class HolographLegacyCollection {
-  collectionInfo: CollectionInfo
-  holographConfig: HolographConfig
-  primaryChainId: number
-  account?: Address
-  chainIds?: number[]
-  collectionAddress?: Address
-  erc721ConfigHash?: Hex
-  predictedCollectionAddress?: Address
-  signature?: Signature
-  txHash?: string
+  private _collectionInfo: CollectionInfo
+  public primaryChainId: number
+  public account?: Address
+  public chainIds?: number[]
+  public collectionAddress?: Address
+  public erc721ConfigHash?: Hex
+  public predictedCollectionAddress?: Address
+  public signature?: Signature
+  public txHash?: string
 
-  private factory: Factory
-  private registry: Registry
+  private readonly factory: Factory
+  private readonly registry: Registry
 
-  constructor(configObject: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
-    this.collectionInfo = validate.collectionInfo.parse(collectionInfo)
+  constructor(public holographConfig: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
+    this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
-    this.holographConfig = configObject
-    const config = Config.getInstance(configObject)
-    const factory = new Factory(config)
-    const registry = new Registry(config)
-    this.factory = factory
-    this.registry = registry
+
+    const config = Config.getInstance(holographConfig)
+    this.factory = new Factory(config)
+    this.registry = new Registry(config)
     this.chainIds = []
   }
 
   get name() {
-    return this.collectionInfo.name
+    return this._collectionInfo.name
   }
 
   get description(): string | undefined {
-    return this.collectionInfo.description
+    return this._collectionInfo.description
   }
 
   get symbol() {
-    return this.collectionInfo.symbol
+    return this._collectionInfo.symbol
   }
 
   get tokenType() {
-    return this.collectionInfo.tokenType
+    return this._collectionInfo.tokenType
   }
 
   get royaltiesBps() {
-    return this.collectionInfo.royaltiesBps
+    return this._collectionInfo.royaltiesBps
   }
 
   get salt() {
-    return this.collectionInfo.salt
+    return this._collectionInfo.salt
   }
 
   set name(name: string) {
     validate.name.parse(name)
-    this.collectionInfo.name = name
+    this._collectionInfo.name = name
   }
 
   set description(description: string) {
     validate.description.parse(description)
-    this.collectionInfo.description = description
+    this._collectionInfo.description = description
   }
 
   set symbol(symbol: string) {
     validate.symbol.parse(symbol)
-    this.collectionInfo.symbol = symbol
+    this._collectionInfo.symbol = symbol
   }
 
   set tokenType(tokenType: CollectionInfo['tokenType']) {
     validate.tokenType.parse(tokenType)
-    this.collectionInfo.tokenType = tokenType
+    this._collectionInfo.tokenType = tokenType
   }
 
   set royalties(royalties: number) {
     validate.royaltiesBps.parse(royalties)
-    this.collectionInfo.royaltiesBps = royalties
+    this._collectionInfo.royaltiesBps = royalties
   }
 
   set salt(salt: Hex) {
     validate.salt.parse(salt)
-    this.collectionInfo.salt = salt
+    this._collectionInfo.salt = salt
   }
 
   getCollectionInfo() {
-    return this.collectionInfo
+    return this._collectionInfo
   }
 
-  async _getFactoryAddress(chainId = this.primaryChainId) {
+  private async _getFactoryAddress(chainId = this.primaryChainId) {
     return this.factory.getAddress(chainId)
   }
 
-  async _getRegistryAddress(chainId = this.primaryChainId) {
+  private async _getRegistryAddress(chainId = this.primaryChainId) {
     return this.registry.getAddress(chainId)
   }
 
-  async _getPredictedCollectionAddress(erc721ConfigHash: string, chainId = this.primaryChainId): Promise<Address> {
+  private async _getPredictedCollectionAddress(erc721ConfigHash: Hex, chainId = this.primaryChainId): Promise<Address> {
     const factoryAddress = await this._getFactoryAddress(chainId)
-    const futureAddressSuffix = keccak256(
-      `0xff${remove0x(factoryAddress)}${remove0x(erc721ConfigHash)}${keccak256(
-        remove0x(bytecodes.Holographer) as Hex,
-      )}`,
-    )
-    const erc721FutureAddress = `0x${futureAddressSuffix.slice(26)}` as Hex
+
+    const erc721FutureAddress = create2AddressFromDeploymentHash(erc721ConfigHash, factoryAddress)
     this.predictedCollectionAddress = erc721FutureAddress
 
     return erc721FutureAddress
   }
 
-  async _generateInitCode(account: Address, chainId = this.primaryChainId) {
+  private async _generateInitCode(account: Address, chainId = this.primaryChainId) {
     const registryAddress = await this._getRegistryAddress(chainId)
     const creatorEncoded = encodeAbiParameters(parseAbiParameters('address'), [account])
     const initCodeEncoded = encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
@@ -140,7 +134,7 @@ export class HolographLegacyCollection {
     account: Address,
     chainId = this.primaryChainId,
   ): Promise<{salt: Hex; config: Erc721Config}> {
-    const chainType = BigInt(evm2hlg(chainId)) as unknown as number
+    const chainType = evm2hlg(chainId)
     const erc721Hash = parseBytes('HolographERC721')
     const salt = this.salt || generateRandomSalt()
     const initCode = await this._generateInitCode(account, chainId)
@@ -153,19 +147,7 @@ export class HolographLegacyCollection {
       salt,
     }
 
-    const erc721ConfigHash = keccak256(
-      encodePacked(
-        ['bytes32', 'uint32', 'bytes32', 'bytes32', 'bytes32', 'address'],
-        [
-          erc721Config.contractType,
-          erc721Config.chainType,
-          erc721Config.salt,
-          keccak256(erc721Config.byteCode),
-          keccak256(erc721Config.initCode),
-          account,
-        ],
-      ),
-    )
+    const erc721ConfigHash = getErc721DeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = erc721ConfigHash
 
     const erc721ConfigHashBytes = toBytes(erc721ConfigHash)
@@ -189,13 +171,13 @@ export class HolographLegacyCollection {
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
 
     if (gasController?.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice)
+      gasPrice = gasController.gasPrice
     } else {
       gasPrice = await this.factory.getGasPrice(chainId)
     }
 
     if (gasController?.gasLimit) {
-      gasLimit = BigInt(gasController.gasLimit)
+      gasLimit = gasController.gasLimit
     } else {
       gasLimit = await this.factory.estimateContractFunctionGas({
         args: [config, signature, account],
@@ -205,11 +187,11 @@ export class HolographLegacyCollection {
     }
 
     if (gasController?.gasLimitMultiplier) {
-      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
+      gasLimit = (gasLimit * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
     }
 
     if (gasController?.gasPriceMultiplier) {
-      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
+      gasPrice = (gasPrice * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
     const gas = gasPrice * gasLimit

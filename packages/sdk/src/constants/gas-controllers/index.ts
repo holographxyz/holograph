@@ -4,8 +4,8 @@ import {MOE_NFT_MINT_GAS} from './moe-nft-mint'
 import {NFT_MINT_GAS} from './nft-mint'
 
 export type GasParams = {
-  gasPrice?: string // in wei
-  gasLimit?: string // in wei
+  gasPrice?: bigint // in wei
+  gasLimit?: bigint // in wei
   gasLimitMultiplier?: number // 1.2x = 120, 2x = 200
   gasPriceMultiplier?: number // 1.5x = 150, 3x = 300
 }

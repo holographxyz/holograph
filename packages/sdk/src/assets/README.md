@@ -44,7 +44,7 @@ const myCollection = new HolographLegacyCollection(holographConfig, {
     description: 'Possibly the most innovative NFT collection yet.',
     symbol: 'HOLO',
     royaltiesBps: 2000, // 20%
-    salt: '0x1234567890abcdef',
+    salt: "0x0000000000000000000000000000000000000000000000000000018e7cc167e2",
   },
   primaryChainId: networks.polygon.chain,
 })
