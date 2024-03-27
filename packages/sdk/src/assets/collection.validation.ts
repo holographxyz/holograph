@@ -13,7 +13,7 @@ const symbolSchema = z
 const royaltiesBpsSchema = z.number().int().min(0).max(10000).default(0)
 const saltSchema = z
   .string()
-  .min(1, {
+  .min(32, {
     message: 'Salt is required',
   })
   .default(generateRandomSalt())

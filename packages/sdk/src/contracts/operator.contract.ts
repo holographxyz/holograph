@@ -4,7 +4,7 @@ import {Holograph} from './index'
 import {HolographOperatorABI} from '../constants/abi/develop'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs} from '../utils/types'
+import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, SimulateContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
 /**
@@ -53,6 +53,27 @@ export class Operator extends HolographBaseContract {
   }: GetContractFunctionArgs<typeof HolographOperatorABI>) {
     const address = await this.getAddress(chainId)
     return this._callContractFunction({chainId, address, functionName, wallet, args})
+  }
+
+  async estimateContractFunctionGas({
+    chainId,
+    functionName,
+    wallet,
+    args,
+    options,
+  }: EstimateContractFunctionGasArgs<typeof HolographOperatorABI>) {
+    const address = await this.getAddress(chainId)
+    return this._estimateContractGas({chainId, address, functionName, wallet, args, options})
+  }
+
+  async simulateContractFunction({
+    chainId,
+    functionName,
+    args,
+    options,
+  }: SimulateContractFunctionArgs<typeof HolographOperatorABI>) {
+    const address = await this.getAddress(chainId)
+    return this._simulateContract({chainId, address, functionName, args, options})
   }
 
   /**

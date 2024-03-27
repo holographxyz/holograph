@@ -12,9 +12,10 @@ import {IsNotMinted} from '../utils/decorators'
 import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 
 export class NFT {
-  collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
-  isMinted: boolean
-  metadata: HolographNFTMetadata
+  public collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
+  public isMinted: boolean
+  public metadata: HolographNFTMetadata
+
   protected ipfsInfo?: NftIpfsInfo
   protected tokenId?: string // Decimal tokenId string
   protected txHash?: string
@@ -26,8 +27,7 @@ export class NFT {
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
     this.collection = validate.collection.parse(collection)
     const config = Config.getInstance(collection.holographConfig)
-    const cxipERC721 = new CxipERC721(config, collection.collectionAddress!)
-    this.cxipERC721 = cxipERC721
+    this.cxipERC721 = new CxipERC721(config, collection.collectionAddress!)
     this.isMinted = false
   }
 
@@ -62,6 +62,7 @@ export class NFT {
 
   getParsedTokenId() {
     if (!this.tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
+
     const tokenIdHex = numberToHex(BigInt(this.tokenId), {size: 32})
     const chainIdHex = tokenIdHex.slice(0, 10)
     const tokenNumberHex = tokenIdHex.slice(10)
@@ -124,22 +125,22 @@ export class NFT {
     this.ipfsInfo!.ipfsUrl = ipfsUrl
   }
 
-  async _estimateGasForMintingNft({chainId}: MintConfig) {
+  protected async _estimateGasForMintingNft({chainId}: MintConfig) {
     let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 
     if (gasController.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice)
+      gasPrice = gasController.gasPrice
     } else {
       gasPrice = await this.cxipERC721.getGasPrice(chainId)
     }
 
     if (gasController.gasPriceMultiplier) {
-      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
+      gasPrice = (gasPrice * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
     if (gasController.gasLimit) {
-      gasLimit = BigInt(gasController.gasLimit)
+      gasLimit = gasController.gasLimit
     } else {
       gasLimit = await this.cxipERC721.estimateContractFunctionGas({
         args: [0, TokenUriType.IPFS, this.ipfsMetadataCid || DEFAULT_TOKEN_URI],
@@ -149,7 +150,7 @@ export class NFT {
     }
 
     if (gasController.gasLimitMultiplier) {
-      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
+      gasLimit = (gasLimit * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
     }
 
     const gas = gasPrice * gasLimit

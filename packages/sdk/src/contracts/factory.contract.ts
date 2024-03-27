@@ -169,7 +169,7 @@ export class Factory extends HolographBaseContract {
    */
   async deployHolographableContract(
     chainId: number,
-    config: DeploymentConfig['config'],
+    config: DeploymentConfig,
     signature: Signature,
     signer: Address,
     wallet?: {account: string | HolographWallet},
@@ -196,7 +196,7 @@ export class Factory extends HolographBaseContract {
    */
   async deployHolographableContractMultiChain(
     chainId: number,
-    config: DeploymentConfig['config'],
+    config: DeploymentConfig,
     signature: Signature,
     signer: Address,
     deployOnCurrentChain = true,
