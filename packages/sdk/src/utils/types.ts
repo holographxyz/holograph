@@ -219,6 +219,21 @@ export type GasFee = {
   gas: bigint
 }
 
+export type GasPricing = {
+  isEip1559: boolean
+  gasPrice: bigint | null // For non EIP-1559 transactions
+  nextBlockFee: bigint | null // For EIP-1559 transactions
+  nextPriorityFee: bigint | null // For EIP-1559 transactions
+  maxFeePerGas: bigint | null // For EIP-1559 transactions
+}
+
+export type EstimateBridgeOutResult = {
+  gasSource: {chainId: number; gasPrice: bigint; gasLimit: bigint}
+  gasDestination: {chainId: number; gasPrice: bigint; gasLimit: bigint}
+  value: bigint
+  unsignedTx: Hex
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address
