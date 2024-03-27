@@ -4,6 +4,7 @@ import {NETWORK_KEY_BY_RPC_URL, NetworkKey, networks} from '@holographxyz/networ
 
 import {getEnv} from '../config/env.validation'
 import {HolographConfig, NetworkRpc, Signature} from './types'
+import {Address} from 'abitype'
 
 // The function below is for checking where the code is running at (either front-end or server).
 // It is used mainly on the networks setup for the Config service class.

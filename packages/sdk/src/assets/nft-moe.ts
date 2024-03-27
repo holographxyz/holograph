@@ -18,7 +18,7 @@ export class MoeNFT extends NFT {
     this.holographDropERC721 = holographDropERC721
   }
 
-  async _estimateGasForMintingNft({chainId, quantity: quantity_}: MintConfig) {
+  protected async _estimateGasForMintingNft({chainId, quantity: quantity_}: MintConfig) {
     const quantity = quantity_ || 1
 
     let gasLimit: bigint, gasPrice: bigint
@@ -32,17 +32,17 @@ export class MoeNFT extends NFT {
     const slippage = (total * BigInt(5)) / BigInt(100)
 
     if (gasController.gasPrice) {
-      gasPrice = BigInt(gasController.gasPrice)
+      gasPrice = gasController.gasPrice
     } else {
       gasPrice = await this.holographDropERC721.getGasPrice(chainId)
     }
 
     if (gasController.gasPriceMultiplier) {
-      gasPrice = (BigInt(gasPrice) * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
+      gasPrice = (gasPrice * BigInt(gasController.gasPriceMultiplier)) / BigInt(100)
     }
 
     if (gasController.gasLimit) {
-      gasLimit = BigInt(gasController.gasLimit)
+      gasLimit = gasController.gasLimit
     } else {
       gasLimit = await this.holographDropERC721.estimateContractFunctionGas({
         args: [quantity],
@@ -55,7 +55,7 @@ export class MoeNFT extends NFT {
     }
 
     if (gasController.gasLimitMultiplier) {
-      gasLimit = (BigInt(gasLimit) * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
+      gasLimit = (gasLimit * BigInt(gasController.gasLimitMultiplier)) / BigInt(100)
     }
 
     const gas = gasPrice * gasLimit

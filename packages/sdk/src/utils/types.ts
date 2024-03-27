@@ -9,6 +9,7 @@ import {
   Hex,
   PublicClient,
   Transport,
+  SimulateContractParameters,
   WriteContractParameters,
 } from 'viem'
 import {Account} from 'viem/accounts'
@@ -40,29 +41,35 @@ export type BridgeInErc721Args = {
   readonly data: Hex
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/struct/DeploymentConfig.sol
+ */
 export type DeploymentConfig = {
-  readonly config: {
-    readonly contractType: Hex
-    readonly chainType: number | string
-    readonly salt: Hex
-    readonly byteCode: Hex
-    readonly initCode: Hex
-  }
+  readonly contractType: Hex
+  readonly chainType: number
+  readonly salt: Hex
+  readonly byteCode: Hex
+  readonly initCode: Hex
+}
 
-  readonly signature: {
-    readonly r: Hex
-    s: Hex
-    v: Hex | number
-  }
+export type Signature = {
+  readonly r: Hex
+  s: Hex
+  v: Hex | number
+}
+
+export type DeploymentConfigSettings = {
+  readonly config: DeploymentConfig
+
+  readonly signature: Signature
 
   readonly signer: Address
 }
 
-export type Signature = DeploymentConfig['signature']
-
 export type Erc721Config = {
   erc721Hash: Hex
-  erc721Config: DeploymentConfig['config']
+  erc721Config: DeploymentConfig
   erc721ConfigHash: Hex
   erc721ConfigHashBytes: Uint8Array
   erc721FutureAddress: Hex
@@ -214,6 +221,21 @@ export type GasFee = {
   gas: bigint
 }
 
+export type GasPricing = {
+  isEip1559: boolean
+  gasPrice: bigint | null // For non EIP-1559 transactions
+  nextBlockFee: bigint | null // For EIP-1559 transactions
+  nextPriorityFee: bigint | null // For EIP-1559 transactions
+  maxFeePerGas: bigint | null // For EIP-1559 transactions
+}
+
+export type EstimateBridgeOutResult = {
+  gasSource: {chainId: number; gasPrice: bigint; gasLimit: bigint}
+  gasDestination: {chainId: number; gasPrice: bigint; gasLimit: bigint}
+  value: bigint
+  unsignedTx: Hex
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address
@@ -231,8 +253,8 @@ export type EstimateContractGasArgs<TAbi extends Abi> = ReadContractArgs<TAbi> &
   options?: EstimateContractGasOptions
 }
 
-export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
-  options?: EstimateContractGasOptions
+export type SimulateContractArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
+  options?: SimulateContractOptions
 }
 
 export type GetContractFunctionArgs<TAbi extends Abi> = {
@@ -248,12 +270,24 @@ export type CallContractFunctionArgs<TAbi extends Abi> = GetContractFunctionArgs
   options?: WriteContractOptions
 }
 
+export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunctionArgs<TAbi> & {
+  options?: EstimateContractGasOptions
+}
+
+export type SimulateContractFunctionArgs<TAbi extends Abi> = Omit<GetContractFunctionArgs<TAbi>, 'wallet'> & {
+  options?: SimulateContractOptions
+}
+
 export type EstimateContractGasOptions = Partial<
   Omit<EstimateContractGasParameters, 'abi' | 'address' | 'args' | 'functionName'>
 >
 
 export type WriteContractOptions = Partial<
   Omit<WriteContractParameters, 'abi' | 'address' | 'args' | 'client' | 'functionName'>
+>
+
+export type SimulateContractOptions = Partial<
+  Omit<SimulateContractParameters, 'abi' | 'address' | 'args' | 'functionName'>
 >
 
 export type GetDropInitCodeParams = {
