@@ -1,6 +1,9 @@
 import {getNetworkByChainId, networks} from '@holographxyz/networks'
-import {Address, Block, PublicClient, Transaction} from 'viem'
+import {Address, Block, Hex, PublicClient, Transaction, hexToBigInt} from 'viem'
+
 import {GasPricing} from './types'
+
+export const MAX_GAS_VALUE = hexToBigInt(('0x' + 'ff'.repeat(32)) as Hex)
 
 export function getTestGasLimit(chainId: number) {
   let testGasLimit: bigint

@@ -1,9 +1,9 @@
-import {Address, Hex, TransactionReceipt, encodeAbiParameters, parseAbiParameters} from 'viem'
+import {Hex, Transaction, encodeAbiParameters, parseAbiParameters} from 'viem'
 
 import {BridgeAsset} from './bridge-asset'
-import {HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {destructSignature} from '../utils/helpers'
-import {DeploymentConfig, HolographConfig} from '../utils/types'
+import {BridgeCollectionInput, DeploymentConfig, HolographConfig} from '../utils/types'
 import {getErc721DeploymentConfigHash} from '../utils/encoders'
 
 export class BridgeCollection extends BridgeAsset {
@@ -11,13 +11,27 @@ export class BridgeCollection extends BridgeAsset {
 
   constructor(
     configObject: HolographConfig,
-    public readonly chainId: number,
-    public readonly contractAddress: Address,
-    public readonly erc721DeploymentConfig: DeploymentConfig,
-    public wallet: HolographWallet,
+    private readonly _bridgeCollectionInput: BridgeCollectionInput,
     gasSettings?: {sourceGasPrice: bigint; sourceGasLimit: bigint},
   ) {
-    super(configObject, gasSettings)
+    const _logger = HolographLogger.createLogger({className: BridgeCollection.name})
+    super(configObject, _logger, gasSettings)
+  }
+
+  get sourceChainId() {
+    return this._bridgeCollectionInput.sourceChainId
+  }
+
+  get contractAddress() {
+    return this._bridgeCollectionInput.contractAddress
+  }
+
+  get erc721DeploymentConfig() {
+    return this._bridgeCollectionInput.erc721DeploymentConfig
+  }
+
+  get account() {
+    return this._bridgeCollectionInput.wallet.account
   }
 
   static async createInitCode(
@@ -48,15 +62,44 @@ export class BridgeCollection extends BridgeAsset {
   }
 
   async getInitCode() {
+    const logger = this._logger.addContext({functionName: this.getInitCode.name})
+
     if (!this._initCode) {
-      this._initCode = await BridgeCollection.createInitCode(this.chainId, this.erc721DeploymentConfig, this.wallet)
+      logger.debug(`Creating initCode for ${this.sourceChainId}, ${this.erc721DeploymentConfig} and ${this.account}...`)
+
+      this._initCode = await BridgeCollection.createInitCode(
+        this.sourceChainId,
+        this.erc721DeploymentConfig,
+        this._bridgeCollectionInput.wallet,
+      )
     }
     return this._initCode
   }
 
-  async bridgeOut(toChainId: number): Promise<TransactionReceipt> {
+  async bridgeOut(destinationChainId: number): Promise<Transaction> {
+    const logger = this._logger.addContext({functionName: this.bridgeOut.name})
+
     const bridgeOutPayload = await this.getInitCode()
 
-    return this._bridgeOut(this.chainId, toChainId, this.wallet, this.contractAddress, bridgeOutPayload)
+    logger.info(`Making bridgeOut request...`)
+
+    logger.debug(
+      {
+        sourceChainId: this.sourceChainId,
+        destinationChainId,
+        contractAddress: this.contractAddress,
+        bridgeOutPayload,
+        account: this.account,
+      },
+      `bridgeOut request input`,
+    )
+
+    return this._bridgeOut(
+      this.sourceChainId,
+      destinationChainId,
+      this.contractAddress,
+      bridgeOutPayload,
+      this._bridgeCollectionInput.wallet,
+    )
   }
 }

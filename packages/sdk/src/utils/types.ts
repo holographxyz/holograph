@@ -234,6 +234,22 @@ export type EstimateBridgeOutResult = {
   unsignedTx: Hex
 }
 
+export type BridgeCollectionInput = {
+  sourceChainId: number
+  contractAddress: Address
+  erc721DeploymentConfig: DeploymentConfig
+  wallet: HolographWallet
+}
+
+export type BridgeNftInput = {
+  sourceChainId: number
+  destinationChainId: number
+  contractAddress: Address
+  tokenId: Hex
+  from: Address
+  to?: Address
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address

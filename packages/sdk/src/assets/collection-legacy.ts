@@ -8,7 +8,15 @@ import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
 import {evm2hlg, remove0x} from '../utils/transformers'
-import {Erc721Config, GasFee, HolographConfig, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
+import {
+  DeploymentConfig,
+  Erc721Config,
+  GasFee,
+  HolographConfig,
+  Signature,
+  SignDeploy,
+  WriteContractOptions,
+} from '../utils/types'
 import {create2AddressFromDeploymentHash, getErc721DeploymentConfigHash} from '../utils/encoders'
 
 export class HolographLegacyCollection {
@@ -130,22 +138,31 @@ export class HolographLegacyCollection {
     ])
   }
 
-  async _getCollectionPayload(
+  private async _createErc721DeploymentConfig(
     account: Address,
     chainId = this.primaryChainId,
-  ): Promise<{salt: Hex; config: Erc721Config}> {
+  ): Promise<DeploymentConfig> {
     const chainType = evm2hlg(chainId)
     const erc721Hash = parseBytes('HolographERC721')
     const salt = this.salt || generateRandomSalt()
     const initCode = await this._generateInitCode(account, chainId)
 
-    const erc721Config = {
+    const erc721Config: DeploymentConfig = {
       contractType: erc721Hash,
       chainType,
       byteCode: bytecodes.CxipERC721,
       initCode,
       salt,
     }
+
+    return erc721Config
+  }
+
+  private async _getCollectionPayload(
+    account: Address,
+    chainId = this.primaryChainId,
+  ): Promise<{salt: Hex; config: Erc721Config}> {
+    const erc721Config = await this._createErc721DeploymentConfig(account, chainId)
 
     const erc721ConfigHash = getErc721DeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = erc721ConfigHash
@@ -155,17 +172,17 @@ export class HolographLegacyCollection {
 
     return {
       config: {
-        erc721Hash,
+        erc721Hash: erc721Config.contractType,
         erc721Config,
         erc721ConfigHash,
         erc721ConfigHashBytes,
         erc721FutureAddress,
       },
-      salt,
+      salt: erc721Config.salt,
     }
   }
 
-  async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
+  private async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
     const {account, config, signature} = data
     let gasLimit: bigint, gasPrice: bigint
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]

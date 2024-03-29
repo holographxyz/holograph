@@ -1,23 +1,33 @@
 import {getNetworkByChainId} from '@holographxyz/networks'
-import {Address, Hex, TransactionReceipt, encodeFunctionData, hexToBigInt} from 'viem'
+import {Address, Hex, Transaction, encodeFunctionData} from 'viem'
 
-import {Bridge, Operator} from '../contracts'
+import {Bridge, Factory, Operator} from '../contracts'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
-import {Config, HolographWallet, Providers} from '../services'
+import {Config, HolographLogger, HolographWallet, Providers} from '../services'
 import {EstimateBridgeOutResult, GasPricing, HolographConfig} from '../utils/types'
-import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit} from '../utils/gas'
+import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit, MAX_GAS_VALUE} from '../utils/gas'
 
 export class BridgeAsset {
+  protected readonly _logger: HolographLogger
   private readonly _providers: Providers
   private readonly _bridge: Bridge
   private readonly _operator: Operator
+  private readonly _factory: Factory
 
-  constructor(configObject: HolographConfig, private gasSettings?: {sourceGasPrice?: bigint; sourceGasLimit?: bigint}) {
+  constructor(
+    configObject: HolographConfig,
+    _logger?: HolographLogger,
+    private gasSettings?: {sourceGasPrice?: bigint; sourceGasLimit?: bigint},
+  ) {
     const config = Config.getInstance(configObject)
+
+    this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
+
     this._providers = new Providers(config)
     this._bridge = new Bridge(config)
     this._operator = new Operator(config)
+    this._factory = new Factory(config)
   }
 
   static createUnsignedBridgeOutTx(
@@ -37,16 +47,34 @@ export class BridgeAsset {
   protected async _createBridgeOutPayload(
     chainId: number,
     holographChainId: number,
-    holographableContract: Address,
+    factoryAddress: Address,
     gasLimit: bigint,
     gasPrice: bigint,
     bridgeOutPayload: Hex,
-  ) {
-    return this._bridge.simulateContractFunction({
-      chainId,
-      functionName: 'getBridgeOutRequestPayload',
-      args: [holographChainId, holographableContract, gasLimit, gasPrice, bridgeOutPayload],
-    })
+  ): Promise<Hex> {
+    const logger = this._logger.addContext({functionName: this._createBridgeOutPayload.name})
+
+    logger.debug(
+      {
+        chainId,
+        args: {
+          holographChainId,
+          factoryAddress,
+          gasLimit,
+          gasPrice,
+          bridgeOutPayload,
+        },
+      },
+      `staticCall "getBridgeOutRequestPayload" input`,
+    )
+
+    return (
+      await this._bridge.simulateContractFunction({
+        chainId,
+        functionName: 'getBridgeOutRequestPayload',
+        args: [holographChainId, factoryAddress, gasLimit, gasPrice, bridgeOutPayload],
+      })
+    ).result as Hex
   }
 
   protected async _getMessageFee(
@@ -56,6 +84,21 @@ export class BridgeAsset {
     gasPrice: bigint,
     bridgeOutPayload: Hex,
   ) {
+    const logger = this._logger.addContext({functionName: this._getMessageFee.name})
+
+    logger.debug(
+      {
+        chainId,
+        args: {
+          holographChainId,
+          gasLimit,
+          gasPrice,
+          bridgeOutPayload,
+        },
+      },
+      `staticCall "getMessageFee" input`,
+    )
+
     return (
       await this._bridge.simulateContractFunction({
         chainId,
@@ -71,7 +114,11 @@ export class BridgeAsset {
     destinationGasLimit: bigint,
     destinationGasPrice: bigint,
     bridgeRequestPayload: Hex,
-  ) {
+  ): Promise<bigint> {
+    const logger = this._logger.addContext({functionName: this._getValue.name})
+
+    logger.debug(`Requesting message fee...`)
+
     const fees = await this._getMessageFee(
       chainId,
       holographToChainId,
@@ -80,24 +127,42 @@ export class BridgeAsset {
       bridgeRequestPayload,
     )
 
+    /**
+     * fees[0]: hlgFee the amount (in wei) of native gas token that will cost for finalizing job on destination chain
+     * fees[1]: msgFee the amount (in wei) of native gas token that will cost for sending message to destination chain
+     * fees[2]: dstGasPrice the amount (in wei) that destination message maximum gas price will be
+     */
+    const [hTokenFee, lzFee, _] = fees
+
     // fees consist of two parts: HToken fee and lz fee
-    // fees[0] = Htoken fee is the amount that we charge user for making sure operators can get the job done
-    // fees[1] = lz fee is what LayerZero charge for sending the message cross-chain
-    // we add the two fees together into one number
-    let feeValue: bigint = fees[0] + fees[1]
+    const feeValue: bigint = hTokenFee + lzFee
 
     // for now, to accommodate us time to properly estimate and calculate fees, we add 25% to give us margin for error
-    return feeValue + feeValue * BigInt(1.25)
+    const bufferFee: bigint = feeValue * BigInt(1.25)
+    const totalFee: bigint = feeValue + bufferFee
+
+    logger.debug(
+      `Total fee breakdown:
+        - HToken fee: ${hTokenFee} (job fee)
+        - LayerZero fee: ${lzFee} (cross-chain message cost)
+        - Buffer (25%): ${bufferFee} (accommodates estimation errors)
+       ------------------------
+        Total fee: ${totalFee}`,
+    )
+
+    return totalFee
   }
 
   protected async _estimateBridgeOutDestinationGas(
     chainId: number,
     destinationChainId: number,
-    contractAddress: Address,
+    factoryAddress: Address,
     bridgeOutPayload: Hex,
   ) {
+    const logger = this._logger.addContext({functionName: this._estimateBridgeOutDestinationGas.name})
+
     let destinationGasPrice: bigint
-    let destinationGasLimit: bigint // = BigInt(0)
+    let destinationGasLimit: bigint
     const gasController = GAS_CONTROLLER.bridgeNft[chainId]
 
     if (gasController?.gasLimit) {
@@ -107,32 +172,33 @@ export class BridgeAsset {
       // by supplying 10 million gas, we get back result of how much gas is left from simulation
       // subtract leftover gas from 10 million to know exactly how much gas is used for tx
 
-      const destinationHolographChainId = getNetworkByChainId(destinationChainId).holographId
+      const destinationHolographChainId: number = getNetworkByChainId(destinationChainId).holographId
       const gasEstimationHelperAddress: Address = getGasEstimationAddress(destinationChainId)
-      const maxGasValue: bigint = hexToBigInt(('0x' + 'ff'.repeat(32)) as Hex)
       const gasLimitStub: bigint = getTestGasLimit(destinationChainId) // this is a very big gas value so we can use to estimate with
 
-      const bridgeRequestPayloadStub = this._createBridgeOutPayload(
+      const bridgeRequestPayloadStub: Hex = await this._createBridgeOutPayload(
         chainId,
         destinationHolographChainId,
-        contractAddress,
-        maxGasValue,
-        maxGasValue,
+        factoryAddress,
+        MAX_GAS_VALUE,
+        MAX_GAS_VALUE,
         bridgeOutPayload,
       )
 
-      const consumedGas = BigInt(
-        (
-          await this._operator.simulateContractFunction({
-            chainId,
-            functionName: 'jobEstimator',
-            args: [bridgeRequestPayloadStub],
-            options: {gas: gasLimitStub}, //{account: gasEstimationHelperAddress , gas: TEST_GAS_LIMIT},
-          })
-        ).result,
-      )
+      /**
+       * TODO: When calling the 'jobEstimator' function statically, the provided 'options.account' did not affect the outcome, suggesting it may be unnecessary. This behavior was observed on localhost. It is recommended to verify if the same occurs on testnet, and if confirmed, consider removing the extra code related to the 'options.account'.
+       */
+      const consumedGas: bigint = (
+        await this._operator.simulateContractFunction({
+          chainId,
+          functionName: 'jobEstimator',
+          args: [bridgeRequestPayloadStub],
+          // @ts-ignore: TS2322 - For some reason, the type inference is indicating that the account can only be 'account?: undefined'.
+          options: {gas: gasLimitStub, account: gasEstimationHelperAddress},
+        })
+      ).result as bigint
 
-      destinationGasLimit = gasLimitStub - consumedGas //TODO: ver se dá para chamar o gasEstimate ao invés de fazer essa conta
+      destinationGasLimit = gasLimitStub - consumedGas
     }
 
     if (gasController?.gasLimitMultiplier) {
@@ -160,32 +226,42 @@ export class BridgeAsset {
     }
   }
 
-  async estimateBridgeOut(
+  protected async _prepareBridgeOutRequest(
     chainId: number,
     destinationChainId: number,
     contractAddress: Address,
     bridgeOutPayload: Hex,
   ): Promise<EstimateBridgeOutResult> {
+    const logger = this._logger.addContext({functionName: this._prepareBridgeOutRequest.name})
+
+    let logObject: any = {}
+
+    const factoryAddress = await this._factory.getAddress(chainId)
+
+    logObject = {...logObject, factoryAddress}
+
     const {destinationGasPrice, destinationGasLimit} = await this._estimateBridgeOutDestinationGas(
       chainId,
       destinationChainId,
-      contractAddress,
+      factoryAddress,
       bridgeOutPayload,
     )
 
+    logObject = {...logObject, destinationGasPrice, destinationGasLimit}
+
     const destinationHolographChainId = getNetworkByChainId(destinationChainId).holographId
 
+    logObject = {...logObject, destinationHolographChainId}
+
     // now that we have gasLimit and gasPrice, we update the payload to include the proper data needed for estimating fees
-    const bridgeRequestPayload = (
-      await this._createBridgeOutPayload(
-        chainId,
-        destinationHolographChainId,
-        contractAddress,
-        destinationGasLimit,
-        destinationGasPrice,
-        bridgeOutPayload,
-      )
-    ).result
+    const bridgeRequestPayload = await this._createBridgeOutPayload(
+      chainId,
+      destinationHolographChainId,
+      factoryAddress,
+      destinationGasLimit,
+      destinationGasPrice,
+      bridgeOutPayload,
+    )
 
     // we are now ready to get fees for transaction
     const feeValue = await this._getValue(
@@ -196,16 +272,23 @@ export class BridgeAsset {
       bridgeRequestPayload,
     )
 
+    logObject = {...logObject, feeValue}
+
     const unsignedBridgeOutTx = BridgeAsset.createUnsignedBridgeOutTx(
       destinationHolographChainId,
       contractAddress,
       destinationGasLimit,
       destinationGasPrice,
       bridgeOutPayload,
-      //{value: feeValue},// TODO: do we need to pass the value here?
+      /**
+       * {value: feeValue}
+       * NOTICE: Passing options into the encodeDataFunction is currently not supported.
+       * This comment should be removed after validating the functionality of the entire function.
+       * If it affects the result, an alternative solution may need to be implemented.
+       */
     )
 
-    // Source transaction parameters
+    logger.info(logObject, `Getting source transactions parameters...`)
 
     const sourceGasPrice = this.gasSettings?.sourceGasPrice ?? (await this._providers.byChainId(chainId).getGasPrice())
 
@@ -218,7 +301,7 @@ export class BridgeAsset {
       const error = checkBalanceBeforeTX(userBalance, totalValueNeeded) // TODO: throw error for balance check
      */
 
-    return {
+    const bridgeOutRequestData = {
       gasSource: {
         chainId,
         gasPrice: sourceGasPrice,
@@ -232,17 +315,25 @@ export class BridgeAsset {
       value: feeValue,
       unsignedTx: unsignedBridgeOutTx,
     }
+
+    logObject = {...logObject, returnValue: bridgeOutRequestData}
+
+    logger.info(logObject, "Done calculating the return value for '_prepareBridgeOutRequest'")
+
+    return bridgeOutRequestData
   }
 
   protected async _bridgeOut(
     chainId: number,
     destinationChainId: number,
-    wallet: HolographWallet,
     contractAddress: Address,
     bridgeOutPayload: Hex,
+    wallet: HolographWallet,
     options?: {sourceGasPrice?: bigint; sourceGasLimit?: bigint},
-  ): Promise<TransactionReceipt> {
-    const {unsignedTx, gasSource, value} = await this.estimateBridgeOut(
+  ): Promise<Transaction> {
+    const logger = this._logger.addContext({functionName: this._bridgeOut.name})
+
+    const {unsignedTx, gasSource, value} = await this._prepareBridgeOutRequest(
       chainId,
       destinationChainId,
       contractAddress,
@@ -261,7 +352,6 @@ export class BridgeAsset {
     })
 
     //@ts-ignore TODO: need to fix the holographWallet _multiChainWalletClient type, since the created WalletClient extend publicActions
-    const receipt = await wallet.waitForTransactionReceipt({hash: tx}) // TODO: should we wait for the transaction to be processed?
-    return receipt
+    return walletClient.getTransaction({hash: tx})
   }
 }

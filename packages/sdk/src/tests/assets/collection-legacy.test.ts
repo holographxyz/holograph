@@ -76,7 +76,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_getPredictedCollectionAddress()', () => {
     it('should be able to get the correct predicted collection address', async () => {
-      const collectionPayload = await collection._getCollectionPayload(accountAddress)
+      const collectionPayload = await collection['_getCollectionPayload'](accountAddress)
       const predictedCollectionAddress = await collection['_getPredictedCollectionAddress'](
         collectionPayload.config.erc721ConfigHash,
       )
@@ -96,7 +96,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_getCollectionPayload()', () => {
     it('should be able to get the correct collection payload', async () => {
-      const collectionPayload = await collection._getCollectionPayload(accountAddress)
+      const collectionPayload = await collection['_getCollectionPayload'](accountAddress)
       const {
         config: {
           erc721Config: {byteCode, chainType, contractType, initCode, salt},
@@ -130,7 +130,7 @@ describe('Asset class: HolographLegacyCollection', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
-      const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
+      const gasEstimation = await collection['_estimateGasForDeployingCollection'](signatureData)
       const gasPrice = gasEstimation.gasPrice
       const gasLimit = gasEstimation.gasLimit
       const gas = gasEstimation.gas
