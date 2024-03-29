@@ -3055,7 +3055,7 @@ export const _networks = {
     ccipEndpoint: '0x0000000000000000000000000000000000000000'.toLowerCase(),
     ccipId: 0,
     active: true,
-    protocolMultisig: undefined,
+    protocolMultisig: '0x4CCcd20ABfAfe262849d51E66B03A5227b487194'.toLowerCase(),
   },
   base: {
     name: 'Base',
