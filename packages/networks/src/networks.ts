@@ -64,6 +64,25 @@ export const _networks = {
     protocolMultisig: undefined,
   },
   // TEST NETWORKS
+  seiTestnetArctic: {
+    name: 'Sei EVM Testnet',
+    type: NetworkType.testnet,
+    key: 'seiTestnetArctic',
+    shortKey: 'seiArctic',
+    color: '#9e1f19',
+    chain: 713715,
+    rpc: process.env.SEI_TESTNET_ARCTIC_RPC_URL || 'https://evm-rpc-arctic-1.sei-apis.com',
+    holographId: 4000000082,
+    tokenName: 'Sei Testnet SEI',
+    tokenSymbol: 'SEI',
+    explorer: 'https://seistream.app/',
+    lzEndpoint: '0x6edce65403992e310a62460808c4b910d972f10f'.toLocaleLowerCase(),
+    lzId: 40258,
+    ccipEndpoint: ''.toLowerCase(),
+    ccipId: '',
+    active: true,
+    protocolMultisig: undefined,
+  },
   lineaTestnetSepolia: {
     name: 'Linea Testnet Sepolia',
     type: NetworkType.testnet,
@@ -3108,4 +3127,5 @@ export const NETWORK_KEY_BY_RPC_URL = {
   LINEA_TESTNET_GOERLI_RPC_URL: networks.lineaTestnetGoerli.key,
   LINEA_TESTNET_SEPOLIA_RPC_URL: networks.lineaTestnetSepolia.key,
   LINEA_RPC_URL: networks.linea.key,
+  SEI_TESTNET_ARCTIC_RPC_URL: networks.seiTestnetArctic.key,
 };
