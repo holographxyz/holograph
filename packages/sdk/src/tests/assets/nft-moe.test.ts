@@ -85,7 +85,7 @@ describe('Asset class: MoeNFT', () => {
   describe('_estimateGasForMintingNft()', () => {
     it('should be able to estimate gas for minting a MOE NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const gasEstimation = await nft._estimateGasForMintingNft({
+      const gasEstimation = await nft['_estimateGasForMintingNft']({
         chainId: LOCALHOST2_CHAIN_ID,
       })
       const gasPrice = gasEstimation.gasPrice

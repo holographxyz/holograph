@@ -12,7 +12,7 @@ import {
 
 import {HOLOGRAPH_EVENTS} from '../constants/events'
 import {lowerCaseAllStrings} from './transformers'
-import {BridgeInErc721Args, DecodedEvent, DeploymentConfig, HolographEventName} from './types'
+import {BridgeInErc721Args, DecodedEvent, DeploymentConfigSettings, HolographEventName} from './types'
 
 export function decodeEvent(
   receipt: TransactionReceipt,
@@ -98,7 +98,7 @@ export function decodeBridgeInErc721Args(input: Hex): BridgeInErc721Args {
   } as BridgeInErc721Args
 }
 
-export function decodeDeploymentConfigInput(input: Hex): DeploymentConfig {
+export function decodeDeploymentConfigInput(input: Hex): DeploymentConfigSettings {
   //0xdf6516bd: This is the function hash for "function deployHolographableContract(DeploymentConfig memory config, Verification memory signature, address signer)"
   // 0xa8935c67: This is the function hash for function deployHolographableContractMultiChain( DeploymentConfig memory config, Verification memory signature, address signer, bool deployOnCurrentChain, BridgeSettings[] memory bridgeSettings ) external payable
   if (input.startsWith('0xdf6516bd') || input.startsWith('0xa8935c67')) {
@@ -129,7 +129,7 @@ export function decodeDeploymentConfigInput(input: Hex): DeploymentConfig {
   }
 }
 
-export function decodeDeploymentConfig(input: Hex): DeploymentConfig {
+export function decodeDeploymentConfig(input: Hex): DeploymentConfigSettings {
   const decodedConfig = decodeAbiParameters(
     parseAbiParameters([
       'DeploymentConfig config',

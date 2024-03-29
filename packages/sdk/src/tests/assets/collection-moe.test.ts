@@ -87,14 +87,14 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
   describe('_getRegistryAddress()', () => {
     it('should be able to get the correct registry address', async () => {
-      const registryAddress = await collection._getRegistryAddress()
+      const registryAddress = await collection['_getRegistryAddress']()
       expect(registryAddress).toBe(localhostContractAddresses.holographRegistry)
     })
   })
 
   describe('_getMetadataRendererAddress()', () => {
     it('should be able to get the correct metadata renderer address', async () => {
-      const metadataRendererAddress = collection._getMetadataRendererAddress()
+      const metadataRendererAddress = collection['_getMetadataRendererAddress']()
 
       expect(metadataRendererAddress).toBe(localhostContractAddresses.editionsMetadataRenderer.toLowerCase())
     })
@@ -102,7 +102,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
   describe('_getEventConfig()', () => {
     it('should be able to get the correct event config', async () => {
-      const eventConfig = collection._getEventConfig()
+      const eventConfig = collection['_getEventConfig']()
 
       expect(eventConfig).toBe(enableDropEventsV2())
     })
@@ -111,7 +111,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   describe('_generateMetadataRendererInitCode()', () => {
     it('should be able to generate the correct metadata renderer init code', async () => {
       const imageFileName = collection.nftIpfsUrl.split('/').at(-1)
-      const metadataRendererInitCode = collection._generateMetadataRendererInitCode(
+      const metadataRendererInitCode = collection['_generateMetadataRendererInitCode'](
         JSON.stringify(collection.description).slice(1, -1),
         `ipfs://${collection.nftIpfsImageCid}/${imageFileName}`,
       )
@@ -124,9 +124,9 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
   describe('_getCollectionPayload()', () => {
     it('should be able to get the correct collection payload', async () => {
-      const collectionPayload = await collection._getCollectionPayload(accountAddress)
+      const collectionPayload = await collection['_getCollectionPayload'](accountAddress)
       const {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt} = collectionPayload
-      const properties = [byteCode, chainType, configHash, contractType, initCode, salt]
+      const properties = [byteCode, configHash, contractType, initCode, salt]
 
       expect(collectionPayload).toHaveProperty('byteCode')
       expect(collectionPayload).toHaveProperty('chainType')
@@ -135,6 +135,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
       expect(collectionPayload).toHaveProperty('contractType')
       expect(collectionPayload).toHaveProperty('initCode')
       expect(collectionPayload).toHaveProperty('salt')
+      expect(chainType).to.be.a('number')
       expect(collectionPayload.byteCode).toBe(bytecodes.HolographDropERC721)
       expect(configHashBytes).to.be.a('Uint8Array')
 
@@ -149,7 +150,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   describe('_estimateGasForDeployingCollection()', () => {
     it('should be able to estimate the gas for deploying the collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
-      const gasEstimation = await collection._estimateGasForDeployingCollection(signatureData)
+      const gasEstimation = await collection['_estimateGasForDeployingCollection'](signatureData)
       const gasPrice = gasEstimation.gasPrice
       const gasLimit = gasEstimation.gasLimit
       const gas = gasEstimation.gas
@@ -184,7 +185,9 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
         signature: {r, s, v},
       } = signatureData
 
-      const properties = [account, byteCode, chainType, contractType, initCode, salt, r, s]
+      const properties = [account, byteCode, contractType, initCode, salt, r, s]
+
+      expect(chainType).to.be.a('number')
 
       properties.forEach(property => {
         expect(property).not.toBeUndefined()

@@ -1,5 +1,5 @@
-import {Hex, isAddress, pad, stringToBytes, toHex} from 'viem'
 import * as z from 'zod'
+import {Hex, isAddress, pad, stringToBytes, toHex} from 'viem'
 import {NETWORK_KEY_BY_RPC_URL, NetworkKey, networks} from '@holographxyz/networks'
 
 import {getEnv} from '../config/env.validation'

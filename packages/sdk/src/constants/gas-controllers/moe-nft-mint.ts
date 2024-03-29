@@ -106,7 +106,7 @@ export const MOE_NFT_MINT_GAS = {
     gasPriceMultiplier: 110,
   },
   [networks.zora.chain]: {
-    gasPrice: '100000000',
+    gasPrice: BigInt(100000000),
     gasLimit: undefined,
     gasLimitMultiplier: 110,
     gasPriceMultiplier: 110,

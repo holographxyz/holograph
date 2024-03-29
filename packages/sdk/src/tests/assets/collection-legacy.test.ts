@@ -60,7 +60,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_getFactoryAddress()', () => {
     it('should be able to get the correct factory address', async () => {
-      const factoryAddress = await collection._getFactoryAddress()
+      const factoryAddress = await collection['_getFactoryAddress']()
 
       expect(factoryAddress).toBe(localhostContractAddresses.holographFactory)
     })
@@ -68,7 +68,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_getRegistryAddress()', () => {
     it('should be able to get the correct registry address', async () => {
-      const registryAddress = await collection._getRegistryAddress()
+      const registryAddress = await collection['_getRegistryAddress']()
 
       expect(registryAddress).toBe(localhostContractAddresses.holographRegistry)
     })
@@ -77,7 +77,7 @@ describe('Asset class: HolographLegacyCollection', () => {
   describe('_getPredictedCollectionAddress()', () => {
     it('should be able to get the correct predicted collection address', async () => {
       const collectionPayload = await collection._getCollectionPayload(accountAddress)
-      const predictedCollectionAddress = await collection._getPredictedCollectionAddress(
+      const predictedCollectionAddress = await collection['_getPredictedCollectionAddress'](
         collectionPayload.config.erc721ConfigHash,
       )
 
@@ -87,7 +87,7 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_generateInitCode()', () => {
     it('should be able to generate the correct init code', async () => {
-      const initCode = await collection._generateInitCode(accountAddress)
+      const initCode = await collection['_generateInitCode'](accountAddress)
 
       expect(typeof initCode).toBe('string')
       expect(initCode.startsWith('0x')).to.be.true
@@ -122,7 +122,7 @@ describe('Asset class: HolographLegacyCollection', () => {
       })
 
       expect(chainType).not.toBeUndefined()
-      expect(chainType).to.be.a('bigint')
+      expect(chainType).to.be.a('number')
     })
   })
 
@@ -174,7 +174,7 @@ describe('Asset class: HolographLegacyCollection', () => {
       })
 
       expect(chainType).not.toBeUndefined()
-      expect(chainType).to.be.a('bigint')
+      expect(chainType).to.be.a('number')
     })
   })
 

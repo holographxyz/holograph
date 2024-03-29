@@ -1,5 +1,12 @@
 import {Network} from '@holographxyz/networks'
-import {Abi, Address, GetContractReturnType, WriteContractParameters, getContract} from 'viem'
+import {
+  Abi,
+  Address,
+  GetContractReturnType,
+  SimulateContractParameters,
+  WriteContractParameters,
+  getContract,
+} from 'viem'
 
 import {Providers, HolographLogger, Config, HolographWallet, HolographWalletManager} from '../services'
 import {isReadFunction, mapReturnType} from '../utils/contracts'
@@ -9,6 +16,7 @@ import {
   EstimateContractGasArgs,
   ReadContractArgs,
   ViemPublicClient,
+  SimulateContractArgs,
   WriteContractArgs,
 } from '../utils/types'
 
@@ -59,6 +67,21 @@ export class HolographBaseContract {
     }
 
     return walletClient
+  }
+
+  protected async _simulateContract<TAbi extends Abi>({
+    chainId,
+    address,
+    functionName,
+    args,
+    options,
+  }: SimulateContractArgs<TAbi>) {
+    const provider = this._providers.byChainId(chainId)
+
+    let client = {public: provider}
+    const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
+
+    return contract.simulate[functionName](args as unknown[], (options as SimulateContractParameters) || {})
   }
 
   protected async _estimateContractGas<TAbi extends Abi>({
