@@ -1,5 +1,5 @@
-import {beforeEach, describe, expect, it} from 'vitest'
-import {isAddress} from 'viem'
+import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
+import {Address, isAddress} from 'viem'
 
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {ContractRevertError} from '../../errors'
@@ -7,6 +7,7 @@ import {HolographWallet} from '../../services'
 import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
+import {getErc721DeploymentConfigHash} from '../../utils/encoders'
 
 describe('Asset class: HolographLegacyCollection', () => {
   const account: HolographAccount = configObject.accounts?.default!
