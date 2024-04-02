@@ -76,12 +76,31 @@ export class HolographBaseContract {
     args,
     options,
   }: SimulateContractArgs<TAbi>) {
-    const provider = this._providers.byChainId(chainId)
+    const logger = this._logger.addContext({functionName})
 
-    let client = {public: provider}
-    const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
+    let result: any
+    try {
+      const provider = this._providers.byChainId(chainId)
 
-    return contract.simulate[functionName](args as unknown[], (options as SimulateContractParameters) || {})
+      let client = {public: provider}
+      const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})
+
+      result = await contract.simulate[functionName](args as unknown[], (options as SimulateContractParameters) || {})
+    } catch (error: any) {
+      let holographError: HolographError
+
+      if (isCallException(error)) {
+        holographError = new ContractRevertError(this._contractName, functionName, error)
+      } else {
+        holographError = new ViemError(error, functionName)
+      }
+
+      logger.logHolographError(error)
+
+      throw holographError
+    }
+    return result
+    //TODO: Standardize return types across the codebase
   }
 
   protected async _estimateContractGas<TAbi extends Abi>({

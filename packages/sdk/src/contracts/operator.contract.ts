@@ -189,6 +189,16 @@ export class Operator extends HolographBaseContract {
 
   /**
    * @readonly
+   * Get the address of the Holograph Message Module
+   * @param chainId The chain id of the network to get the result from.
+   * @returns The Message Module address to which all cross-chain message requests will be forwarded.
+   */
+  async getMessagingModule(chainId: number) {
+    return this._getContractFunction({chainId, functionName: 'getMessagingModule'})
+  }
+
+  /**
+   * @readonly
    * Get the Holograph Protocol contract address by network.
    * This contract stores a reference to all the primary modules and variables of the protocol.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
