@@ -270,7 +270,7 @@ export const _networks = {
     lzId: 10160,
     ccipEndpoint: '0xa8c0c11bf64af62cdca6f93d3769b88bdd7cb93d'.toLowerCase(),
     ccipId: '5790810961207155433',
-    active: true,
+    active: false,
     protocolMultisig: undefined,
   },
   zoraTestnetGoerli: {
@@ -289,7 +289,7 @@ export const _networks = {
     lzId: 10195,
     ccipEndpoint: '0x0000000000000000000000000000000000000000'.toLowerCase(),
     ccipId: 0,
-    active: true,
+    active: false,
     protocolMultisig: undefined,
   },
   mantleTestnet: {
@@ -1355,7 +1355,7 @@ export const _networks = {
     lzId: 10132,
     ccipEndpoint: '0xEB52E9Ae4A9Fb37172978642d4C141ef53876f26'.toLowerCase(),
     ccipId: '2664363617261496610',
-    active: true,
+    active: false,
     protocolMultisig: undefined,
   },
   arbitrumTestnetGoerli: {
@@ -1374,7 +1374,7 @@ export const _networks = {
     lzId: 10143,
     ccipEndpoint: '0x88E492127709447A5ABEFdaB8788a15B4567589E'.toLowerCase(),
     ccipId: '6101244977088475029',
-    active: true,
+    active: false,
     protocolMultisig: undefined,
   },
   auroraTestnet: {
@@ -1431,7 +1431,7 @@ export const _networks = {
     lzId: 10121,
     ccipEndpoint: '0x0000000000000000000000000000000000000000'.toLowerCase(),
     ccipId: 0,
-    active: true,
+    active: false,
     protocolMultisig: '0xcb5E71E000288e2648Bb0E7b67D3f2850e56EF67'.toLowerCase(),
   },
   ethereumTestnetKovan: {
@@ -3093,7 +3093,7 @@ export const _networks = {
     ccipEndpoint: ''.toLowerCase(),
     ccipId: 0,
     active: true,
-    protocolMultisig: undefined,
+    protocolMultisig: '0x2ab56EB105ec668940Df2b08335F923b45bc2574'.toLowerCase(),
   },
 };
 
@@ -3110,7 +3110,6 @@ export const NETWORK_KEY_BY_RPC_URL = {
   BASE_RPC_URL: networks.base.key,
   BINANCE_SMART_CHAIN_TESTNET_RPC_URL: networks.binanceSmartChainTestnet.key,
   BINANCE_SMART_CHAIN_RPC_URL: networks.binanceSmartChain.key,
-  ETHEREUM_TESTNET_GOERLI_RPC_URL: networks.ethereumTestnetGoerli.key,
   ETHEREUM_TESTNET_SEPOLIA_RPC_URL: networks.ethereumTestnetSepolia.key,
   ETHEREUM_RPC_URL: networks.ethereum.key,
   MANTLE_TESTNET_RPC_URL: networks.mantleTestnet.key,
@@ -3121,7 +3120,6 @@ export const NETWORK_KEY_BY_RPC_URL = {
   POLYGON_TESTNET_RPC_URL: networks.polygonTestnet.key,
   POLYGON_TESTNET_AMOY_RPC_URL: networks.polygonTestnetAmoy.key,
   POLYGON_RPC_URL: networks.polygon.key,
-  ZORA_TESTNET_GOERLI_RPC_URL: networks.zoraTestnetGoerli.key,
   ZORA_TESTNET_SEPOLIA_RPC_URL: networks.zoraTestnetSepolia.key,
   ZORA_RPC_URL: networks.zora.key,
   LINEA_TESTNET_GOERLI_RPC_URL: networks.lineaTestnetGoerli.key,
