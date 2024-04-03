@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { NetworkType } from './network-type';
-import { Networks } from '../types';
+import { Network, Networks } from '../types';
 
 export const _networks = {
   // LOCAL NETWORKS
@@ -157,7 +157,7 @@ export const _networks = {
     ccipEndpoint: ''.toLowerCase(),
     ccipId: '',
     active: true,
-    protocolMultisig: undefined,
+    protocolMultisig: '0xC52a64d3a9E0EB867b05b105676148b8A0594846'.toLocaleLowerCase(),
   },
   zoraTestnetSepolia: {
     name: 'Zora Sepolia Testnet',
@@ -3110,6 +3110,7 @@ export const NETWORK_KEY_BY_RPC_URL = {
   BASE_RPC_URL: networks.base.key,
   BINANCE_SMART_CHAIN_TESTNET_RPC_URL: networks.binanceSmartChainTestnet.key,
   BINANCE_SMART_CHAIN_RPC_URL: networks.binanceSmartChain.key,
+  ETHEREUM_TESTNET_GOERLI_RPC_URL: networks.ethereumTestnetGoerli.key,
   ETHEREUM_TESTNET_SEPOLIA_RPC_URL: networks.ethereumTestnetSepolia.key,
   ETHEREUM_RPC_URL: networks.ethereum.key,
   MANTLE_TESTNET_RPC_URL: networks.mantleTestnet.key,
@@ -3120,6 +3121,7 @@ export const NETWORK_KEY_BY_RPC_URL = {
   POLYGON_TESTNET_RPC_URL: networks.polygonTestnet.key,
   POLYGON_TESTNET_AMOY_RPC_URL: networks.polygonTestnetAmoy.key,
   POLYGON_RPC_URL: networks.polygon.key,
+  ZORA_TESTNET_GOERLI_RPC_URL: networks.zoraTestnetGoerli.key,
   ZORA_TESTNET_SEPOLIA_RPC_URL: networks.zoraTestnetSepolia.key,
   ZORA_RPC_URL: networks.zora.key,
   LINEA_TESTNET_GOERLI_RPC_URL: networks.lineaTestnetGoerli.key,
@@ -3127,3 +3129,21 @@ export const NETWORK_KEY_BY_RPC_URL = {
   LINEA_RPC_URL: networks.linea.key,
   SEI_TESTNET_ARCTIC_RPC_URL: networks.seiTestnetArctic.key,
 };
+
+export const generateNetworkKeyByRpcUrl = (networks: Record<string, Network>): Record<string, string> => {
+  const rpcUrlObject: Record<string, string> = {};
+
+  Object.entries(networks).forEach(([networkKey, networkValue]) => {
+    if (networkValue.active) {
+      // Convert networkKey from camelCase to UPPER_CASE with underscores
+      const formattedKey = networkKey.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
+      const rpcUrlKey = `${formattedKey}_RPC_URL`;
+      rpcUrlObject[rpcUrlKey] = networkKey;
+    }
+  });
+
+  return rpcUrlObject;
+};
+
+// Generating the NETWORK_KEY_BY_RPC_URL based on active networks
+export const NETWORK_KEY_BY_RPC_URL_DYNAMIC = generateNetworkKeyByRpcUrl(_networks);
