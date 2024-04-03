@@ -11,6 +11,7 @@ import {
   WalletClient,
   publicActions,
   isAddress,
+  PublicActions,
 } from 'viem'
 import {privateKeyToAccount, mnemonicToAccount, toAccount} from 'viem/accounts'
 import {Network, networks as holographNetworks} from '@holographxyz/networks'
@@ -77,7 +78,7 @@ export class HolographWallet {
   private readonly _logger: HolographLogger
   private _account: HolographAccount
   private _networks?: Network[]
-  private _multiChainWalletClient: Record<number, WalletClient> = {}
+  private _multiChainWalletClient: Record<number, WalletClient & PublicActions> = {}
 
   constructor({account, networks, chainsRpc}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
@@ -116,7 +117,7 @@ export class HolographWallet {
     return this._account
   }
 
-  onChain(chainId: number): WalletClient {
+  onChain(chainId: number): WalletClient & PublicActions {
     const logger = this._logger.addContext({functionName: this.onChain.name})
     logger.info(`wallet client accessing chainId = ${chainId}`)
 
@@ -127,6 +128,20 @@ export class HolographWallet {
     }
 
     return walletClient
+  }
+
+  async isBalanceSufficientForTx(
+    chainId: number,
+    gasPrice: bigint,
+    gasLimit: bigint,
+    value = BigInt(0),
+  ): Promise<boolean> {
+    const walletBalance = await this.onChain(chainId).getBalance({address: this._account.address})
+
+    const totalGas = gasPrice * gasLimit
+    const totalBalanceNeeded = totalGas + value
+
+    return walletBalance > totalBalanceNeeded
   }
 }
 

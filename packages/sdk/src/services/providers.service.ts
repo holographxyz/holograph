@@ -4,6 +4,7 @@ import {Network} from '@holographxyz/networks'
 import {Config} from './config.service'
 import {HolographLogger} from './logger.service'
 import {UnavailableNetworkError} from '../errors/general/unavailable-network.error'
+import {holographToViemChain} from '../utils/transformers'
 
 export class Providers {
   private readonly logger: HolographLogger
@@ -16,7 +17,10 @@ export class Providers {
     this._providers = {}
 
     this._networks.forEach((network: Network) => {
-      this._providers[network.chain] = createPublicClient({transport: http(network.rpc)})
+      this._providers[network.chain] = createPublicClient({
+        transport: http(network.rpc),
+        chain: holographToViemChain(network.chain),
+      })
     })
   }
 
