@@ -91,7 +91,7 @@ describe('Asset class: BridgeNft', () => {
     it('should be able to bridge a NFT', async () => {
       const tx = await bridgeNft.bridgeOut(wallet)
 
-      console.log('tx: ', tx)
+      console.log('DEBUG| transaction hash: ', tx)
 
       const receipt = await wallet.onChain(sourceChainId).getTransactionReceipt({hash: tx.hash})
       expect(receipt.status).toBe('success')

@@ -130,7 +130,12 @@ export class HolographWallet {
     return walletClient
   }
 
-  async isBalanceSufficientForTx(chainId: number, gasPrice: bigint, gasLimit: bigint, value = 0n): Promise<boolean> {
+  async isBalanceSufficientForTx(
+    chainId: number,
+    gasPrice: bigint,
+    gasLimit: bigint,
+    value = BigInt(0),
+  ): Promise<boolean> {
     const walletBalance = await this.onChain(chainId).getBalance({address: this._account.address})
 
     const totalGas = gasPrice * gasLimit

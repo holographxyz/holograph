@@ -72,7 +72,7 @@ describe('Asset class: BridgeCollection', () => {
     it('should be able to bridge a collection', async () => {
       const tx = await bridgeCollection.bridgeOut(destinationChainId)
 
-      console.log('tx: ', tx)
+      console.log('DEBUG| transaction hash: ', tx)
 
       const receipt = await wallet.onChain(sourceChainId).getTransactionReceipt({hash: tx.hash})
       expect(receipt.status).toBe('success')
