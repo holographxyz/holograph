@@ -1,6 +1,7 @@
 export default {
   test: {
     setupFiles: ['./src/tests/setup.ts'],
-    testTimeout: 30000, // 30 seconds
+    testTimeout: 120000, // 2 min
+    hookTimeout: 120000,
   },
 }

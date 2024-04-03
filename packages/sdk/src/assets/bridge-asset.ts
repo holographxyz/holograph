@@ -105,7 +105,7 @@ export class BridgeAsset {
         functionName: 'getMessageFee',
         args: [holographChainId, gasLimit, gasPrice, bridgeOutPayload],
       })
-    ).result as bigint[] //TODO: fix the type return
+    ).result as bigint[]
   }
 
   protected async _getValue(
@@ -138,7 +138,7 @@ export class BridgeAsset {
     const feeValue: bigint = hTokenFee + lzFee
 
     // for now, to accommodate us time to properly estimate and calculate fees, we add 25% to give us margin for error
-    const bufferFee: bigint = feeValue * BigInt(1.25)
+    const bufferFee: bigint = feeValue / BigInt(4)
     const totalFee: bigint = feeValue + bufferFee
 
     logger.debug(
@@ -280,26 +280,13 @@ export class BridgeAsset {
       destinationGasLimit,
       destinationGasPrice,
       bridgeOutPayload,
-      /**
-       * {value: feeValue}
-       * NOTICE: Passing options into the encodeDataFunction is currently not supported.
-       * This comment should be removed after validating the functionality of the entire function.
-       * If it affects the result, an alternative solution may need to be implemented.
-       */
     )
 
     logger.info(logObject, `Getting source transactions parameters...`)
 
     const sourceGasPrice = this.gasSettings?.sourceGasPrice ?? (await this._providers.byChainId(chainId).getGasPrice())
 
-    const sourceGasLimit = this.gasSettings?.sourceGasLimit ?? BigInt(450000) // NOTE: Only to test user balance
-    /**
-     * TODO: put this in another place, this does not make part of the function scope
-      const userBalance = await this.getSignerBalance()
-      const sourceTxGas = sourceGasPrice.mul(sourceGasLimit)
-      const totalValueNeeded = sourceTxGas.add(feeValue)
-      const error = checkBalanceBeforeTX(userBalance, totalValueNeeded) // TODO: throw error for balance check
-     */
+    const sourceGasLimit = this.gasSettings?.sourceGasLimit ?? BigInt(650000) // NOTE: Only to test user balance
 
     const bridgeOutRequestData = {
       gasSource: {
@@ -341,17 +328,18 @@ export class BridgeAsset {
     )
 
     const walletClient = wallet.onChain(chainId)
+    const bridgeContractAddress = await this._bridge.getAddress(chainId)
 
     const tx = await walletClient.sendTransaction({
       chain: walletClient.chain,
       account: wallet.account,
+      to: bridgeContractAddress,
       data: unsignedTx,
       gasPrice: options?.sourceGasPrice ?? gasSource.gasPrice,
       gas: options?.sourceGasLimit ?? gasSource.gasLimit,
       value,
     })
 
-    //@ts-ignore TODO: need to fix the holographWallet _multiChainWalletClient type, since the created WalletClient extend publicActions
     return walletClient.getTransaction({hash: tx})
   }
 }
