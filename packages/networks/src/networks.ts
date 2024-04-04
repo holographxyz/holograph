@@ -3130,15 +3130,17 @@ export const NETWORK_KEY_BY_RPC_URL = {
   SEI_TESTNET_ARCTIC_RPC_URL: networks.seiTestnetArctic.key,
 };
 
-export const generateNetworkKeyByRpcUrl = (networks: Record<string, Network>): Record<string, string> => {
+export type NetworkRpcUrlKeys<T extends Record<string, Network>> = {
+  [K in keyof T as `${Uppercase<string & K>}_RPC_URL`]: T[K];
+};
+
+export const generateNetworkKeyByRpcUrl = <T extends Record<string, Network>>(networks: T): Record<string, string> => {
   const rpcUrlObject: Record<string, string> = {};
 
   Object.entries(networks).forEach(([networkKey, networkValue]) => {
     if (networkValue.active) {
-      // Convert networkKey from camelCase to UPPER_CASE with underscores
-      const formattedKey = networkKey.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase();
-      const rpcUrlKey = `${formattedKey}_RPC_URL`;
-      rpcUrlObject[rpcUrlKey] = networkKey;
+      const formattedKey = networkKey.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase() + '_RPC_URL';
+      rpcUrlObject[formattedKey] = networkKey;
     }
   });
 
