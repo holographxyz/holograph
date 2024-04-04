@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { NetworkType } from './network-type';
-import { Networks } from '../types';
+import { Network, Networks } from '../types';
 
 export const _networks = {
   // LOCAL NETWORKS
@@ -157,7 +157,7 @@ export const _networks = {
     ccipEndpoint: ''.toLowerCase(),
     ccipId: '',
     active: true,
-    protocolMultisig: undefined,
+    protocolMultisig: '0xC52a64d3a9E0EB867b05b105676148b8A0594846'.toLocaleLowerCase(),
   },
   zoraTestnetSepolia: {
     name: 'Zora Sepolia Testnet',
@@ -3098,32 +3098,20 @@ export const _networks = {
 };
 
 export const networks: Networks = { ..._networks };
-
 export type NetworkKey = keyof typeof _networks;
+type RpcUrlKey = `${Uppercase<string>}_RPC_URL`;
 
-export const NETWORK_KEY_BY_RPC_URL = {
-  ARBITRUM_TESTNET_SEPOLIA_RPC_URL: networks.arbitrumTestnetSepolia.key,
-  ARBITRUM_ONE_RPC_URL: networks.arbitrumOne.key,
-  AVALANCHE_TESTNET_RPC_URL: networks.avalancheTestnet.key,
-  AVALANCHE_RPC_URL: networks.avalanche.key,
-  BASE_TESTNET_SEPOLIA_RPC_URL: networks.baseTestnetSepolia.key,
-  BASE_RPC_URL: networks.base.key,
-  BINANCE_SMART_CHAIN_TESTNET_RPC_URL: networks.binanceSmartChainTestnet.key,
-  BINANCE_SMART_CHAIN_RPC_URL: networks.binanceSmartChain.key,
-  ETHEREUM_TESTNET_SEPOLIA_RPC_URL: networks.ethereumTestnetSepolia.key,
-  ETHEREUM_RPC_URL: networks.ethereum.key,
-  MANTLE_TESTNET_RPC_URL: networks.mantleTestnet.key,
-  MANTLE_TESTNET_SEPOLIA_RPC_URL: networks.mantleTestnetSepolia.key,
-  MANTLE_RPC_URL: networks.mantle.key,
-  OPTIMISM_TESTNET_SEPOLIA_RPC_URL: networks.optimismTestnetSepolia.key,
-  OPTIMISM_RPC_URL: networks.optimism.key,
-  POLYGON_TESTNET_RPC_URL: networks.polygonTestnet.key,
-  POLYGON_TESTNET_AMOY_RPC_URL: networks.polygonTestnetAmoy.key,
-  POLYGON_RPC_URL: networks.polygon.key,
-  ZORA_TESTNET_SEPOLIA_RPC_URL: networks.zoraTestnetSepolia.key,
-  ZORA_RPC_URL: networks.zora.key,
-  LINEA_TESTNET_GOERLI_RPC_URL: networks.lineaTestnetGoerli.key,
-  LINEA_TESTNET_SEPOLIA_RPC_URL: networks.lineaTestnetSepolia.key,
-  LINEA_RPC_URL: networks.linea.key,
-  SEI_TESTNET_ARCTIC_RPC_URL: networks.seiTestnetArctic.key,
-};
+export function generateNetworkKeyByRpcUrl<T extends Record<string, Network>>(networks: T): Record<RpcUrlKey, string> {
+  const rpcUrlObject: Record<RpcUrlKey, string> = {} as Record<RpcUrlKey, string>;
+
+  Object.entries(networks).forEach(([networkKey, networkValue]) => {
+    if (networkValue.active) {
+      const formattedKey: string = networkKey.replace(/([a-z0-9])([A-Z])/g, '$1_$2').toUpperCase() + '_RPC_URL';
+      rpcUrlObject[formattedKey as RpcUrlKey] = networkKey; // Direct assignment with pattern enforcement
+    }
+  });
+
+  return rpcUrlObject;
+}
+
+export const NETWORK_KEY_BY_RPC_URL = generateNetworkKeyByRpcUrl(_networks);
