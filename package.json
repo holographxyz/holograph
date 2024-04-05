@@ -18,7 +18,8 @@
     "prepare": "husky install",
     "ready": "pnpm lint && pnpm test",
     "update:foundry": "foundryup -C $(cat .foundryrc)",
-    "typedoc": "typedoc --logLevel Verbose"
+    "typedoc": "typedoc --logLevel Verbose",
+    "test:sdk": "pnpm --prefix ./packages/sdk test"
   },
   "devDependencies": {
     "@mxssfd/typedoc-theme": "^1.1.3",

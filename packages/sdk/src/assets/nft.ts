@@ -17,7 +17,7 @@ export class NFT {
   public metadata: HolographNFTMetadata
 
   protected ipfsInfo?: NftIpfsInfo
-  protected tokenId?: string // Decimal tokenId string
+  protected _tokenId?: string // Decimal tokenId string
   protected txHash?: string
 
   private cxipERC721: CxipERC721
@@ -60,15 +60,21 @@ export class NFT {
     return this.ipfsInfo?.ipfsUrl
   }
 
-  getParsedTokenId() {
-    if (!this.tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
+  get tokenId() {
+    if (!this._tokenId) throw new NotMintedNftError('tokenId')
 
-    const tokenIdHex = numberToHex(BigInt(this.tokenId), {size: 32})
+    return this._tokenId
+  }
+
+  getParsedTokenId() {
+    if (!this._tokenId) throw new NotMintedNftError(this.getParsedTokenId.name)
+
+    const tokenIdHex = numberToHex(BigInt(this._tokenId), {size: 32})
     const chainIdHex = tokenIdHex.slice(0, 10)
     const tokenNumberHex = tokenIdHex.slice(10)
 
     return {
-      decimal: this.tokenId,
+      decimal: this._tokenId,
       hex: tokenIdHex,
       part: {
         chainId: parseInt(chainIdHex, 16).toString(),
@@ -176,7 +182,7 @@ export class NFT {
     const tokenId = queryTokenIdFromReceipt(receipt, this.collection.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
 
-    this.tokenId = tokenIdBytesString
+    this._tokenId = tokenIdBytesString
     this.txHash = txHash
     this.isMinted = true
 
@@ -191,7 +197,7 @@ export class NFT {
     return exists === 'true'
   }
 
-  async getOwner(tokenId = this.tokenId, chainId: number) {
+  async getOwner(tokenId = this._tokenId, chainId: number) {
     if (!tokenId) throw new NotMintedNftError()
     const owner = (await this.cxipERC721.ownerOf(chainId, tokenId)) as Address
     return owner
@@ -205,7 +211,7 @@ export class NFT {
   // TODO: Functions below are used for easy testing while in development. Remove before public release.
   setTokenId(tokenId: string) {
     validate.tokenId.parse(tokenId)
-    this.tokenId = tokenId
+    this._tokenId = tokenId
   }
 
   toggleIsMinted() {

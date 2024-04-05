@@ -16,8 +16,10 @@ import {BridgeNft} from '../../assets/bridge-nft'
  */
 describe('Asset class: BridgeNft', () => {
   const account: HolographAccount = configObject.accounts?.default!
-  const accountAddress = account?.address
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({
+    account,
+    chainsRpc: configObject.networks,
+  })
 
   let collection: HolographLegacyCollection
   let bridgeNft: BridgeNft
@@ -39,6 +41,7 @@ describe('Asset class: BridgeNft', () => {
       },
       primaryChainId: sourceChainId,
     })
+    collection.erc721ConfigHash
 
     const signatureData = await collection.signDeploy(wallet)
     const {collectionAddress} = await collection.deploy(signatureData)
@@ -67,7 +70,7 @@ describe('Asset class: BridgeNft', () => {
       destinationChainId,
       contractAddress,
       tokenId,
-      from: accountAddress,
+      wallet,
     })
   })
 

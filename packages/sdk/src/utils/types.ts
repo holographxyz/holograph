@@ -19,7 +19,10 @@ import {Network, NetworkKey} from '@holographxyz/networks'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {HolographWallet} from '../services'
 
-type _PrimitiveType = AbiParameterToPrimitiveType<{name: 'test'; type: 'bytes32'}> // NOTICE: use this to figure out which primitive type to use
+type _PrimitiveType = AbiParameterToPrimitiveType<{
+  name: 'test'
+  type: 'bytes32'
+}> // NOTICE: use this to figure out which primitive type to use
 
 export type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
 
@@ -246,8 +249,9 @@ export type BridgeNftInput = {
   destinationChainId: number
   contractAddress: Address
   tokenId: Hex
-  from: Address
+  from?: Address
   to?: Address
+  wallet: HolographWallet
 }
 
 export type ReadContractArgs<TAbi extends Abi> = {
