@@ -34,16 +34,16 @@
   "dependencies": {
     "@holographxyz/environment": "workspace:*",
     "@holographxyz/networks": "workspace:*",
-    "pino": "^8.16.2",
+    "pino": "^8.19.0",
     "uuid": "^9.0.1",
-    "viem": "^2.7.6"
+    "viem": "^2.9.9"
   },
   "devDependencies": {
     "@vitest/coverage-v8": "^0.34.6",
     "abitype": "^0.10.2",
-    "dotenv": "^10.0.0",
-    "ethers": "^6.8.1",
-    "pino-pretty": "^10.2.3",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.11.1",
+    "pino-pretty": "^11.0.0",
     "tsconfig": "workspace:*",
     "vitest": "^0.34.6",
     "zod": "^3.22.4"

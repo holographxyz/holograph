@@ -1,9 +1,8 @@
 import {config} from 'dotenv'
 import {Environment} from '@holographxyz/environment'
 
-import {Holograph} from '../src/contracts/holograph.contract'
-import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet} from '../src/services'
-import {Config} from '../src/services/config.service'
+import {Holograph} from '../src/contracts'
+import {HolographProtocol, HolographAccountFactory, HolographWalletManager, HolographWallet, Config} from '../src/services'
 import {HolographConfig} from '../src/utils/types'
 
 config()
@@ -58,7 +57,7 @@ async function main() {
   console.log(`Interfaces contractURI: ${result}`)
 
   ///
-  /// stand alone contract usage:
+  /// stand-alone contract usage:
   ///
 
   const holograph = new Holograph(config)
