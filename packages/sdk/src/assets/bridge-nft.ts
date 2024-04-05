@@ -1,4 +1,4 @@
-import {Address, Hex, Transaction, encodeAbiParameters, hexToBigInt, parseAbiParameters, zeroAddress} from 'viem'
+import {Address, Hex, Transaction, encodeAbiParameters, hexToBigInt, parseAbiParameters} from 'viem'
 
 import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
@@ -24,8 +24,14 @@ export class BridgeNft extends BridgeAsset {
     return this._bridgeNftInput.tokenId
   }
 
+  // Note: If the 'from' parameter is not provided, it's assumed that the wallet is the owner of the NFT.
   get from() {
-    return this._bridgeNftInput.from
+    return this._bridgeNftInput.from ?? this._bridgeNftInput.wallet.account.address
+  }
+
+  // Note: If the 'to' parameter is not provided, it's assumed that the ownership has not changed.
+  get to() {
+    return this._bridgeNftInput.to ?? this.from
   }
 
   get destinationChainId() {
@@ -47,27 +53,33 @@ export class BridgeNft extends BridgeAsset {
   }
 
   async getInitCode() {
-    const logger = this._logger.addContext({functionName: this.bridgeOut.name})
+    const logger = this._logger.addContext({
+      functionName: this.bridgeOut.name,
+    })
 
     if (!this._initCode) {
-      const {from, tokenId} = this._bridgeNftInput
-      const to = this._bridgeNftInput.to ?? from
+      logger.debug(`Creating initCode for ${this.from}, ${this.to} and ${this.tokenId}...`)
 
-      logger.debug(`Creating initCode for ${from}, ${to} and ${tokenId}...`)
-
-      this._initCode = await BridgeNft.createInitCode(from, to, tokenId)
+      this._initCode = await BridgeNft.createInitCode(this.from, this.to, this.tokenId)
     }
 
     return this._initCode
   }
 
-  async bridgeOut(wallet: HolographWallet, destinationChainId?: number): Promise<Transaction> {
-    const logger = this._logger.addContext({functionName: this.bridgeOut.name})
+  async bridgeOut(walletOverride?: HolographWallet, destinationChainId?: number): Promise<Transaction> {
+    const logger = this._logger.addContext({
+      functionName: this.bridgeOut.name,
+    })
 
     let toChainId = this.destinationChainId
     if (destinationChainId) {
       toChainId = destinationChainId
       logger.warn(`WARN: destinationChainId (${this.destinationChainId}) is being override.`)
+    }
+
+    let wallet = this._bridgeNftInput.wallet
+    if (walletOverride) {
+      wallet = walletOverride
     }
 
     const bridgeOutPayload = await this.getInitCode()

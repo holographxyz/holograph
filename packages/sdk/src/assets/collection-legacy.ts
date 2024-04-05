@@ -138,7 +138,7 @@ export class HolographLegacyCollection {
     ])
   }
 
-  private async _createErc721DeploymentConfig(
+  public async createErc721DeploymentConfig(
     account: Address,
     chainId = this.primaryChainId,
   ): Promise<DeploymentConfig> {
@@ -162,7 +162,7 @@ export class HolographLegacyCollection {
     account: Address,
     chainId = this.primaryChainId,
   ): Promise<{salt: Hex; config: Erc721Config}> {
-    const erc721Config = await this._createErc721DeploymentConfig(account, chainId)
+    const erc721Config = await this.createErc721DeploymentConfig(account, chainId)
 
     const erc721ConfigHash = getErc721DeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = erc721ConfigHash

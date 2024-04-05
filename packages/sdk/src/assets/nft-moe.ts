@@ -91,7 +91,7 @@ export class MoeNFT extends NFT {
     const tokenId = queryTokenIdFromReceipt(receipt, this.collection.collectionAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
     this.txHash = txHash
-    this.tokenId = tokenIdBytesString
+    this._tokenId = tokenIdBytesString
     this.isMinted = true
 
     return {

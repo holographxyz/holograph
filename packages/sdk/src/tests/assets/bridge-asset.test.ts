@@ -54,7 +54,7 @@ describe('Asset class: BridgeAsset', () => {
     const {collectionAddress} = await collection.deploy(signatureData)
     holographableContract = collectionAddress
 
-    const erc721DeploymentConfig = await collection['_createErc721DeploymentConfig'](accountAddress)
+    const erc721DeploymentConfig = await collection['createErc721DeploymentConfig'](accountAddress)
     factoryAddress = await collection['_getFactoryAddress']()
 
     bridgeOutPayload = await BridgeCollection.createInitCode(sourceChainId, erc721DeploymentConfig, wallet)
