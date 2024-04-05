@@ -1,11 +1,13 @@
 module.exports = {
-  extends: ['next', 'turbo', 'prettier'],
+  extends: ['turbo', 'prettier'],
   rules: {
-    '@next/next/no-html-link-for-pages': 'off',
+    'turbo/no-undeclared-env-vars': 0
   },
   parserOptions: {
-    babelOptions: {
-      presets: [require.resolve('next/babel')],
-    },
+    ecmaVersion: "latest",
+    sourceType: "module",
   },
+  env: {
+    es6: true
+  }
 };
