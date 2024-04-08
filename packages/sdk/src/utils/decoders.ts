@@ -12,7 +12,7 @@ import {
 
 import {HOLOGRAPH_EVENTS} from '../constants/events'
 import {lowerCaseAllStrings} from './transformers'
-import {BridgeInErc721Args, DecodedEvent, DeploymentConfigSettings, HolographEventName} from './types'
+import {BridgeInERC721Args, DecodedEvent, DeploymentConfigSettings, HolographEventName} from './types'
 
 export function decodeEvent(
   receipt: TransactionReceipt,
@@ -42,7 +42,7 @@ export function decodeEvent(
   return decodedEvents
 }
 
-export function decodeErc721TransferEvent(receipt: TransactionReceipt, target?: Address): DecodedEvent[] {
+export function decodeERC721TransferEvent(receipt: TransactionReceipt, target?: Address): DecodedEvent[] {
   let decodedEvent = decodeEvent(receipt, HolographEventName.TransferERC721, target)
 
   decodedEvent.forEach((event: DecodedEvent) => (event.values[2] = numberToHex(event.values[2], {size: 32})))
@@ -84,7 +84,7 @@ export function decodeLzPacketEvent(
   return events
 }
 
-export function decodeBridgeInErc721Args(input: Hex): BridgeInErc721Args {
+export function decodeBridgeInERC721Args(input: Hex): BridgeInERC721Args {
   const decoded = decodeAbiParameters(
     parseAbiParameters('address from, address to, uint256 tokenId, bytes data'),
     input,
@@ -95,7 +95,7 @@ export function decodeBridgeInErc721Args(input: Hex): BridgeInErc721Args {
     to: decoded[1],
     tokenId: decoded[2],
     data: decoded[3],
-  } as BridgeInErc721Args
+  } as BridgeInERC721Args
 }
 
 export function decodeDeploymentConfigInput(input: Hex): DeploymentConfigSettings {
@@ -151,7 +151,7 @@ export function decodeDeploymentConfig(input: Hex): DeploymentConfigSettings {
 export function queryTokenIdFromReceipt(receipt: TransactionReceipt, address: Address): string | undefined {
   try {
     if (receipt) {
-      const logs = decodeErc721TransferEvent(receipt, address)
+      const logs = decodeERC721TransferEvent(receipt, address)
 
       if (logs === undefined) return
 

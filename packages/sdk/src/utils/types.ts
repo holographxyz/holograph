@@ -37,7 +37,7 @@ export interface CreateHolographLogger {
 
 export type HolographLoggerContext = AtLeastOne<CreateHolographLogger>
 
-export type BridgeInErc721Args = {
+export type BridgeInERC721Args = {
   readonly from: Address
   readonly to: Address
   readonly tokenId: bigint
@@ -68,7 +68,7 @@ export type DeploymentConfigSettings = {
   readonly signer: Address
 }
 
-export type Erc721Config = {
+export type ERC721Config = {
   erc721Hash: Hex
   erc721Config: DeploymentConfig
   erc721ConfigHash: Hex
@@ -244,7 +244,7 @@ export type BridgeCollectionInput = {
   wallet: HolographWallet
 }
 
-export type BridgeNftInput = {
+export type BridgeNFTInput = {
   sourceChainId: number
   destinationChainId: number
   contractAddress: Address

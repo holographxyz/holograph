@@ -1,14 +1,13 @@
-import {Address, Hex, encodeAbiParameters, keccak256, parseAbiParameters, stringToHex, toBytes} from 'viem'
-import {networks} from '@holographxyz/networks'
+import {Address, Hex, encodeAbiParameters, parseAbiParameters, toBytes} from 'viem'
 
 import {
   CollectionInfo,
-  CreateHolographMoe,
+  CreateMoeCollection,
   HolographDropERC721InitCodeV1Params,
   HolographDropERC721InitCodeV2Params,
   HolographERC721InitCodeParamsSchema,
   HolographMoeSalesConfig,
-  NftInfo,
+  NFTInfo,
   DROP_INIT_CODE_ABI_PARAMETERS,
   validate,
 } from './collection.validation'
@@ -28,7 +27,7 @@ import {
   parseISODateToTimestampSeconds,
   strictECDSA,
 } from '../utils/helpers'
-import {evm2hlg, remove0x} from '../utils/transformers'
+import {evm2hlg} from '../utils/transformers'
 import {
   GasFee,
   GetDropInitCodeParams,
@@ -37,11 +36,12 @@ import {
   Signature,
   WriteContractOptions,
 } from '../utils/types'
-import {getErc721DeploymentConfigHash} from '../utils/encoders'
+import {getERC721DeploymentConfigHash} from '../utils/encoders'
+import {IsNotDeployed} from '../utils/decorators'
 
 export class HolographMoeERC721DropV1 {
   private _collectionInfo: CollectionInfo
-  public nftInfo: NftInfo
+  public nftInfo: NFTInfo
   public salesConfig: HolographMoeSalesConfig
   public primaryChainId: number
   public account?: Address
@@ -56,7 +56,7 @@ export class HolographMoeERC721DropV1 {
 
   constructor(
     public holographConfig: HolographConfig,
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateHolographMoe,
+    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
   ) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.nftInfo = validate.nftInfo.parse(nftInfo)
@@ -129,84 +129,163 @@ export class HolographMoeERC721DropV1 {
     return this.nftInfo.ipfsImageCid
   }
 
-  set name(name: string) {
+  public getCollectionInfo() {
+    return {...this._collectionInfo, ...this.nftInfo, ...this.salesConfig}
+  }
+
+  @IsNotDeployed()
+  public setName(name: string) {
     validate.name.parse(name)
     this._collectionInfo.name = name
   }
 
-  set description(description: string) {
+  @IsNotDeployed()
+  public setDescription(description: string) {
     validate.description.parse(description)
     this._collectionInfo.description = description
   }
 
-  set symbol(symbol: string) {
+  @IsNotDeployed()
+  public setSymbol(symbol: string) {
     validate.symbol.parse(symbol)
     this._collectionInfo.symbol = symbol
   }
 
-  set tokenType(tokenType: CollectionInfo['tokenType']) {
+  @IsNotDeployed()
+  public setTokenType(tokenType: CollectionInfo['tokenType']) {
     validate.tokenType.parse(tokenType)
     this._collectionInfo.tokenType = tokenType
   }
 
-  set royaltiesBps(royalties: number) {
+  @IsNotDeployed()
+  public setRoyaltiesBps(royalties: number) {
     validate.royaltiesBps.parse(royalties)
     this._collectionInfo.royaltiesBps = royalties
   }
 
-  set salt(salt: Hex) {
+  @IsNotDeployed()
+  public setSalt(salt: Hex) {
     validate.salt.parse(salt)
     this._collectionInfo.salt = salt
   }
 
-  set publicSalePrice(publicSalePrice: number) {
+  @IsNotDeployed()
+  public setPublicSalePrice(publicSalePrice: number) {
     validate.publicSalePrice.parse(publicSalePrice)
     this.salesConfig.publicSalePrice = publicSalePrice
   }
 
-  set maxSalePurchasePerAddress(maxSalePurchasePerAddress: number) {
+  @IsNotDeployed()
+  public setMaxSalePurchasePerAddress(maxSalePurchasePerAddress: number) {
     validate.maxSalePurchasePerAddress.parse(maxSalePurchasePerAddress)
     this.salesConfig.maxSalePurchasePerAddress = maxSalePurchasePerAddress
   }
 
-  set publicSaleStart(publicSaleStart: string) {
+  @IsNotDeployed()
+  public setPublicSaleStart(publicSaleStart: string) {
     validate.publicSaleStart.parse(publicSaleStart)
     this.salesConfig.publicSaleStart = publicSaleStart
   }
 
-  set publicSaleEnd(publicSaleEnd: string) {
+  @IsNotDeployed()
+  public setPublicSaleEnd(publicSaleEnd: string) {
     validate.publicSaleEnd.parse(publicSaleEnd)
     this.salesConfig.publicSaleEnd = publicSaleEnd
   }
 
-  set presaleStart(presaleStart: string) {
+  @IsNotDeployed()
+  public setPresaleStart(presaleStart: string) {
     validate.presaleStart.parse(presaleStart)
     this.salesConfig.presaleStart = presaleStart
   }
 
-  set presaleEnd(presaleEnd: string) {
+  @IsNotDeployed()
+  public setPresaleEnd(presaleEnd: string) {
     validate.presaleEnd.parse(presaleEnd)
     this.salesConfig.presaleEnd = presaleEnd
   }
 
-  set presaleMerkleRoot(presaleMerkleRoot: string) {
+  @IsNotDeployed()
+  public setPresaleMerkleRoot(presaleMerkleRoot: string) {
     validate.presaleMerkleRoot.parse(presaleMerkleRoot)
     this.salesConfig.presaleMerkleRoot = presaleMerkleRoot
   }
 
-  set nftIpfsUrl(nftIpfsUrl: string) {
+  @IsNotDeployed()
+  public setNftIpfsUrl(nftIpfsUrl: string) {
     validate.nftIpfsUrl.parse(nftIpfsUrl)
     this.nftInfo.ipfsUrl = nftIpfsUrl
   }
 
-  set nftIpfsImageCid(nftIpfsImageCid: string) {
+  @IsNotDeployed()
+  public setNftIpfsImageCid(nftIpfsImageCid: string) {
     validate.nftIpfsImageCid.parse(nftIpfsImageCid)
     this.nftInfo.ipfsImageCid = nftIpfsImageCid
   }
 
-  getCollectionInfo() {
-    return {...this._collectionInfo, ...this.nftInfo, ...this.salesConfig}
+  /**
+   * @param holographWallet - The HolographWallet instance to sign the deploy.
+   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
+   * @returns - The signature data with the config and signature to deploy the collection contract.
+   */
+  public async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
+    const account = holographWallet.account.address
+    this.account = account
+    const collectionPayload = await this._getCollectionPayload(account, chainId)
+
+    const {configHash, configHashBytes, ...config} = collectionPayload
+
+    const signedMessage = await holographWallet.onChain(chainId).signMessage({
+      account: holographWallet.account,
+      message: configHash,
+    })
+    const signature = strictECDSA(destructSignature(signedMessage))
+    const parsedSignature = {...signature, v: String(Number.parseInt(String(signature.v), 16)) as Hex}
+    this.signature = parsedSignature
+
+    return {
+      account,
+      chainId,
+      config,
+      signature: parsedSignature,
+    }
   }
+
+  /**
+   * @param signatureData - The signature data returned from signDeploy function.
+   * @returns - A transaction hash.
+   */
+  public async deploy(
+    signatureData: SignDeploy,
+    options?: WriteContractOptions,
+  ): Promise<{
+    collectionAddress: Address
+    txHash: Hex
+  }> {
+    const {account, chainId, config, signature, wallet} = signatureData
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
+      ...options,
+      gasPrice,
+      gas: gasLimit,
+    })) as Hex
+
+    const client = await this.factory.getClientByChainId(chainId!)
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
+    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+
+    this.collectionAddress = collectionAddress
+    this.chainIds?.push(chainId!)
+    this.txHash = txHash
+
+    return {
+      collectionAddress,
+      txHash,
+    }
+  }
+
+  // TODO: Do later
+  public deployBatch() {}
 
   protected async _getRegistryAddress(chainId = this.primaryChainId) {
     return this.registry.getAddress(chainId)
@@ -356,7 +435,7 @@ export class HolographMoeERC721DropV1 {
       salt,
     }
 
-    const configHash = getErc721DeploymentConfigHash(erc721Config, account)
+    const configHash = getERC721DeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = configHash
 
     const configHashBytes = toBytes(configHash)
@@ -401,76 +480,12 @@ export class HolographMoeERC721DropV1 {
       gas,
     }
   }
-
-  /**
-   * @param holographWallet - The HolographWallet instance to sign the deploy.
-   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
-   * @returns - The signature data with the config and signature to deploy the collection contract.
-   */
-  async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
-    const account = holographWallet.account.address
-    this.account = account
-    const collectionPayload = await this._getCollectionPayload(account, chainId)
-
-    const {configHash, configHashBytes, ...config} = collectionPayload
-
-    const signedMessage = await holographWallet.onChain(chainId).signMessage({
-      account: holographWallet.account,
-      message: configHash,
-    })
-    const signature = strictECDSA(destructSignature(signedMessage))
-    const parsedSignature = {...signature, v: String(Number.parseInt(String(signature.v), 16)) as Hex}
-    this.signature = parsedSignature
-
-    return {
-      account,
-      chainId,
-      config,
-      signature: parsedSignature,
-    }
-  }
-
-  /**
-   * @param signatureData - The signature data returned from signDeploy function.
-   * @returns - A transaction hash.
-   */
-  async deploy(
-    signatureData: SignDeploy,
-    options?: WriteContractOptions,
-  ): Promise<{
-    collectionAddress: Address
-    txHash: Hex
-  }> {
-    const {account, chainId, config, signature, wallet} = signatureData
-    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
-      ...options,
-      gasPrice,
-      gas: gasLimit,
-    })) as Hex
-
-    const client = await this.factory.getClientByChainId(chainId!)
-    const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
-
-    this.collectionAddress = collectionAddress
-    this.chainIds?.push(chainId!)
-    this.txHash = txHash
-
-    return {
-      collectionAddress,
-      txHash,
-    }
-  }
-
-  // TODO: Do later
-  deployBatch() {}
 }
 
 export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
   constructor(
     configObject: HolographConfig,
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateHolographMoe,
+    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
   ) {
     super(configObject, {collectionInfo, nftInfo, primaryChainId, salesConfig})
   }

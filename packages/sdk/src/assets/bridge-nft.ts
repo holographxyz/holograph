@@ -2,44 +2,44 @@ import {Address, Hex, Transaction, encodeAbiParameters, hexToBigInt, parseAbiPar
 
 import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
-import {BridgeNftInput, HolographConfig} from '../utils/types'
+import {BridgeNFTInput, HolographConfig} from '../utils/types'
 
-export class BridgeNft extends BridgeAsset {
+export class BridgeNFT extends BridgeAsset {
   private _initCode: Hex | undefined
 
   constructor(
     configObject: HolographConfig,
-    private readonly _bridgeNftInput: BridgeNftInput,
+    private readonly _bridgeNFTInput: BridgeNFTInput,
     gasSettings?: {sourceGasPrice: bigint; sourceGasLimit: bigint},
   ) {
-    const _logger = HolographLogger.createLogger({className: BridgeNft.name})
+    const _logger = HolographLogger.createLogger({className: BridgeNFT.name})
     super(configObject, _logger, gasSettings)
   }
 
   get contractAddress() {
-    return this._bridgeNftInput.contractAddress
+    return this._bridgeNFTInput.contractAddress
   }
 
   get tokenId() {
-    return this._bridgeNftInput.tokenId
+    return this._bridgeNFTInput.tokenId
   }
 
   // Note: If the 'from' parameter is not provided, it's assumed that the wallet is the owner of the NFT.
   get from() {
-    return this._bridgeNftInput.from ?? this._bridgeNftInput.wallet.account.address
+    return this._bridgeNFTInput.from ?? this._bridgeNFTInput.wallet.account.address
   }
 
   // Note: If the 'to' parameter is not provided, it's assumed that the ownership has not changed.
   get to() {
-    return this._bridgeNftInput.to ?? this.from
+    return this._bridgeNFTInput.to ?? this.from
   }
 
   get destinationChainId() {
-    return this._bridgeNftInput.destinationChainId
+    return this._bridgeNFTInput.destinationChainId
   }
 
   get sourceChainId() {
-    return this._bridgeNftInput.sourceChainId
+    return this._bridgeNFTInput.sourceChainId
   }
 
   static async createInitCode(from: Address, to: Address, tokenId: Hex): Promise<Hex> {
@@ -52,7 +52,7 @@ export class BridgeNft extends BridgeAsset {
     return initCode
   }
 
-  async getInitCode() {
+  public async getInitCode() {
     const logger = this._logger.addContext({
       functionName: this.bridgeOut.name,
     })
@@ -60,13 +60,13 @@ export class BridgeNft extends BridgeAsset {
     if (!this._initCode) {
       logger.debug(`Creating initCode for ${this.from}, ${this.to} and ${this.tokenId}...`)
 
-      this._initCode = await BridgeNft.createInitCode(this.from, this.to, this.tokenId)
+      this._initCode = await BridgeNFT.createInitCode(this.from, this.to, this.tokenId)
     }
 
     return this._initCode
   }
 
-  async bridgeOut(walletOverride?: HolographWallet, destinationChainId?: number): Promise<Transaction> {
+  public async bridgeOut(walletOverride?: HolographWallet, destinationChainId?: number): Promise<Transaction> {
     const logger = this._logger.addContext({
       functionName: this.bridgeOut.name,
     })
@@ -77,7 +77,7 @@ export class BridgeNft extends BridgeAsset {
       logger.warn(`WARN: destinationChainId (${this.destinationChainId}) is being override.`)
     }
 
-    let wallet = this._bridgeNftInput.wallet
+    let wallet = this._bridgeNFTInput.wallet
     if (walletOverride) {
       wallet = walletOverride
     }

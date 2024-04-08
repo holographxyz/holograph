@@ -64,7 +64,7 @@ export const createLegacyCollectionSchema = z.object({
   primaryChainId: primaryChainIdSchema,
 })
 
-export const createHolographMoeSchema = z.object({
+export const createMoeCollectionSchema = z.object({
   collectionInfo: collectionInfoSchema,
   nftInfo: nftInfoSchema,
   primaryChainId: primaryChainIdSchema,
@@ -240,11 +240,11 @@ export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema
 
 export type CollectionInfo = z.infer<typeof collectionInfoSchema>
 
-export type NftInfo = z.infer<typeof nftInfoSchema>
+export type NFTInfo = z.infer<typeof nftInfoSchema>
 
 export type HolographMoeSalesConfig = z.input<typeof holographMoeSalesConfigSchema>
 
-export type CreateHolographMoe = z.input<typeof createHolographMoeSchema>
+export type CreateMoeCollection = z.input<typeof createMoeCollectionSchema>
 
 export type HolographERC721InitCodeParamsSchema = z.infer<typeof holographERC721InitCodeParamsSchema>
 

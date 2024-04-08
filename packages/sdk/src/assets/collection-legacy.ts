@@ -1,4 +1,4 @@
-import {Address, encodeAbiParameters, encodePacked, Hex, keccak256, parseAbiParameters, toBytes} from 'viem'
+import {Address, Hex, encodeAbiParameters, parseAbiParameters, toBytes} from 'viem'
 
 import {CollectionInfo, CreateLegacyCollection, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
@@ -7,17 +7,18 @@ import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
-import {evm2hlg, remove0x} from '../utils/transformers'
+import {evm2hlg} from '../utils/transformers'
 import {
   DeploymentConfig,
-  Erc721Config,
+  ERC721Config,
   GasFee,
   HolographConfig,
   Signature,
   SignDeploy,
   WriteContractOptions,
 } from '../utils/types'
-import {create2AddressFromDeploymentHash, getErc721DeploymentConfigHash} from '../utils/encoders'
+import {create2AddressFromDeploymentHash, getERC721DeploymentConfigHash} from '../utils/encoders'
+import {IsNotDeployed} from '../utils/decorators'
 
 export class HolographLegacyCollection {
   private _collectionInfo: CollectionInfo
@@ -67,39 +68,127 @@ export class HolographLegacyCollection {
     return this._collectionInfo.salt
   }
 
-  set name(name: string) {
+  public getCollectionInfo() {
+    return this._collectionInfo
+  }
+
+  @IsNotDeployed()
+  public setName(name: string) {
     validate.name.parse(name)
     this._collectionInfo.name = name
   }
 
-  set description(description: string) {
+  @IsNotDeployed()
+  public setDescription(description: string) {
     validate.description.parse(description)
     this._collectionInfo.description = description
   }
 
-  set symbol(symbol: string) {
+  @IsNotDeployed()
+  public setSymbol(symbol: string) {
     validate.symbol.parse(symbol)
     this._collectionInfo.symbol = symbol
   }
 
-  set tokenType(tokenType: CollectionInfo['tokenType']) {
+  @IsNotDeployed()
+  public setTokenType(tokenType: CollectionInfo['tokenType']) {
     validate.tokenType.parse(tokenType)
     this._collectionInfo.tokenType = tokenType
   }
 
-  set royalties(royalties: number) {
+  @IsNotDeployed()
+  public setRoyaltiesBps(royalties: number) {
     validate.royaltiesBps.parse(royalties)
     this._collectionInfo.royaltiesBps = royalties
   }
 
-  set salt(salt: Hex) {
+  @IsNotDeployed()
+  public setSalt(salt: Hex) {
     validate.salt.parse(salt)
     this._collectionInfo.salt = salt
   }
 
-  getCollectionInfo() {
-    return this._collectionInfo
+  public async createERC721DeploymentConfig(
+    account: Address,
+    chainId = this.primaryChainId,
+  ): Promise<DeploymentConfig> {
+    const chainType = evm2hlg(chainId)
+    const erc721Hash = parseBytes('HolographERC721')
+    const salt = this.salt || generateRandomSalt()
+    const initCode = await this._generateInitCode(account, chainId)
+
+    const erc721Config: DeploymentConfig = {
+      contractType: erc721Hash,
+      chainType,
+      byteCode: bytecodes.CxipERC721,
+      initCode,
+      salt,
+    }
+
+    return erc721Config
   }
+
+  /**
+   * @param holographWallet - The HolographWallet instance to sign the deploy.
+   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
+   * @returns - The signature data with the config and signature to deploy the collection contract.
+   */
+  public async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
+    const account = holographWallet.account.address
+    this.account = account
+    const collectionPayload = await this._getCollectionPayload(account, chainId)
+
+    const config = collectionPayload?.config
+    const signedMessage = await holographWallet.onChain(chainId).signMessage({
+      account: holographWallet.account,
+      message: config?.erc721ConfigHash,
+    })
+    const signature = destructSignature(signedMessage)
+    this.signature = signature
+
+    return {
+      account,
+      chainId,
+      config: config?.erc721Config,
+      signature,
+    }
+  }
+
+  /**
+   * @param signatureData - The signature data returned from signDeploy function.
+   * @returns - A transaction hash.
+   */
+  public async deploy(
+    signatureData: SignDeploy,
+    options?: WriteContractOptions,
+  ): Promise<{
+    collectionAddress: Address
+    txHash: Hex
+  }> {
+    const {account, chainId, config, signature, wallet} = signatureData
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
+    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
+      ...options,
+      gasPrice,
+      gas: gasLimit,
+    })) as Hex
+
+    const client = await this.factory.getClientByChainId(chainId!)
+    const receipt = await client.waitForTransactionReceipt({hash: txHash})
+    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+
+    this.collectionAddress = collectionAddress
+    this.chainIds?.push(chainId!)
+    this.txHash = txHash
+
+    return {
+      collectionAddress,
+      txHash,
+    }
+  }
+
+  // TODO: Do later
+  public deployBatch() {}
 
   private async _getFactoryAddress(chainId = this.primaryChainId) {
     return this.factory.getAddress(chainId)
@@ -138,33 +227,13 @@ export class HolographLegacyCollection {
     ])
   }
 
-  public async createErc721DeploymentConfig(
-    account: Address,
-    chainId = this.primaryChainId,
-  ): Promise<DeploymentConfig> {
-    const chainType = evm2hlg(chainId)
-    const erc721Hash = parseBytes('HolographERC721')
-    const salt = this.salt || generateRandomSalt()
-    const initCode = await this._generateInitCode(account, chainId)
-
-    const erc721Config: DeploymentConfig = {
-      contractType: erc721Hash,
-      chainType,
-      byteCode: bytecodes.CxipERC721,
-      initCode,
-      salt,
-    }
-
-    return erc721Config
-  }
-
   private async _getCollectionPayload(
     account: Address,
     chainId = this.primaryChainId,
-  ): Promise<{salt: Hex; config: Erc721Config}> {
-    const erc721Config = await this.createErc721DeploymentConfig(account, chainId)
+  ): Promise<{salt: Hex; config: ERC721Config}> {
+    const erc721Config = await this.createERC721DeploymentConfig(account, chainId)
 
-    const erc721ConfigHash = getErc721DeploymentConfigHash(erc721Config, account)
+    const erc721ConfigHash = getERC721DeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = erc721ConfigHash
 
     const erc721ConfigHashBytes = toBytes(erc721ConfigHash)
@@ -219,66 +288,4 @@ export class HolographLegacyCollection {
       gas,
     }
   }
-
-  /**
-   * @param holographWallet - The HolographWallet instance to sign the deploy.
-   * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
-   * @returns - The signature data with the config and signature to deploy the collection contract.
-   */
-  async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
-    const account = holographWallet.account.address
-    this.account = account
-    const collectionPayload = await this._getCollectionPayload(account, chainId)
-
-    const config = collectionPayload?.config
-    const signedMessage = await holographWallet.onChain(chainId).signMessage({
-      account: holographWallet.account,
-      message: config?.erc721ConfigHash,
-    })
-    const signature = destructSignature(signedMessage)
-    this.signature = signature
-
-    return {
-      account,
-      chainId,
-      config: config?.erc721Config,
-      signature,
-    }
-  }
-
-  /**
-   * @param signatureData - The signature data returned from signDeploy function.
-   * @returns - A transaction hash.
-   */
-  async deploy(
-    signatureData: SignDeploy,
-    options?: WriteContractOptions,
-  ): Promise<{
-    collectionAddress: Address
-    txHash: Hex
-  }> {
-    const {account, chainId, config, signature, wallet} = signatureData
-    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
-    const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
-      ...options,
-      gasPrice,
-      gas: gasLimit,
-    })) as Hex
-
-    const client = await this.factory.getClientByChainId(chainId!)
-    const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
-
-    this.collectionAddress = collectionAddress
-    this.chainIds?.push(chainId!)
-    this.txHash = txHash
-
-    return {
-      collectionAddress,
-      txHash,
-    }
-  }
-
-  // TODO: Do later
-  deployBatch() {}
 }

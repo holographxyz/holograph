@@ -1,5 +1,5 @@
 import {getNetworkByChainId} from '@holographxyz/networks'
-import {Address, Hex, hexToBigInt} from 'viem'
+import {Address, Hex} from 'viem'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {HolographWallet} from '../../services'
@@ -54,7 +54,7 @@ describe('Asset class: BridgeAsset', () => {
     const {collectionAddress} = await collection.deploy(signatureData)
     holographableContract = collectionAddress
 
-    const erc721DeploymentConfig = await collection['createErc721DeploymentConfig'](accountAddress)
+    const erc721DeploymentConfig = await collection['createERC721DeploymentConfig'](accountAddress)
     factoryAddress = await collection['_getFactoryAddress']()
 
     bridgeOutPayload = await BridgeCollection.createInitCode(sourceChainId, erc721DeploymentConfig, wallet)

@@ -1,11 +1,11 @@
 import {Address, Hex, encodePacked, keccak256} from 'viem'
-import {bytecodes} from '../constants/bytecodes'
 
-import {remove0x, sha3} from './transformers'
-import {BytecodeType, DeploymentConfig, DeploymentConfigSettings} from './types'
+import {bytecodes} from '../constants/bytecodes'
+import {remove0x} from './transformers'
+import {DeploymentConfig, DeploymentConfigSettings} from './types'
 
 export function create2address(deploymentConfig: DeploymentConfigSettings, factoryAddress: Address): Address {
-  const configHash: Hex = getErc721DeploymentConfigHash(deploymentConfig.config, deploymentConfig.signer)
+  const configHash: Hex = getERC721DeploymentConfigHash(deploymentConfig.config, deploymentConfig.signer)
 
   return create2AddressFromDeploymentHash(configHash, factoryAddress)
 }
@@ -16,7 +16,7 @@ export function create2AddressFromDeploymentHash(configHash: Hex, factoryAddress
   ).slice(26)}`
 }
 
-export function getErc721DeploymentConfigHash(erc721DeploymentConfig: DeploymentConfig, signerAddress: Address): Hex {
+export function getERC721DeploymentConfigHash(erc721DeploymentConfig: DeploymentConfig, signerAddress: Address): Hex {
   return keccak256(
     encodePacked(
       ['bytes32', 'uint32', 'bytes32', 'bytes32', 'bytes32', 'address'],

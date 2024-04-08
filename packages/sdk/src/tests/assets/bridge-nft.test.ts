@@ -8,13 +8,13 @@ import {BridgeCollection} from '../../assets/bridge-collection'
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {configObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 import {NFT} from '../../assets/nft'
-import {BridgeNft} from '../../assets/bridge-nft'
+import {BridgeNFT} from '../../assets/bridge-nft'
 
 /**
  * TODO:
  * These tests should be executed on a testnet as they are not expected to run successfully locally.
  */
-describe('Asset class: BridgeNft', () => {
+describe('Asset class: BridgeNFT', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const wallet = new HolographWallet({
     account,
@@ -22,7 +22,7 @@ describe('Asset class: BridgeNft', () => {
   })
 
   let collection: HolographLegacyCollection
-  let bridgeNft: BridgeNft
+  let bridgeNFT: BridgeNFT
   let sourceChainId: number
   let destinationChainId: number
   let contractAddress: Address
@@ -46,7 +46,7 @@ describe('Asset class: BridgeNft', () => {
     const signatureData = await collection.signDeploy(wallet)
     const {collectionAddress} = await collection.deploy(signatureData)
 
-    const myNft = new NFT({
+    const myNFT = new NFT({
       collection,
       metadata: {
         name: 'My new NFT',
@@ -59,13 +59,13 @@ describe('Asset class: BridgeNft', () => {
       },
     })
 
-    const {tokenId, txHash} = await myNft.mint({
+    const {tokenId, txHash} = await myNFT.mint({
       chainId: sourceChainId,
     })
 
     contractAddress = collectionAddress
 
-    bridgeNft = new BridgeNft(configObject, {
+    bridgeNFT = new BridgeNFT(configObject, {
       sourceChainId,
       destinationChainId,
       contractAddress,
@@ -74,16 +74,16 @@ describe('Asset class: BridgeNft', () => {
     })
   })
 
-  it('should be able to get the BridgeNft wrapper class', () => {
+  it('should be able to get the BridgeNFT wrapper class', () => {
     expect(BridgeCollection).toHaveProperty('createInitCode')
 
-    expect(bridgeNft).toHaveProperty('getInitCode')
-    expect(bridgeNft).toHaveProperty('bridgeOut')
+    expect(bridgeNFT).toHaveProperty('getInitCode')
+    expect(bridgeNFT).toHaveProperty('bridgeOut')
   })
 
   describe('getInitCode()', () => {
     it('should be able to get the bridge out request init code', async () => {
-      const bridgeOutPayload = await bridgeNft.getInitCode()
+      const bridgeOutPayload = await bridgeNFT.getInitCode()
 
       expectTypeOf(bridgeOutPayload).toBeString()
       expect(bridgeOutPayload.startsWith('0x')).toBeTruthy()
@@ -92,7 +92,7 @@ describe('Asset class: BridgeNft', () => {
 
   describe.skip('bridgeOut()', () => {
     it('should be able to bridge a NFT', async () => {
-      const tx = await bridgeNft.bridgeOut(wallet)
+      const tx = await bridgeNFT.bridgeOut(wallet)
 
       console.log('DEBUG| transaction hash: ', tx)
 
