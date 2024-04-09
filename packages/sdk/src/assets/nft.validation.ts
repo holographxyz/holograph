@@ -36,7 +36,7 @@ const metadataSchema = z.object({
   attributes: attributesSchema.optional(),
 })
 
-export const createNftSchema = z.object({
+export const createNFTSchema = z.object({
   collection: collectionSchema,
   ipfsInfo: ipfsInfoSchema,
   metadata: metadataSchema,
@@ -59,10 +59,10 @@ export const validate = {
   ipfsInfo: ipfsInfoSchema,
 }
 
-export type CreateNft = z.infer<typeof createNftSchema>
+export type CreateNFT = z.infer<typeof createNFTSchema>
 
 export type HolographNFTMetadata = z.infer<typeof metadataSchema>
 
-export type NftIpfsInfo = z.infer<typeof ipfsInfoSchema>
+export type NFTIpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export const DEFAULT_TOKEN_URI = 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX/metadata.json'

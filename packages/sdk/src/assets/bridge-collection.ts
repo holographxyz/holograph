@@ -2,9 +2,9 @@ import {Hex, Transaction, encodeAbiParameters, parseAbiParameters} from 'viem'
 
 import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
+import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {destructSignature} from '../utils/helpers'
 import {BridgeCollectionInput, DeploymentConfig, HolographConfig} from '../utils/types'
-import {getErc721DeploymentConfigHash} from '../utils/encoders'
 
 export class BridgeCollection extends BridgeAsset {
   private _initCode: Hex | undefined
@@ -39,7 +39,7 @@ export class BridgeCollection extends BridgeAsset {
     erc721DeploymentConfig: DeploymentConfig,
     wallet: HolographWallet,
   ): Promise<Hex> {
-    const erc721DeploymentConfigHash = getErc721DeploymentConfigHash(erc721DeploymentConfig, wallet.account.address)
+    const erc721DeploymentConfigHash = getERC721DeploymentConfigHash(erc721DeploymentConfig, wallet.account.address)
 
     const signature = await wallet.onChain(chainId).signMessage({
       account: wallet.account,
@@ -61,7 +61,7 @@ export class BridgeCollection extends BridgeAsset {
     return initCode
   }
 
-  async getInitCode() {
+  public async getInitCode() {
     const logger = this._logger.addContext({functionName: this.getInitCode.name})
 
     if (!this._initCode) {
@@ -76,7 +76,7 @@ export class BridgeCollection extends BridgeAsset {
     return this._initCode
   }
 
-  async bridgeOut(destinationChainId: number): Promise<Transaction> {
+  public async bridgeOut(destinationChainId: number): Promise<Transaction> {
     const logger = this._logger.addContext({functionName: this.bridgeOut.name})
 
     const bridgeOutPayload = await this.getInitCode()

@@ -4,11 +4,11 @@ import {beforeAll, describe, expect, it} from 'vitest'
 
 import {
   decodeAvailableOperatorJobEvent,
-  decodeBridgeInErc721Args,
+  decodeBridgeInERC721Args,
   decodeBridgeableContractDeployedEvent,
   decodeCrossChainMessageSentEvent,
   decodeDeploymentConfigInput,
-  decodeErc721TransferEvent,
+  decodeERC721TransferEvent,
   decodeLzPacketEvent,
 } from '../../utils/decoders'
 
@@ -109,12 +109,12 @@ describe('Utils: decoders', () => {
     expect(expectedDecodedEvent).toStrictEqual(decodedEvent)
   })
 
-  it('decodeErc721TransferEvent', async () => {
+  it('decodeERC721TransferEvent', async () => {
     const receipt = await client.getTransactionReceipt({
       hash: '0x949f38dceb7964b565276081b4f898dc98b41854b0cc690323a95765587abb7e',
     })
 
-    const decodedEvent = decodeErc721TransferEvent(receipt)
+    const decodedEvent = decodeERC721TransferEvent(receipt)
 
     const expectedDecodedEvent = [
       {
@@ -159,7 +159,7 @@ describe('Utils: decoders', () => {
     expect(expectedDecodedEvent).toStrictEqual(decodedEvent)
   })
 
-  it('decodeBridgeInErc721Args', () => {
+  it('decodeBridgeInERC721Args', () => {
     const bridgeInPayload =
       '0x000000000000000000000000b2613e02f232d00bcf060c2c70a9b60d0930959a000000000000000000000000b2613e02f232d00bcf060c2c70a9b60d0930959aee6b280300000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000003c516d526e744d4d41706b7072593166774d4139713856573479506a56576471627646436757783638735872585a562f6d657461646174612e6a736f6e00000000'
 
@@ -170,7 +170,7 @@ describe('Utils: decoders', () => {
       data: '0x00000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000003c516d526e744d4d41706b7072593166774d4139713856573479506a56576471627646436757783638735872585a562f6d657461646174612e6a736f6e00000000',
     }
 
-    const decodedValue = decodeBridgeInErc721Args(bridgeInPayload)
+    const decodedValue = decodeBridgeInERC721Args(bridgeInPayload)
 
     expect(decodedValue).toStrictEqual(expectedDecodedvalue)
   })

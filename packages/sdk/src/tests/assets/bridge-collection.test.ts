@@ -40,7 +40,7 @@ describe('Asset class: BridgeCollection', () => {
 
     const signatureData = await collection.signDeploy(wallet)
     const {collectionAddress} = await collection.deploy(signatureData)
-    const erc721DeploymentConfig = await collection.createErc721DeploymentConfig(accountAddress)
+    const erc721DeploymentConfig = await collection.createERC721DeploymentConfig(accountAddress)
 
     contractAddress = collectionAddress
 

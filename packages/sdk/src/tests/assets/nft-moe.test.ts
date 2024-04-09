@@ -8,7 +8,7 @@ import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
 const expectedValues = {
-  mintedNftTokenId: '0x0000000000000000000000000000000000000000000000000000000000000001',
+  mintedNFTTokenId: '0x0000000000000000000000000000000000000000000000000000000000000001',
   owner: configObject.accounts?.default?.address!,
 }
 
@@ -77,15 +77,15 @@ describe('Asset class: MoeNFT', () => {
     expect(nft).toHaveProperty('setCreator')
     expect(nft).toHaveProperty('setIpfsUrl')
     expect(nft).toHaveProperty('setIpfsImageCid')
-    expect(nft).toHaveProperty('_estimateGasForMintingNft')
+    expect(nft).toHaveProperty('_estimateGasForMintingNFT')
     expect(nft).toHaveProperty('mint')
     expect(nft).toHaveProperty('tokenIdExists')
   })
 
-  describe('_estimateGasForMintingNft()', () => {
+  describe('_estimateGasForMintingNFT()', () => {
     it('should be able to estimate gas for minting a MOE NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const gasEstimation = await nft['_estimateGasForMintingNft']({
+      const gasEstimation = await nft['_estimateGasForMintingNFT']({
         chainId: LOCALHOST2_CHAIN_ID,
       })
       const gasPrice = gasEstimation.gasPrice
@@ -112,13 +112,13 @@ describe('Asset class: MoeNFT', () => {
       expect(txHash).to.have.length(66)
       expect(txHash.startsWith('0x')).to.be.true
       expect(tokenId).to.be.an('string')
-      expect(tokenId).to.be.equals(expectedValues.mintedNftTokenId)
+      expect(tokenId).to.be.equals(expectedValues.mintedNFTTokenId)
     })
   })
 
   describe('getOwner()', () => {
     it('should be able to get the MOE NFT owner', async () => {
-      const owner = await nft.getOwner(expectedValues.mintedNftTokenId, LOCALHOST2_CHAIN_ID)
+      const owner = await nft.getOwner(expectedValues.mintedNFTTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(owner).toBe(expectedValues.owner)
     })
