@@ -68,7 +68,7 @@ export class HolographLegacyCollection {
     return this._collectionInfo.salt
   }
 
-  public getCollectionInfo() {
+  public getCollectionInfo(): CollectionInfo {
     return this._collectionInfo
   }
 

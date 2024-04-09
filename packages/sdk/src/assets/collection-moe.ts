@@ -7,6 +7,7 @@ import {
   HolographDropERC721InitCodeV2Params,
   HolographERC721InitCodeParamsSchema,
   HolographMoeSalesConfig,
+  MoeCollectionInfo,
   NFTInfo,
   DROP_INIT_CODE_ABI_PARAMETERS,
   validate,
@@ -18,6 +19,8 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
+import {IsNotDeployed} from '../utils/decorators'
+import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {
   destructSignature,
   enableDropEvents,
@@ -36,8 +39,6 @@ import {
   Signature,
   WriteContractOptions,
 } from '../utils/types'
-import {getERC721DeploymentConfigHash} from '../utils/encoders'
-import {IsNotDeployed} from '../utils/decorators'
 
 export class HolographMoeERC721DropV1 {
   private _collectionInfo: CollectionInfo
@@ -129,7 +130,7 @@ export class HolographMoeERC721DropV1 {
     return this.nftInfo.ipfsImageCid
   }
 
-  public getCollectionInfo() {
+  public getCollectionInfo(): MoeCollectionInfo {
     return {...this._collectionInfo, ...this.nftInfo, ...this.salesConfig}
   }
 
@@ -212,13 +213,13 @@ export class HolographMoeERC721DropV1 {
   }
 
   @IsNotDeployed()
-  public setNftIpfsUrl(nftIpfsUrl: string) {
+  public setIpfsUrl(nftIpfsUrl: string) {
     validate.nftIpfsUrl.parse(nftIpfsUrl)
     this.nftInfo.ipfsUrl = nftIpfsUrl
   }
 
   @IsNotDeployed()
-  public setNftIpfsImageCid(nftIpfsImageCid: string) {
+  public setIpfsImageCid(nftIpfsImageCid: string) {
     validate.nftIpfsImageCid.parse(nftIpfsImageCid)
     this.nftInfo.ipfsImageCid = nftIpfsImageCid
   }

@@ -122,6 +122,8 @@ export const validate = {
   primaryChainId: primaryChainIdSchema,
 }
 
+export const moeCollectionInfo = collectionInfoSchema.merge(nftInfoSchema).merge(holographMoeSalesConfigSchema)
+
 export const DROP_INIT_CODE_ABI_PARAMETERS = {
   [HolographVersion.V1]: [
     {
@@ -239,6 +241,8 @@ export const DROP_INIT_CODE_ABI_PARAMETERS = {
 export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
 
 export type CollectionInfo = z.infer<typeof collectionInfoSchema>
+
+export type MoeCollectionInfo = z.input<typeof moeCollectionInfo>
 
 export type NFTInfo = z.infer<typeof nftInfoSchema>
 

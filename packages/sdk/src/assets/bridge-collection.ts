@@ -2,9 +2,9 @@ import {Hex, Transaction, encodeAbiParameters, parseAbiParameters} from 'viem'
 
 import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
+import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {destructSignature} from '../utils/helpers'
 import {BridgeCollectionInput, DeploymentConfig, HolographConfig} from '../utils/types'
-import {getERC721DeploymentConfigHash} from '../utils/encoders'
 
 export class BridgeCollection extends BridgeAsset {
   private _initCode: Hex | undefined
