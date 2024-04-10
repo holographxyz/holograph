@@ -4,18 +4,18 @@ import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
 import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {destructSignature} from '../utils/helpers'
-import {BridgeCollectionInput, DeploymentConfig, HolographConfig} from '../utils/types'
+import {BridgeCollectionInput, DeploymentConfig, GasSettings, HolographConfig} from '../utils/types'
 
 export class BridgeCollection extends BridgeAsset {
   private _initCode: Hex | undefined
 
   constructor(
-    configObject: HolographConfig,
+    public holographConfig: HolographConfig,
     private readonly _bridgeCollectionInput: BridgeCollectionInput,
-    gasSettings?: {sourceGasPrice: bigint; sourceGasLimit: bigint},
+    gasSettings?: GasSettings,
   ) {
     const _logger = HolographLogger.createLogger({className: BridgeCollection.name})
-    super(configObject, _logger, gasSettings)
+    super(holographConfig, _logger, gasSettings)
   }
 
   get sourceChainId() {
