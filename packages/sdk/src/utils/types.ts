@@ -216,6 +216,11 @@ export enum HolographVersion {
   V2 = 'V2',
 }
 
+export type GasSettings = {
+  gasPrice?: bigint
+  gasLimit?: bigint
+}
+
 export type GasFee = {
   gasPrice: bigint
   gasLimit: bigint

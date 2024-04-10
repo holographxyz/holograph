@@ -2,18 +2,18 @@ import {Address, Hex, Transaction, encodeAbiParameters, hexToBigInt, parseAbiPar
 
 import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
-import {BridgeNFTInput, HolographConfig} from '../utils/types'
+import {BridgeNFTInput, GasSettings, HolographConfig} from '../utils/types'
 
 export class BridgeNFT extends BridgeAsset {
   private _initCode: Hex | undefined
 
   constructor(
-    configObject: HolographConfig,
+    public holographConfig: HolographConfig,
     private readonly _bridgeNFTInput: BridgeNFTInput,
-    gasSettings?: {sourceGasPrice: bigint; sourceGasLimit: bigint},
+    gasSettings?: GasSettings,
   ) {
     const _logger = HolographLogger.createLogger({className: BridgeNFT.name})
-    super(configObject, _logger, gasSettings)
+    super(holographConfig, _logger, gasSettings)
   }
 
   get contractAddress() {

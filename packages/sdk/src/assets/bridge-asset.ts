@@ -5,7 +5,7 @@ import {Bridge, Factory, Operator} from '../contracts'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Config, HolographLogger, HolographWallet, Providers} from '../services'
-import {EstimateBridgeOutResult, GasPricing, HolographConfig} from '../utils/types'
+import {EstimateBridgeOutResult, GasPricing, GasSettings, HolographConfig} from '../utils/types'
 import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit, MAX_GAS_VALUE} from '../utils/gas'
 
 export class BridgeAsset {
@@ -18,7 +18,7 @@ export class BridgeAsset {
   constructor(
     configObject: HolographConfig,
     _logger?: HolographLogger,
-    private gasSettings?: {sourceGasPrice?: bigint; sourceGasLimit?: bigint},
+    private gasSettings?: GasSettings,
   ) {
     const config = Config.getInstance(configObject)
 
@@ -284,9 +284,9 @@ export class BridgeAsset {
 
     logger.info(logObject, `Getting source transactions parameters...`)
 
-    const sourceGasPrice = this.gasSettings?.sourceGasPrice ?? (await this._providers.byChainId(chainId).getGasPrice())
+    const sourceGasPrice = this.gasSettings?.gasPrice ?? (await this._providers.byChainId(chainId).getGasPrice())
 
-    const sourceGasLimit = this.gasSettings?.sourceGasLimit ?? BigInt(650000) // NOTE: Only to test user balance
+    const sourceGasLimit = this.gasSettings?.gasLimit ?? BigInt(650000) // NOTE: Only to test user balance
 
     const bridgeOutRequestData = {
       gasSource: {
@@ -316,7 +316,7 @@ export class BridgeAsset {
     contractAddress: Address,
     bridgeOutPayload: Hex,
     wallet: HolographWallet,
-    options?: {sourceGasPrice?: bigint; sourceGasLimit?: bigint},
+    options?: GasSettings,
   ): Promise<Transaction> {
     const logger = this._logger.addContext({functionName: this._bridgeOut.name})
 
@@ -335,8 +335,8 @@ export class BridgeAsset {
       account: wallet.account,
       to: bridgeContractAddress,
       data: unsignedTx,
-      gasPrice: options?.sourceGasPrice ?? gasSource.gasPrice,
-      gas: options?.sourceGasLimit ?? gasSource.gasLimit,
+      gasPrice: options?.gasPrice ?? gasSource.gasPrice,
+      gas: options?.gasLimit ?? gasSource.gasLimit,
       value,
     })
 
