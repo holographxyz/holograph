@@ -211,6 +211,33 @@ export enum TokenUriType {
   ARWEAVE = 3,
 }
 
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/struct/SaleDetails.sol
+ */
+export type SaleDetails = {
+  // Synthesized status variables for sale and presale
+  publicSaleActive: boolean
+  presaleActive: boolean
+  // Price for public sale
+  publicSalePrice: bigint
+  // Timed sale actions for public sale
+  publicSaleStart: bigint
+  publicSaleEnd: bigint
+  // Timed sale actions for presale
+  presaleStart: bigint
+  presaleEnd: bigint
+  // Merkle root (includes address, quantity, and price data for each entry)
+  presaleMerkleRoot: Hex
+  // Limit public sale to a specific number of mints per wallet
+  maxSalePurchasePerAddress: bigint
+  // Information about the rest of the supply
+  // Total that have been minted
+  totalMinted: bigint
+  // The total supply available
+  maxSupply: bigint
+}
+
 export enum HolographVersion {
   V1 = 'V1',
   V2 = 'V2',
