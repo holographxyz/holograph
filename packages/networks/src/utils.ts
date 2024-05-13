@@ -89,6 +89,16 @@ function createShortNetworkNames(): string[] {
 
 export const supportedShortNetworks: string[] = createShortNetworkNames();
 
+function getSupportedNetworkChainIds(): number[] {
+  let chainIds: number[] = [];
+  for (const key of supportedNetworks) {
+    chainIds.push(networks[key].chain);
+  }
+  return chainIds;
+}
+
+export const supportedNetworkChainIds: number[] = getSupportedNetworkChainIds();
+
 const networkHelper: NetworkHelper = networkHelperConstructor();
 
 export function getNetworkByKey(key: string): Network {
