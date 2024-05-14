@@ -2,6 +2,7 @@
   "extends": "tsconfig/holograph.json",
   "compilerOptions": {
     "outDir": "dist",
+    "rootDirs": ["./src"],
     "target": "ES2022",
     "strict": true
   },
