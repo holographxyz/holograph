@@ -10,6 +10,7 @@ import {
   getNetworkByLzId,
   supportedNetworks,
   supportedShortNetworks,
+  supportedNetworkChainIds,
 } from './utils';
 
 export {
@@ -28,5 +29,6 @@ export {
   getNetworkByLzId,
   supportedNetworks,
   supportedShortNetworks,
+  supportedNetworkChainIds,
   NETWORK_KEY_BY_RPC_URL,
 };
