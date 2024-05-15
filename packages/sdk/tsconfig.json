@@ -1,12 +1,20 @@
 {
-  "extends": "tsconfig/holograph.json",
   "compilerOptions": {
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
     "module": "commonjs",
     "outDir": "./dist",
     "rootDirs": ["./src"],
-    "target": "ES2022",
-    "strict": true
+    "target": "ES2022"
   },
-  "include": ["./src"],
-  "exclude": ["dist", "build", "node_modules", "./src/typechain-types"]
+  "exclude": ["dist", "node_modules"],
+  "include": ["./src"]
 }

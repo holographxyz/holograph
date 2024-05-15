@@ -1,7 +1,8 @@
 {
   "name": "@holographxyz/sdk",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Holograph SDK for interacting with the Holograph Protocol.",
+  "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
     "holograph",
     "ethereum",
@@ -12,13 +13,13 @@
     "type": "git",
     "url": "https://github.com/holographxyz/holograph.git"
   },
-  "license": "SEE LICENSE IN LICENSE",
   "author": "Holograph",
-  "main": "dist/index",
-  "types": "dist/index",
+  "main": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "files": [
-    "dist/*",
-    "src/*"
+    "dist",
+    "src",
+    "tsconfig.json"
   ],
   "scripts": {
     "all": "pnpm clean && pnpm build && pnpm test && pnpm lint:fix && pnpm lint",
