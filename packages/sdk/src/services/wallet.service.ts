@@ -25,9 +25,10 @@ import {
 } from '../errors'
 import {Config} from './config.service'
 import {getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
-import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
 import {HolographAccount, HolographWalletArgs} from '../utils/types'
+
+// TODO: Uncomment HolographLogger lines after resolving the dependency issue for the FE integration
 
 /**
  * HolographAccountFactory
@@ -75,13 +76,13 @@ export class HolographAccountFactory {
  *
  */
 export class HolographWallet {
-  private readonly _logger: HolographLogger
+  // private readonly _logger: HolographLogger
   private _account: HolographAccount
   private _networks?: Network[]
   private _multiChainWalletClient: Record<number, WalletClient & PublicActions> = {}
 
   constructor({account, networks, chainsRpc}: HolographWalletArgs) {
-    this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
+    // this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
     let chainsRpc_ = chainsRpc
 
@@ -118,8 +119,8 @@ export class HolographWallet {
   }
 
   onChain(chainId: number): WalletClient & PublicActions {
-    const logger = this._logger.addContext({functionName: this.onChain.name})
-    logger.info(`wallet client accessing chainId = ${chainId}`)
+    // const logger = this._logger.addContext({functionName: this.onChain.name})
+    // logger.info(`wallet client accessing chainId = ${chainId}`)
 
     const walletClient = this._multiChainWalletClient[chainId]
 
@@ -154,13 +155,13 @@ export class HolographWallet {
  *
  */
 export class HolographWalletManager {
-  private readonly _logger: HolographLogger
+  // private readonly _logger: HolographLogger
   private readonly _networks: Network[]
   private _wallets: {[accountName: string]: HolographWallet} = {}
   private _addressToAccountName: {[address: Address]: string} = {}
 
   constructor(private readonly protocolConfig: Config) {
-    this._logger = HolographLogger.createLogger({serviceName: HolographWalletManager.name})
+    // this._logger = HolographLogger.createLogger({serviceName: HolographWalletManager.name})
 
     if (this.protocolConfig.accounts?.default === undefined) {
       throw new MissingDefaultWalletError(HolographWalletManager.name)
@@ -203,11 +204,11 @@ export class HolographWalletManager {
   }
 
   addAccount(accountName: string, account: HolographAccount): HolographWallet {
-    const logger = this._logger.addContext({functionName: this.addAccount.name})
+    // const logger = this._logger.addContext({functionName: this.addAccount.name})
 
     let name = accountName
     if (this._wallets === undefined) {
-      logger.warn(`Setting the "default" account to ${account}`)
+      // logger.warn(`Setting the "default" account to ${account}`)
       name = 'default'
     }
 
@@ -222,14 +223,14 @@ export class HolographWalletManager {
   }
 
   updateAccount(account: HolographAccount, accountName: 'default'): HolographWallet {
-    const logger = this._logger.addContext({functionName: this.updateAccount.name})
+    // const logger = this._logger.addContext({functionName: this.updateAccount.name})
 
     const accountsNames = Object.keys(this._wallets)
     if (!accountsNames.includes(accountName)) {
       throw new WalletNotFoundError(accountName, this.updateAccount.name)
     }
 
-    logger.warn(`WARN: "${accountName}" account is being overridden`)
+    // logger.warn(`WARN: "${accountName}" account is being overridden`)
 
     // Update wallet clients
     this._wallets[accountName] = new HolographWallet({account, networks: this._networks})
