@@ -1,6 +1,6 @@
 {
   "name": "@holographxyz/sdk",
-  "version": "0.1.0-alpha.3",
+  "version": "0.1.0-alpha.4",
   "description": "Holograph SDK for interacting with the Holograph Protocol.",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
@@ -44,7 +44,6 @@
     "abitype": "^0.10.2",
     "dotenv": "^10.0.0",
     "ethers": "^6.8.1",
-    "pino-pretty": "^10.2.3",
     "tsconfig": "workspace:*",
     "vitest": "^0.34.6",
     "zod": "^3.22.4"

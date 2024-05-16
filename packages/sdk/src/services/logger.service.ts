@@ -1,5 +1,4 @@
 import pino from 'pino'
-import pretty from 'pino-pretty'
 import {v4 as uuidv4} from 'uuid'
 
 import {getLoggerConfigs} from '../config/logger.config'
@@ -61,12 +60,13 @@ export class HolographLogger extends baseClassSimulacrum<PinoMethods>() {
   }
 
   static createLogger(input: HolographLoggerContext) {
-    const pinoLogger = pino(
-      HolographLogger.config,
-      pretty({
-        colorize: true,
-      }),
-    ).child(input)
+    const pinoLogger = pino({
+      ...HolographLogger.config,
+      browser: {
+        serialize: true,
+        asObject: true,
+      },
+    }).child(input)
 
     return new HolographLogger(pinoLogger, input)
   }
