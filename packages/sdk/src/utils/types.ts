@@ -1,5 +1,4 @@
 import {ExtractAbiFunctionNames} from 'abitype'
-import pino from 'pino'
 import {
   Abi,
   AbiParameterToPrimitiveType,
@@ -25,8 +24,6 @@ type _PrimitiveType = AbiParameterToPrimitiveType<{
 }> // NOTICE: use this to figure out which primitive type to use
 
 export type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]
-
-export type PinoMethods = Pick<pino.Logger, 'trace' | 'debug' | 'info' | 'warn' | 'error' | 'fatal'>
 
 export interface CreateHolographLogger {
   serviceName: string
