@@ -1,6 +1,6 @@
 {
   "name": "@holographxyz/sdk",
-  "version": "0.1.0-alpha.7",
+  "version": "0.1.0-alpha.18",
   "description": "Holograph SDK for interacting with the Holograph Protocol.",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
@@ -15,14 +15,14 @@
   },
   "author": "Holograph",
   "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "package.json"
   ],
   "scripts": {
     "all": "pnpm clean && pnpm build && pnpm test && pnpm lint:fix && pnpm lint",
-    "build": "tsup",
+    "build": "rimraf dist && tsup ./src/**/*.ts && tsup ./src/index.ts --dts",
     "clean": "rimraf dist/ ./tsconfig.tsbuildinfo",
     "lint": "pnpm lint:fix && pnpm lint:check",
     "lint:check": "eslint . --max-warnings=0",

@@ -83,16 +83,13 @@ export class BridgeCollection extends BridgeAsset {
 
     logger.info(`Making bridgeOut request...`)
 
-    logger.debug(
-      {
-        sourceChainId: this.sourceChainId,
-        destinationChainId,
-        contractAddress: this.contractAddress,
-        bridgeOutPayload,
-        account: this.account,
-      },
-      `bridgeOut request input`,
-    )
+    logger.debug(`bridgeOut request input`, {
+      sourceChainId: this.sourceChainId,
+      destinationChainId,
+      contractAddress: this.contractAddress,
+      bridgeOutPayload,
+      account: this.account,
+    })
 
     return this._bridgeOut(
       this.sourceChainId,

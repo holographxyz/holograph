@@ -15,11 +15,7 @@ export class BridgeAsset {
   private readonly _operator: Operator
   private readonly _factory: Factory
 
-  constructor(
-    configObject: HolographConfig,
-    _logger?: HolographLogger,
-    private gasSettings?: GasSettings,
-  ) {
+  constructor(configObject: HolographConfig, _logger?: HolographLogger, private gasSettings?: GasSettings) {
     const config = Config.getInstance(configObject)
 
     this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
@@ -54,19 +50,16 @@ export class BridgeAsset {
   ): Promise<Hex> {
     const logger = this._logger.addContext({functionName: this._createBridgeOutPayload.name})
 
-    logger.debug(
-      {
-        chainId,
-        args: {
-          holographChainId,
-          factoryAddress,
-          gasLimit,
-          gasPrice,
-          bridgeOutPayload,
-        },
+    logger.debug(`staticCall "getBridgeOutRequestPayload" input`, {
+      chainId,
+      args: {
+        holographChainId,
+        factoryAddress,
+        gasLimit,
+        gasPrice,
+        bridgeOutPayload,
       },
-      `staticCall "getBridgeOutRequestPayload" input`,
-    )
+    })
 
     return (
       await this._bridge.simulateContractFunction({
@@ -86,18 +79,15 @@ export class BridgeAsset {
   ) {
     const logger = this._logger.addContext({functionName: this._getMessageFee.name})
 
-    logger.debug(
-      {
-        chainId,
-        args: {
-          holographChainId,
-          gasLimit,
-          gasPrice,
-          bridgeOutPayload,
-        },
+    logger.debug(`staticCall "getMessageFee" input`, {
+      chainId,
+      args: {
+        holographChainId,
+        gasLimit,
+        gasPrice,
+        bridgeOutPayload,
       },
-      `staticCall "getMessageFee" input`,
-    )
+    })
 
     return (
       await this._bridge.simulateContractFunction({
@@ -282,7 +272,7 @@ export class BridgeAsset {
       bridgeOutPayload,
     )
 
-    logger.info(logObject, `Getting source transactions parameters...`)
+    logger.info(`Getting source transactions parameters...`, logObject)
 
     const sourceGasPrice = this.gasSettings?.gasPrice ?? (await this._providers.byChainId(chainId).getGasPrice())
 
@@ -305,7 +295,7 @@ export class BridgeAsset {
 
     logObject = {...logObject, returnValue: bridgeOutRequestData}
 
-    logger.info(logObject, "Done calculating the return value for '_prepareBridgeOutRequest'")
+    logger.info("Done calculating the return value for '_prepareBridgeOutRequest'", logObject)
 
     return bridgeOutRequestData
   }
