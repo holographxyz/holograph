@@ -86,16 +86,13 @@ export class BridgeNFT extends BridgeAsset {
 
     logger.info(`Making bridgeOut request...`)
 
-    logger.debug(
-      {
-        sourceChainId: this.sourceChainId,
-        destinationChainId: toChainId,
-        contractAddress: this.contractAddress,
-        bridgeOutPayload,
-        account: wallet.account,
-      },
-      `bridgeOut request input`,
-    )
+    logger.debug(`bridgeOut request input`, {
+      sourceChainId: this.sourceChainId,
+      destinationChainId: toChainId,
+      contractAddress: this.contractAddress,
+      bridgeOutPayload,
+      account: wallet.account,
+    })
 
     return this._bridgeOut(this.sourceChainId, toChainId, this.contractAddress, bridgeOutPayload, wallet)
   }

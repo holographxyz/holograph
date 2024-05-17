@@ -1,44 +1,45 @@
-import {Console} from 'console'
 import {v4 as uuidv4} from 'uuid'
 
 import {HolographError} from '../errors'
 import {HolographLoggerContext} from '../utils/types'
 
-type LogLevelType = 'debug' | 'error' | 'info' | 'log' | 'trace' | 'warn'
-
-const Logger = (logLevel: LogLevelType, ...args) => {
-  console[logLevel](...args)
-}
-
-export function simpleFnLogger() {
-  return function (target: Object, key: string, descriptor: PropertyDescriptor) {
-    const originalFn = descriptor.value
-    const decoratorLogger = HolographLogger.createLogger({className: target.constructor.name}).addContext({
-      functionName: key,
-    })
-    descriptor.value = function (...args: any[]) {
-      decoratorLogger.info({args}, 'calling function')
-      const returnValue = originalFn.apply(this, [...args, decoratorLogger])
-      decoratorLogger.info({returnValue}, 'return value')
-      return returnValue
-    }
-    return descriptor
-  }
-}
-
-export class HolographLogger extends Console {
+export class HolographLogger {
   private constructor(protected context: HolographLoggerContext) {
-    super(process.stdout, process.stderr)
+    this.context = context
+  }
 
-    return new Proxy(this, {
-      get(target, prop: LogLevelType) {
-        const exists = target[prop as keyof typeof target]
+  generateLogPrefix(message: string) {
+    return `[${this.context.functionName || 'unknown'}] [${this.context.traceId || 'unknown'}] ${message}`
+  }
 
-        if (exists !== undefined) return exists
+  info(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.info(logMessage, ...args)
+  }
 
-        return Logger.bind(null, prop)
-      },
-    })
+  error(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.error(logMessage, ...args)
+  }
+
+  debug(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.debug(logMessage, ...args)
+  }
+
+  log(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.log(logMessage, ...args)
+  }
+
+  trace(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.trace(logMessage, ...args)
+  }
+
+  warn(message: string, ...args: any[]) {
+    const logMessage = this.generateLogPrefix(message)
+    console.warn(logMessage, ...args)
   }
 
   logHolographError(error: HolographError) {
@@ -46,7 +47,7 @@ export class HolographLogger extends Console {
       this.info(`${error.code}: ${error.message}`) // nice error output
     } else {
       // log the internal error that we have not captured yet
-      this.error(error.cause)
+      this.error(String(error.cause))
     }
   }
 
