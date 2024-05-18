@@ -10,6 +10,7 @@ import {
   Transport,
   SimulateContractParameters,
   WriteContractParameters,
+  EIP1193Provider,
 } from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
@@ -118,6 +119,7 @@ export type HolographWalletArgs = {
   account: HolographAccount
   networks?: Network[]
   chainsRpc?: NetworkRpc
+  provider?: unknown
 }
 
 export type EventInfo = {

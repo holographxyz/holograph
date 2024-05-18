@@ -250,7 +250,7 @@ export type HolographMoeSalesConfig = z.input<typeof holographMoeSalesConfigSche
 
 export type CreateMoeCollection = z.input<typeof createMoeCollectionSchema>
 
-export type HolographERC721InitCodeParamsSchema = z.infer<typeof holographERC721InitCodeParamsSchema>
+export type HolographERC721InitCodeParams = z.infer<typeof holographERC721InitCodeParamsSchema>
 
 export type HolographDropERC721InitCodeV1Params = z.infer<typeof holographDropERC721InitCodeV1ParamsSchema>
 

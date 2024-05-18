@@ -12,6 +12,7 @@ import {
   publicActions,
   isAddress,
   PublicActions,
+  custom,
 } from 'viem'
 import {privateKeyToAccount, mnemonicToAccount, toAccount} from 'viem/accounts'
 import {Network, networks as holographNetworks} from '@holographxyz/networks'
@@ -23,7 +24,7 @@ import {
   UnavailableNetworkError,
   WalletNotFoundError,
 } from '../errors'
-import {getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
+import {getEnvRpcConfig} from '../utils/helpers'
 import {holographToViemChain} from '../utils/transformers'
 import {HolographAccount, HolographWalletArgs} from '../utils/types'
 import {Config, HolographLogger} from '.'
@@ -57,8 +58,8 @@ export class HolographAccountFactory {
    * await createAccountUsingEip1193Provider(window.ethereum)
    * ```
    */
-  static async createAccountUsingEip1193Provider(eip1193Provider: EIP1193Provider): Promise<JsonRpcAccount> {
-    const [account] = await eip1193Provider.request({method: 'eth_requestAccounts'})
+  static async createAccountUsingEip1193Provider(eip1193Provider: unknown): Promise<JsonRpcAccount> {
+    const [account] = await (eip1193Provider as EIP1193Provider).request({method: 'eth_requestAccounts'})
     return toAccount(account)
   }
 
@@ -78,20 +79,21 @@ export class HolographWallet {
   private _account: HolographAccount
   private _networks?: Network[]
   private _multiChainWalletClient: Record<number, WalletClient & PublicActions> = {}
+  private _provider?: unknown
 
-  constructor({account, networks, chainsRpc}: HolographWalletArgs) {
+  constructor({account, networks, chainsRpc, provider}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
+    this._provider = provider
     let chainsRpc_ = chainsRpc
 
-    if (networks === undefined && chainsRpc === undefined) {
-      if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
+    if (!networks && !chainsRpc) {
       const networksConfig = getEnvRpcConfig({shouldThrow: false})
       chainsRpc_ = networksConfig
-      if (chainsRpc_ === undefined) throw new MissingNetworkInformationError(HolographWallet.name)
+      if (!chainsRpc_ && !provider) throw new MissingNetworkInformationError(HolographWallet.name)
     }
 
-    if (networks === undefined && chainsRpc_ !== undefined) {
+    if (!networks && chainsRpc_) {
       for (const [networkKey, rpc] of Object.entries(chainsRpc_)) {
         const chainId = holographNetworks[networkKey].chain
         this._multiChainWalletClient[chainId] = createWalletClient({
@@ -100,7 +102,7 @@ export class HolographWallet {
           transport: http(rpc),
         }).extend(publicActions)
       }
-    } else if (networks !== undefined) {
+    } else if (networks) {
       this._networks = networks
       this._networks.forEach((network: Network) => {
         this._multiChainWalletClient[network.chain] = createWalletClient({
@@ -116,9 +118,34 @@ export class HolographWallet {
     return this._account
   }
 
+  getClient(): WalletClient & PublicActions {
+    if (!this._provider) throw new Error('Provider is not set')
+
+    const walletClient = createWalletClient({
+      account: this._account,
+      transport: custom(this._provider as EIP1193Provider),
+    }).extend(publicActions)
+
+    return walletClient
+  }
+
   onChain(chainId: number): WalletClient & PublicActions {
     const logger = this._logger.addContext({functionName: this.onChain.name})
     logger.info(`wallet client accessing chainId = ${chainId}`)
+
+    if (this._provider) {
+      const walletClient = createWalletClient({
+        chain: holographToViemChain(chainId),
+        account: this._account,
+        transport: custom(this._provider as EIP1193Provider),
+      }).extend(publicActions)
+
+      if (walletClient === undefined) {
+        throw new UnavailableNetworkError(chainId, this.onChain.name)
+      }
+
+      return walletClient
+    }
 
     const walletClient = this._multiChainWalletClient[chainId]
 
