@@ -352,10 +352,10 @@ importers:
   packages/sdk:
     dependencies:
       '@holographxyz/environment':
-        specifier: workspace:*
+        specifier: ^0.1.11
         version: link:../environment
       '@holographxyz/networks':
-        specifier: workspace:*
+        specifier: ^0.2.11
         version: link:../networks
       uuid:
         specifier: ^9.0.1

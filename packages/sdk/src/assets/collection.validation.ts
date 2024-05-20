@@ -2,7 +2,7 @@ import {Hex} from 'viem'
 import * as z from 'zod'
 
 import {generateRandomSalt, getAddressTypeSchema} from '../utils/helpers'
-import {HolographVersion, TokenType} from '../utils/types'
+import {CheckTypeIntegrity, HolographVersion, TokenType} from '../utils/types'
 
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().optional()
@@ -238,7 +238,25 @@ export const DROP_INIT_CODE_ABI_PARAMETERS = {
   ],
 }
 
-export type CreateLegacyCollection = z.input<typeof createLegacyCollectionSchema>
+export type CreateLegacyCollectionSchema = z.input<typeof createLegacyCollectionSchema>
+
+export type CreateLegacyCollection = {
+  collectionInfo: {
+    symbol: string
+    name: string
+    description?: string
+    tokenType?: TokenType
+    royaltiesBps?: number
+    salt?: string
+  }
+  primaryChainId: number
+}
+
+type CheckCreateLegacyCollectionType = CheckTypeIntegrity<
+  CreateLegacyCollectionSchema,
+  CreateLegacyCollection,
+  CreateLegacyCollectionSchema
+>
 
 export type CollectionInfo = z.infer<typeof collectionInfoSchema>
 
@@ -248,7 +266,38 @@ export type NFTInfo = z.infer<typeof nftInfoSchema>
 
 export type HolographMoeSalesConfig = z.input<typeof holographMoeSalesConfigSchema>
 
-export type CreateMoeCollection = z.input<typeof createMoeCollectionSchema>
+export type CreateMoeCollectionSchema = z.input<typeof createMoeCollectionSchema>
+
+export type CreateMoeCollection = {
+  collectionInfo: {
+    symbol: string
+    name: string
+    description?: string
+    tokenType?: TokenType
+    royaltiesBps?: number
+    salt?: string
+  }
+  nftInfo: {
+    ipfsUrl: string
+    ipfsImageCid: string
+  }
+  primaryChainId: number
+  salesConfig: {
+    publicSalePrice: number
+    maxSalePurchasePerAddress: number
+    publicSaleStart: string
+    publicSaleEnd: string
+    presaleStart?: string
+    presaleEnd?: string
+    presaleMerkleRoot?: string
+  }
+}
+
+type CheckCreateMoeCollectionType = CheckTypeIntegrity<
+  CreateMoeCollectionSchema,
+  CreateMoeCollection,
+  CreateMoeCollectionSchema
+>
 
 export type HolographERC721InitCodeParams = z.infer<typeof holographERC721InitCodeParamsSchema>
 
