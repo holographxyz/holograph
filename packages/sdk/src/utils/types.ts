@@ -118,6 +118,7 @@ export type HolographWalletArgs = {
   account: HolographAccount
   networks?: Network[]
   chainsRpc?: NetworkRpc
+  provider?: unknown
 }
 
 export type EventInfo = {
@@ -327,3 +328,20 @@ export type MintConfig = {
 export type HolographBridgeFunctionNames = ExtractAbiFunctionNames<typeof HolographBridgeABI>
 
 export type ViemPublicClient = PublicClient<Transport, Chain | undefined>
+
+/**
+ * This type lights red when two types are not equal. Useful where you need to keep two objects / types in sync.
+ * Put the reference type as first and checked type as second for better error message.
+ *
+ * @example
+ * type A = { a: string }
+ * type B = { a: string, b: number }
+ * type C = { a: string, b: number, c: boolean }
+ * type check =
+ *   & CheckIntegrity<A, B>
+ *   & CheckIntegrity<B, A>
+ *   // or shorter (optional)
+ *   & CheckIntegrity<A, B, A>
+ *   & CheckIntegrity<A, C, A>
+ */
+export type CheckTypeIntegrity<T, T2 extends T = any, T3 extends T2 = any> = never

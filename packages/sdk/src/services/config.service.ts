@@ -21,8 +21,9 @@ export class Config {
 
     if (holographConfig?.networks) {
       this.setNetworks(holographConfig.networks)
-    } else {
-      if (isFrontEnd()) throw new Error('Networks object required for Front-end application')
+    }
+
+    if (!holographConfig?.networks && !isFrontEnd()) {
       const networksConfig = getEnvRpcConfig()
       this.setNetworks(networksConfig!)
     }

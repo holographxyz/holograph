@@ -5,7 +5,7 @@ import {
   CreateMoeCollection,
   HolographDropERC721InitCodeV1Params,
   HolographDropERC721InitCodeV2Params,
-  HolographERC721InitCodeParamsSchema,
+  HolographERC721InitCodeParams,
   HolographMoeSalesConfig,
   MoeCollectionInfo,
   NFTInfo,
@@ -346,7 +346,7 @@ export class HolographMoeERC721DropV1 {
     ])
   }
 
-  protected _generateHolographERC721InitCode(data: HolographERC721InitCodeParamsSchema) {
+  protected _generateHolographERC721InitCode(data: HolographERC721InitCodeParams) {
     const {collectionName, collectionSymbol, royaltyBps, eventConfig, skipInit, holographDropERC721InitCode} = data
     return encodeAbiParameters(parseAbiParameters('string, string, uint16, uint256, bool, bytes'), [
       collectionName,

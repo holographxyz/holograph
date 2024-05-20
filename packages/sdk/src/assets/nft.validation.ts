@@ -3,7 +3,7 @@ import * as z from 'zod'
 
 import {HolographLegacyCollection} from './collection-legacy'
 import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './collection-moe'
-import {HolographVersion} from '../utils/types'
+import {CheckTypeIntegrity, HolographVersion} from '../utils/types'
 
 const collectionSchema = z
   .instanceof(HolographLegacyCollection)
@@ -59,7 +59,25 @@ export const validate = {
   ipfsInfo: ipfsInfoSchema,
 }
 
-export type CreateNFT = z.infer<typeof createNFTSchema>
+export type CreateNFTSchema = z.infer<typeof createNFTSchema>
+
+export type CreateNFT = {
+  collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
+  ipfsInfo?: {
+    ipfsImageCid: string
+    ipfsMetadataCid: string
+    ipfsUrl?: string
+  }
+  metadata: {
+    name: string
+    description: string
+    creator: string
+    attributes?: Record<string, string>
+  }
+  version?: HolographVersion
+}
+
+type CheckCreateLegacyCollectionType = CheckTypeIntegrity<CreateNFTSchema, CreateNFT, CreateNFTSchema>
 
 export type HolographNFTMetadata = z.infer<typeof metadataSchema>
 
