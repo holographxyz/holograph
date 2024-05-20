@@ -1,12 +1,12 @@
 {
   "name": "@holographxyz/environment",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Holograph Protocol",
   "license": "SEE LICENSE IN LICENSE.md",
   "author": "@holographxyz",
   "repository": {
     "type": "git",
-    "url": "https://github.com/holographxyz/sdk.git"
+    "url": "https://github.com/holographxyz/holograph"
   },
   "homepage": "https://holograph.xyz",
   "keywords": [
@@ -16,7 +16,7 @@
     "holograph protocol environment"
   ],
   "bugs": {
-    "url": "https://github.com/holographxyz/sdk/issues"
+    "url": "https://github.com/holographxyz/holograph/issues"
   },
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
