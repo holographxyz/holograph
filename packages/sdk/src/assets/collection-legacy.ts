@@ -151,6 +151,7 @@ export class HolographLegacyCollection {
       chainId,
       config: config?.erc721Config,
       signature,
+      wallet: {account: holographWallet},
     }
   }
 
@@ -252,7 +253,7 @@ export class HolographLegacyCollection {
   }
 
   private async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
-    const {account, config, signature} = data
+    const {account, config, signature, wallet} = data
     let gasLimit: bigint, gasPrice: bigint
     const gasController = GAS_CONTROLLER.legacyCollectionDeploy[chainId]
 
@@ -269,6 +270,7 @@ export class HolographLegacyCollection {
         args: [config, signature, account],
         chainId,
         functionName: 'deployHolographableContract',
+        wallet,
       })
     }
 

@@ -15,7 +15,7 @@ import {
   custom,
 } from 'viem'
 import {privateKeyToAccount, mnemonicToAccount, toAccount} from 'viem/accounts'
-import {Network, networks as holographNetworks} from '@holographxyz/networks'
+import {networks as holographNetworks} from '@holographxyz/networks'
 
 import {
   AccountNameAlreadyExistsError,
@@ -26,7 +26,7 @@ import {
 } from '../errors'
 import {getEnvRpcConfig} from '../utils/helpers'
 import {holographToViemChain} from '../utils/transformers'
-import {HolographAccount, HolographWalletArgs} from '../utils/types'
+import {HolographAccount, HolographWalletArgs, NetworkRpc} from '../utils/types'
 import {Config, HolographLogger} from '.'
 
 /**
@@ -77,40 +77,26 @@ export class HolographAccountFactory {
 export class HolographWallet {
   private readonly _logger: HolographLogger
   private _account: HolographAccount
-  private _networks?: Network[]
   private _multiChainWalletClient: Record<number, WalletClient & PublicActions> = {}
+  private _networks?: NetworkRpc
   private _provider?: unknown
 
-  constructor({account, networks, chainsRpc, provider}: HolographWalletArgs) {
+  constructor({account, networks, provider}: HolographWalletArgs) {
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
     this._provider = provider
-    let chainsRpc_ = chainsRpc
+    let networksConfig = networks ? networks : getEnvRpcConfig({shouldThrow: false})
+    this._networks = networksConfig
 
-    if (!networks && !chainsRpc) {
-      const networksConfig = getEnvRpcConfig({shouldThrow: false})
-      chainsRpc_ = networksConfig
-      if (!chainsRpc_ && !provider) throw new MissingNetworkInformationError(HolographWallet.name)
-    }
+    if (!networksConfig && !provider) throw new MissingNetworkInformationError(HolographWallet.name)
 
-    if (!networks && chainsRpc_) {
-      for (const [networkKey, rpc] of Object.entries(chainsRpc_)) {
-        const chainId = holographNetworks[networkKey].chain
-        this._multiChainWalletClient[chainId] = createWalletClient({
-          chain: holographToViemChain(Number(chainId)),
-          account: this._account,
-          transport: http(rpc),
-        }).extend(publicActions)
-      }
-    } else if (networks) {
-      this._networks = networks
-      this._networks.forEach((network: Network) => {
-        this._multiChainWalletClient[network.chain] = createWalletClient({
-          chain: holographToViemChain(network.chain),
-          account: this._account,
-          transport: http(network.rpc),
-        }).extend(publicActions)
-      })
+    for (const [networkKey, rpc] of Object.entries(networksConfig || {})) {
+      const chainId = holographNetworks[networkKey].chain
+      this._multiChainWalletClient[chainId] = createWalletClient({
+        chain: holographToViemChain(Number(chainId)),
+        account: this._account,
+        transport: http(rpc),
+      }).extend(publicActions)
     }
   }
 
@@ -181,7 +167,7 @@ export class HolographWallet {
  */
 export class HolographWalletManager {
   private readonly _logger: HolographLogger
-  private readonly _networks: Network[]
+  private readonly _networks: NetworkRpc
   private _wallets: {[accountName: string]: HolographWallet} = {}
   private _addressToAccountName: {[address: Address]: string} = {}
 
@@ -192,10 +178,14 @@ export class HolographWalletManager {
       throw new MissingDefaultWalletError(HolographWalletManager.name)
     }
 
-    this._networks = this.protocolConfig.networks
+    this._networks = this.protocolConfig.networksRpc
 
     for (const [accountName, account] of Object.entries(this.protocolConfig.accounts)) {
-      this._wallets[accountName] = new HolographWallet({account, networks: this._networks})
+      this._wallets[accountName] = new HolographWallet({
+        account,
+        networks: this._networks,
+        provider: this.protocolConfig.provider,
+      })
       this._addressToAccountName[account.address] = accountName
     }
   }

@@ -15,7 +15,7 @@ import {configObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 describe('Asset class: BridgeCollection', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const accountAddress = account?.address
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({account, networks: configObject.networks})
 
   let collection: HolographLegacyCollection
   let bridgeCollection: BridgeCollection

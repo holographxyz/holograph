@@ -133,7 +133,7 @@ export class NFT {
 
   public async mint({chainId, wallet}: MintConfig, options?: WriteContractOptions) {
     const client = await this.cxipERC721.getClientByChainId(chainId)
-    const {gasLimit, gasPrice} = await this._estimateGasForMintingNFT({chainId})
+    const {gasLimit, gasPrice} = await this._estimateGasForMintingNFT({chainId, wallet})
 
     const txHash = (await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, this.ipfsMetadataCid!, wallet, {
       ...options,
@@ -172,7 +172,7 @@ export class NFT {
     return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
 
-  protected async _estimateGasForMintingNFT({chainId}: MintConfig) {
+  protected async _estimateGasForMintingNFT({chainId, wallet}: MintConfig) {
     let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 
@@ -193,6 +193,7 @@ export class NFT {
         args: [0, TokenUriType.IPFS, this.ipfsMetadataCid || DEFAULT_TOKEN_URI],
         chainId,
         functionName: 'cxipMint',
+        wallet,
       })
     }
 

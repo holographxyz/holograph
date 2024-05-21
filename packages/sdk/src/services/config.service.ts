@@ -12,20 +12,25 @@ export class Config {
   private readonly _logger: HolographLogger
   private readonly _environment: Environment
   private readonly _networks: Network[] = []
+  private readonly _networksRpc: NetworkRpc = {}
   private readonly _accounts?: AccountsConfig
+  private readonly _provider?: unknown
 
   private constructor(private holographConfig: HolographConfig) {
     this._logger = HolographLogger.createLogger({serviceName: Config.name})
     this._environment = setEnvironment(holographConfig.environment)
     this._accounts = holographConfig.accounts
+    this._provider = holographConfig.provider
 
     if (holographConfig?.networks) {
       this.setNetworks(holographConfig.networks)
+      this._networksRpc = holographConfig.networks
     }
 
     if (!holographConfig?.networks && !isFrontEnd()) {
       const networksConfig = getEnvRpcConfig()
       this.setNetworks(networksConfig!)
+      this._networksRpc = networksConfig!
     }
   }
 
@@ -55,15 +60,23 @@ export class Config {
     }
   }
 
-  get networks() {
-    return this._networks
+  get accounts() {
+    return this._accounts
   }
 
   get environment() {
     return this._environment
   }
 
-  get accounts() {
-    return this._accounts
+  get networks() {
+    return this._networks
+  }
+
+  get networksRpc() {
+    return this._networksRpc
+  }
+
+  get provider() {
+    return this._provider
   }
 }

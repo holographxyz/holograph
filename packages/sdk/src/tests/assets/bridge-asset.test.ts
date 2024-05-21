@@ -19,7 +19,7 @@ import {getTestGasLimit, MAX_GAS_VALUE} from '../../utils/gas'
 describe('Asset class: BridgeAsset', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const accountAddress = account?.address
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({account, networks: configObject.networks})
 
   let bridgeAsset: BridgeAsset
   let sourceChainId: number

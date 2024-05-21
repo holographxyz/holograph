@@ -249,6 +249,7 @@ export class HolographMoeERC721DropV1 {
       chainId,
       config,
       signature: parsedSignature,
+      wallet: {account: holographWallet},
     }
   }
 
@@ -445,7 +446,7 @@ export class HolographMoeERC721DropV1 {
   }
 
   protected async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
-    const {account, config, signature} = data
+    const {account, config, signature, wallet} = data
     let gasLimit: bigint, gasPrice: bigint
     const gasController = GAS_CONTROLLER.moeCollectionDeploy[chainId]
 
@@ -462,6 +463,7 @@ export class HolographMoeERC721DropV1 {
         args: [config, signature, account],
         chainId,
         functionName: 'deployHolographableContract',
+        wallet,
       })
     }
 
