@@ -69,7 +69,7 @@ async function main() {
   ///
 
   const holographWalletManager = new HolographWalletManager(config)
-  const holographWallet = new HolographWallet({account: defaultAccount, chainsRpc: protocolConfig.networks})
+  const holographWallet = new HolographWallet({account: defaultAccount, networks: protocolConfig.networks})
 
   console.log('account: ', holographWalletManager.getWallet('default').account)
   console.log(

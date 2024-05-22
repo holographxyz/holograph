@@ -22,6 +22,7 @@ export class MoeNFT extends NFT {
     const {gasLimit, gasPrice} = await this._estimateGasForMintingNFT({
       chainId,
       quantity,
+      wallet,
     })
     const value = await this.holographDropERC721.getNativePrice(chainId)
     const protocolFee = await this.holographDropERC721.getHolographFeeWei(chainId, quantity)
@@ -51,7 +52,7 @@ export class MoeNFT extends NFT {
     }
   }
 
-  protected async _estimateGasForMintingNFT({chainId, quantity: quantity_}: MintConfig) {
+  protected async _estimateGasForMintingNFT({chainId, quantity: quantity_, wallet}: MintConfig) {
     const quantity = quantity_ || 1
 
     let gasLimit: bigint, gasPrice: bigint
@@ -84,6 +85,7 @@ export class MoeNFT extends NFT {
         options: {
           value: total + slippage,
         },
+        wallet,
       })
     }
 

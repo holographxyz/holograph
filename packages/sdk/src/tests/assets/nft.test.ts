@@ -25,7 +25,7 @@ const expectedValues = {
 
 describe('Asset class: NFT', () => {
   const account: HolographAccount = configObject.accounts?.default!
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({account, networks: configObject.networks})
 
   let collection: HolographLegacyCollection
   let nft: NFT

@@ -29,7 +29,7 @@ export class Addresses {
       case Environment.develop: {
         switch (chainId) {
           default:
-            return '0x8dd0A4D129f03F1251574E545ad258dE26cD5e97'.toLowerCase() as Address // V1
+            return '0x11bc5912f9ed5E16820f018692f8E7FDA91a8529'.toLowerCase() as Address
         }
       }
       case Environment.testnet: {
@@ -63,7 +63,7 @@ export class Addresses {
       case Environment.develop: {
         switch (chainId) {
           default:
-            return '0x422cfa9d656588e55fdd5d34a55c89f711f724cc'.toLowerCase() as Address // V1
+            return '0x56a2B347C527bbF4ba6f566330717F5F6a276Dd1'.toLowerCase() as Address
         }
       }
       case Environment.testnet: {
@@ -97,7 +97,7 @@ export class Addresses {
       case Environment.develop: {
         switch (chainId) {
           default:
-            return '0xd17C85EE12114bE77Ed0451c42c701fb2aE77C6f'.toLowerCase() as Address // V1
+            return '0x5CFBcF1a99661947d7c1278DDa7De1D258C12AD3'.toLowerCase() as Address
         }
       }
       case Environment.testnet: {

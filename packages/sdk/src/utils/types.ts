@@ -102,9 +102,10 @@ export type NetworkRpc = {[key in NetworkKey]?: string}
 
 export type HolographConfig = {
   accounts?: AccountsConfig
-  networks?: NetworkRpc
   environment?: Environment
   logLevel?: string
+  networks?: NetworkRpc
+  provider?: unknown
 }
 
 export type HolographAccountsMap = {
@@ -116,10 +117,7 @@ export type HolographAccount = Account
 
 export type HolographWalletArgs = {
   account: HolographAccount
-  networks?: Network[]
-  chainsRpc?: NetworkRpc
-  provider?: unknown
-}
+} & Pick<HolographConfig, 'networks' | 'provider'>
 
 export type EventInfo = {
   readonly topic: string

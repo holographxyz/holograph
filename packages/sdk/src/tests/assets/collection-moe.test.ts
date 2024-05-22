@@ -12,7 +12,7 @@ import {HolographAccount} from '../../utils/types'
 describe('Asset class: HolographMoeERC721DropV2', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const accountAddress = account?.address
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({account, networks: configObject.networks})
   let collection: HolographMoeERC721DropV2
 
   beforeEach(() => {

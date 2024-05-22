@@ -18,7 +18,7 @@ describe('Asset class: BridgeNFT', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const wallet = new HolographWallet({
     account,
-    chainsRpc: configObject.networks,
+    networks: configObject.networks,
   })
 
   let collection: HolographLegacyCollection

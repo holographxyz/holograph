@@ -12,7 +12,7 @@ describe('Asset class: HolographLegacyCollection', () => {
   const account: HolographAccount = configObject.accounts?.default!
   const accountAddress = account?.address
   let collection: HolographLegacyCollection
-  const wallet = new HolographWallet({account, chainsRpc: configObject.networks})
+  const wallet = new HolographWallet({account, networks: configObject.networks})
 
   beforeEach(() => {
     collection = new HolographLegacyCollection(configObject, {
