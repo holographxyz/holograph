@@ -112,9 +112,10 @@ export class HolographLegacyCollection {
     account: Address,
     chainId = this.primaryChainId,
   ): Promise<DeploymentConfig> {
-    const chainType = evm2hlg(chainId)
+    if (!this.salt) this.setSalt(generateRandomSalt())
+    const salt = this.salt
+    const chainType = evm2hlg(this.primaryChainId)
     const erc721Hash = parseBytes('HolographERC721')
-    const salt = this.salt || generateRandomSalt()
     const initCode = await this._generateInitCode(account, chainId)
 
     const erc721Config: DeploymentConfig = {

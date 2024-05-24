@@ -412,6 +412,8 @@ export class HolographMoeERC721DropV1 {
   }
 
   protected async _getCollectionPayload(account: Address, chainId = this.primaryChainId) {
+    if (!this.salt) this.setSalt(generateRandomSalt())
+    const salt = this.salt
     const initialPayload = await this._getInitialPayload(chainId)
     const dropInitCode = this._getDropInitCode({...initialPayload, account})
 
@@ -425,9 +427,8 @@ export class HolographMoeERC721DropV1 {
     })
 
     const byteCode = bytecodes.HolographDropERC721
-    const chainType = evm2hlg(chainId)
+    const chainType = evm2hlg(this.primaryChainId)
     const contractType = parseBytes('HolographERC721')
-    const salt = this.salt || generateRandomSalt()
 
     const erc721Config = {
       contractType,
