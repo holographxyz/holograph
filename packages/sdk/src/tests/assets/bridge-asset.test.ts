@@ -39,7 +39,7 @@ describe('Asset class: BridgeAsset', () => {
 
     holographChainId = getNetworkByChainId(destinationChainId).holographId
 
-    const collection = new HolographLegacyCollection(configObject, {
+    const collection = new HolographLegacyCollection({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',

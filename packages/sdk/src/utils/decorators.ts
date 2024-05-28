@@ -1,8 +1,7 @@
 import {HolographLegacyCollection} from '../assets/collection-legacy'
 import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from '../assets/collection-moe'
 import {NFT} from '../assets/nft'
-import {UpdateDeployedCollection} from '../errors/assets/update-deployed-collection.error'
-import {UpdateMintedNFTError} from '../errors/assets/update-minted-nft.error'
+import {HydratedAssetPropertyNotFound, UpdateDeployedCollection, UpdateMintedNFTError} from '../errors'
 
 export function IsNotMinted() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -29,6 +28,23 @@ export function IsNotDeployed() {
       } else {
         originalMethod.apply(this, args)
       }
+    }
+  }
+}
+
+export function EnforceHydrateCheck() {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor.value
+    descriptor.value = function (
+      this: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2,
+      ...args: any[]
+    ) {
+      if (this.isHydrated) {
+        if (this.salt === '0x0' || !this.royaltiesBps) {
+          throw new HydratedAssetPropertyNotFound(['salt', 'royaltiesBps'], propertyKey)
+        }
+      }
+      return originalMethod.apply(this, args)
     }
   }
 }

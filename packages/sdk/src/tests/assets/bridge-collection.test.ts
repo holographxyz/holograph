@@ -27,7 +27,7 @@ describe('Asset class: BridgeCollection', () => {
     sourceChainId = LOCALHOST_CHAIN_ID
     destinationChainId = LOCALHOST2_CHAIN_ID
 
-    collection = new HolographLegacyCollection(configObject, {
+    collection = new HolographLegacyCollection({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',

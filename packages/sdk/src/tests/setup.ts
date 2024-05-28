@@ -1,7 +1,7 @@
 import {Environment} from '@holographxyz/environment'
 import {Address, Hex, createTestClient, http} from 'viem'
 
-import {HolographAccountFactory} from '../services'
+import {Config, HolographAccountFactory} from '../services'
 import {holographToViemChain} from '../utils/transformers'
 import {HolographConfig} from '../utils/types'
 
@@ -59,6 +59,8 @@ export const configObject: HolographConfig = {
   },
   environment: Environment.localhost,
 }
+
+export const config = Config.getInstance(configObject)
 
 export const testClient = createTestClient({
   chain: localhost,

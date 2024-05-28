@@ -1,4 +1,4 @@
-import {Hex} from 'viem'
+import {Address, Hex} from 'viem'
 import * as z from 'zod'
 
 import {generateRandomSalt, getAddressTypeSchema} from '../utils/helpers'
@@ -252,6 +252,18 @@ export type CreateLegacyCollection = {
   primaryChainId: number
 }
 
+export type HydrateLegacyCollection = {
+  collectionInfo: {
+    symbol: string
+    name: string
+    royaltiesBps?: number
+    salt?: string
+  }
+  chainId: number
+  address: Address
+  txHash?: Hex
+}
+
 type CheckCreateLegacyCollectionType = CheckTypeIntegrity<
   CreateLegacyCollectionSchema,
   CreateLegacyCollection,
@@ -282,15 +294,24 @@ export type CreateMoeCollection = {
     ipfsImageCid: string
   }
   primaryChainId: number
-  salesConfig: {
-    publicSalePrice: number
-    maxSalePurchasePerAddress: number
-    publicSaleStart: string
-    publicSaleEnd: string
-    presaleStart?: string
-    presaleEnd?: string
-    presaleMerkleRoot?: string
+  salesConfig: HolographMoeSalesConfig
+}
+
+export type HydrateMoeCollection = {
+  collectionInfo: {
+    symbol: string
+    name: string
+    royaltiesBps?: number
+    salt?: string
   }
+  nftInfo: {
+    ipfsUrl: string
+    ipfsImageCid: string
+  }
+  salesConfig: HolographMoeSalesConfig
+  chainId: number
+  address: Address
+  txHash?: Hex
 }
 
 type CheckCreateMoeCollectionType = CheckTypeIntegrity<

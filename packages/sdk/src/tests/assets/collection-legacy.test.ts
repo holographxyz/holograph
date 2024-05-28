@@ -15,7 +15,7 @@ describe('Asset class: HolographLegacyCollection', () => {
   const wallet = new HolographWallet({account, networks: configObject.networks})
 
   beforeEach(() => {
-    collection = new HolographLegacyCollection(configObject, {
+    collection = new HolographLegacyCollection({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
@@ -183,6 +183,8 @@ describe('Asset class: HolographLegacyCollection', () => {
       await sleep(500) // Sleep to avoid nonce issues
       const signatureData = await collection.signDeploy(wallet)
       const {collectionAddress, txHash} = await collection.deploy(signatureData)
+
+      console.log('collectionAddress: ', collectionAddress)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)

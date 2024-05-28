@@ -343,3 +343,12 @@ export type ViemPublicClient = PublicClient<Transport, Chain | undefined>
  *   & CheckIntegrity<A, C, A>
  */
 export type CheckTypeIntegrity<T, T2 extends T = any, T3 extends T2 = any> = never
+
+
+export enum CollectionType {
+  CxipERC721 = 'CxipERC721',
+  HolographDropERC721 = 'HolographDropERC721',
+  HolographDropERC721V2 = 'HolographDropERC721V2',
+  CustomERC721 = 'CustomERC721',
+  CountdownERC721 = 'CountdownERC721',
+}

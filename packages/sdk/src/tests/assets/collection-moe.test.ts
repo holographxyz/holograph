@@ -16,7 +16,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   let collection: HolographMoeERC721DropV2
 
   beforeEach(() => {
-    collection = new HolographMoeERC721DropV2(configObject, {
+    collection = new HolographMoeERC721DropV2({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',
@@ -203,6 +203,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     it('should be able to deploy a collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
       const {collectionAddress, txHash} = await collection.deploy(signatureData)
+      console.log(collectionAddress)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)

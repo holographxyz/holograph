@@ -11,6 +11,7 @@ import {
   NFTInfo,
   DROP_INIT_CODE_ABI_PARAMETERS,
   validate,
+  HydrateMoeCollection,
 } from './collection.validation'
 import {getEnv} from '../config/env.validation'
 import {Addresses} from '../constants/addresses'
@@ -19,14 +20,14 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
-import {IsNotDeployed} from '../utils/decorators'
+import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {
   destructSignature,
   enableDropEvents,
   enableDropEventsV2,
   generateRandomSalt,
-  parseBytes,
+  padAndHexify,
   parseISODateToTimestampSeconds,
   strictECDSA,
 } from '../utils/helpers'
@@ -41,7 +42,8 @@ import {
 } from '../utils/types'
 
 export class HolographMoeERC721DropV1 {
-  private _collectionInfo: CollectionInfo
+  protected _isHydrated = false
+  protected _collectionInfo: CollectionInfo
   public nftInfo: NFTInfo
   public salesConfig: HolographMoeSalesConfig
   public primaryChainId: number
@@ -56,8 +58,8 @@ export class HolographMoeERC721DropV1 {
   private registry: Registry
 
   constructor(
-    public holographConfig: HolographConfig,
     {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
+    public holographConfig?: HolographConfig,
   ) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.nftInfo = validate.nftInfo.parse(nftInfo)
@@ -68,6 +70,33 @@ export class HolographMoeERC721DropV1 {
     this.factory = new Factory(config)
     this.registry = new Registry(config)
     this.chainIds = []
+  }
+
+  static hydrate({
+    collectionInfo,
+    nftInfo,
+    salesConfig,
+    chainId,
+    address,
+    txHash,
+  }: HydrateMoeCollection): HolographMoeERC721DropV1 {
+    const instance = new HolographMoeERC721DropV1({
+      collectionInfo,
+      nftInfo,
+      salesConfig,
+      primaryChainId: chainId,
+    })
+
+    instance.chainIds = [chainId]
+    instance.collectionAddress = address
+    instance.txHash = txHash
+    instance._isHydrated = true
+
+    if (!collectionInfo.salt) {
+      instance._collectionInfo.salt = '0x0' as Hex
+    }
+
+    return instance
   }
 
   get name() {
@@ -128,6 +157,10 @@ export class HolographMoeERC721DropV1 {
 
   get nftIpfsImageCid() {
     return this.nftInfo.ipfsImageCid
+  }
+
+  get isHydrated() {
+    return this._isHydrated
   }
 
   public getCollectionInfo(): MoeCollectionInfo {
@@ -229,6 +262,7 @@ export class HolographMoeERC721DropV1 {
    * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
    * @returns - The signature data with the config and signature to deploy the collection contract.
    */
+  @EnforceHydrateCheck()
   public async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
@@ -257,6 +291,7 @@ export class HolographMoeERC721DropV1 {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
+  @EnforceHydrateCheck()
   public async deploy(
     signatureData: SignDeploy,
     options?: WriteContractOptions,
@@ -298,7 +333,7 @@ export class HolographMoeERC721DropV1 {
   }
 
   protected _getDropContractType() {
-    return parseBytes('HolographDropERC721')
+    return padAndHexify('HolographDropERC721')
   }
 
   protected _getEventConfig() {
@@ -386,6 +421,7 @@ export class HolographMoeERC721DropV1 {
     return {dropContractType, metadataRendererAddress, metadataRendererInitCode, registryAddress, salesConfigArray}
   }
 
+  @EnforceHydrateCheck()
   protected _getDropInitCode({
     account,
     metadataRendererAddress,
@@ -411,6 +447,7 @@ export class HolographMoeERC721DropV1 {
     })
   }
 
+  @EnforceHydrateCheck()
   protected async _getCollectionPayload(account: Address, chainId = this.primaryChainId) {
     if (!this.salt) this.setSalt(generateRandomSalt())
     const salt = this.salt
@@ -428,7 +465,7 @@ export class HolographMoeERC721DropV1 {
 
     const byteCode = bytecodes.HolographDropERC721
     const chainType = evm2hlg(this.primaryChainId)
-    const contractType = parseBytes('HolographERC721')
+    const contractType = padAndHexify('HolographERC721')
 
     const erc721Config = {
       contractType,
@@ -488,10 +525,37 @@ export class HolographMoeERC721DropV1 {
 
 export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
   constructor(
-    configObject: HolographConfig,
     {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
+    configObject?: HolographConfig,
   ) {
-    super(configObject, {collectionInfo, nftInfo, primaryChainId, salesConfig})
+    super({collectionInfo, nftInfo, primaryChainId, salesConfig}, configObject)
+  }
+
+  static hydrate({
+    collectionInfo,
+    nftInfo,
+    salesConfig,
+    chainId,
+    address,
+    txHash,
+  }: HydrateMoeCollection): HolographMoeERC721DropV2 {
+    const instance = new HolographMoeERC721DropV2({
+      collectionInfo,
+      nftInfo,
+      salesConfig,
+      primaryChainId: chainId,
+    })
+
+    instance.chainIds = [chainId]
+    instance.collectionAddress = address
+    instance.txHash = txHash
+    instance._isHydrated = true
+
+    if (!collectionInfo.salt) {
+      instance._collectionInfo.salt = '0x0' as Hex
+    }
+
+    return instance
   }
 
   protected _getMetadataRendererAddress(chainId = this.primaryChainId) {
@@ -499,7 +563,7 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
   }
 
   protected _getDropContractType() {
-    return parseBytes('HolographDropERC721V2')
+    return padAndHexify('HolographDropERC721V2')
   }
 
   protected _getEventConfig() {
@@ -538,6 +602,7 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
     ])
   }
 
+  @EnforceHydrateCheck()
   protected _getDropInitCode({
     account,
     metadataRendererAddress,

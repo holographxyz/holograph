@@ -20,7 +20,7 @@ describe('Asset class: MoeNFT', () => {
   let nft: MoeNFT
 
   beforeAll(async () => {
-    collection = new HolographMoeERC721DropV2(configObject, {
+    collection = new HolographMoeERC721DropV2({
       collectionInfo: {
         name: 'My First Collection',
         description: 'Probably nothing.',
