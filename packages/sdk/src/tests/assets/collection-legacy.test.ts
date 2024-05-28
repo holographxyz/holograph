@@ -184,8 +184,6 @@ describe('Asset class: HolographLegacyCollection', () => {
       const signatureData = await collection.signDeploy(wallet)
       const {collectionAddress, txHash} = await collection.deploy(signatureData)
 
-      console.log('collectionAddress: ', collectionAddress)
-
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
       expect(txHash.startsWith('0x')).to.be.true

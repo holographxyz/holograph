@@ -131,8 +131,7 @@ export class HolographProtocol {
       collectionInfo: {
         symbol,
         name,
-        // royaltiesBps
-        // salt
+        // salt TODO: Once the new contract version is available, we should update this code to retrieve the salt property.
       },
       chainId,
       address,
@@ -140,9 +139,8 @@ export class HolographProtocol {
 
     switch (type) {
       case CollectionType.CxipERC721: {
-        // const encodedRoyaltiesBps =  await client.public.getStorageAt({address, slot: '0x'}) // TODO: calculate the slot
+        // const encodedRoyaltiesBps =  await client.public.getStorageAt({address, slot: '0x'}) // TODO: Awaiting protocol devs to calculate the slot
         // const royaltiesBps = decodeAbiParameters(parseAbiParameters('uint256'), encodedRoyaltiesBps)
-        //salt
 
         return HolographLegacyCollection.hydrate(collectionInput)
       }

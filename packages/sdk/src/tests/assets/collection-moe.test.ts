@@ -203,7 +203,6 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
     it('should be able to deploy a collection', async () => {
       const signatureData = await collection.signDeploy(wallet)
       const {collectionAddress, txHash} = await collection.deploy(signatureData)
-      console.log(collectionAddress)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
