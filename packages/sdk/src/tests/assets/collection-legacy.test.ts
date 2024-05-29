@@ -15,7 +15,7 @@ describe('Asset class: HolographLegacyCollection', () => {
   const wallet = new HolographWallet({account, networks: configObject.networks})
 
   beforeEach(() => {
-    collection = new HolographLegacyCollection(configObject, {
+    collection = new HolographLegacyCollection({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',

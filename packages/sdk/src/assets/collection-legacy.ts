@@ -1,12 +1,12 @@
 import {Address, Hex, encodeAbiParameters, parseAbiParameters, toBytes} from 'viem'
 
-import {CollectionInfo, CreateLegacyCollection, validate} from './collection.validation'
+import {CollectionInfo, CreateLegacyCollection, HydrateLegacyCollection, validate} from './collection.validation'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
-import {allEventsEnabled, destructSignature, generateRandomSalt, parseBytes} from '../utils/helpers'
+import {allEventsEnabled, destructSignature, generateRandomSalt, padAndHexify} from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
 import {
   DeploymentConfig,
@@ -18,9 +18,10 @@ import {
   WriteContractOptions,
 } from '../utils/types'
 import {create2AddressFromDeploymentHash, getERC721DeploymentConfigHash} from '../utils/encoders'
-import {IsNotDeployed} from '../utils/decorators'
+import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 
 export class HolographLegacyCollection {
+  private _isHydrated = false
   private _collectionInfo: CollectionInfo
   public primaryChainId: number
   public account?: Address
@@ -34,7 +35,7 @@ export class HolographLegacyCollection {
   private readonly factory: Factory
   private readonly registry: Registry
 
-  constructor(public holographConfig: HolographConfig, {collectionInfo, primaryChainId}: CreateLegacyCollection) {
+  constructor({collectionInfo, primaryChainId}: CreateLegacyCollection, public holographConfig?: HolographConfig) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
 
@@ -42,6 +43,24 @@ export class HolographLegacyCollection {
     this.factory = new Factory(config)
     this.registry = new Registry(config)
     this.chainIds = []
+  }
+
+  static hydrate({collectionInfo, chainId, address, txHash}: HydrateLegacyCollection): HolographLegacyCollection {
+    const instance = new HolographLegacyCollection({
+      collectionInfo,
+      primaryChainId: chainId,
+    })
+
+    instance.chainIds = [chainId]
+    instance.collectionAddress = address
+    instance.txHash = txHash
+    instance._isHydrated = true
+
+    if (!collectionInfo.salt) {
+      instance._collectionInfo.salt = '0x0' as Hex
+    }
+
+    return instance
   }
 
   get name() {
@@ -70,6 +89,10 @@ export class HolographLegacyCollection {
 
   public getCollectionInfo(): CollectionInfo {
     return this._collectionInfo
+  }
+
+  get isHydrated() {
+    return this._isHydrated
   }
 
   @IsNotDeployed()
@@ -108,6 +131,7 @@ export class HolographLegacyCollection {
     this._collectionInfo.salt = salt
   }
 
+  @EnforceHydrateCheck()
   public async createERC721DeploymentConfig(
     account: Address,
     chainId = this.primaryChainId,
@@ -115,7 +139,7 @@ export class HolographLegacyCollection {
     if (!this.salt) this.setSalt(generateRandomSalt())
     const salt = this.salt
     const chainType = evm2hlg(this.primaryChainId)
-    const erc721Hash = parseBytes('HolographERC721')
+    const erc721Hash = padAndHexify('HolographERC721')
     const initCode = await this._generateInitCode(account, chainId)
 
     const erc721Config: DeploymentConfig = {
@@ -134,6 +158,7 @@ export class HolographLegacyCollection {
    * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
    * @returns - The signature data with the config and signature to deploy the collection contract.
    */
+  @EnforceHydrateCheck()
   public async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
@@ -160,6 +185,7 @@ export class HolographLegacyCollection {
    * @param signatureData - The signature data returned from signDeploy function.
    * @returns - A transaction hash.
    */
+  @EnforceHydrateCheck()
   public async deploy(
     signatureData: SignDeploy,
     options?: WriteContractOptions,
@@ -209,11 +235,12 @@ export class HolographLegacyCollection {
     return erc721FutureAddress
   }
 
+  @EnforceHydrateCheck()
   private async _generateInitCode(account: Address, chainId = this.primaryChainId) {
     const registryAddress = await this._getRegistryAddress(chainId)
     const creatorEncoded = encodeAbiParameters(parseAbiParameters('address'), [account])
     const initCodeEncoded = encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
-      parseBytes('CxipERC721'),
+      padAndHexify('CxipERC721'),
       registryAddress,
       creatorEncoded,
     ])

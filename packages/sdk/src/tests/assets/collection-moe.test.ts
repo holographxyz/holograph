@@ -16,7 +16,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
   let collection: HolographMoeERC721DropV2
 
   beforeEach(() => {
-    collection = new HolographMoeERC721DropV2(configObject, {
+    collection = new HolographMoeERC721DropV2({
       collectionInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',

@@ -31,7 +31,7 @@ describe('Asset class: NFT', () => {
   let nft: NFT
 
   beforeAll(async () => {
-    collection = new HolographLegacyCollection(configObject, {
+    collection = new HolographLegacyCollection({
       collectionInfo: {
         name: 'My First Collection',
         description: 'Nothing',

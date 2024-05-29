@@ -135,7 +135,7 @@ export class Registry extends HolographBaseContract {
    * @param contractType The contract type bytes32.
    * @returns the contract address for the provided contract type.
    */
-  async getContractTypeAddress(chainId: number, contractType: Address) {
+  async getContractTypeAddress(chainId: number, contractType: Hex) {
     return this._getContractFunction({chainId, functionName: 'getContractTypeAddress', args: [contractType]})
   }
 
@@ -146,7 +146,7 @@ export class Registry extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the contract address for the provided contract type per network.
    */
-  async getContractTypeAddressByNetworks(contractType: Address, chainIds?: number[]) {
+  async getContractTypeAddressByNetworks(contractType: Hex, chainIds?: number[]) {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 

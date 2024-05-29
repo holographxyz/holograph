@@ -58,7 +58,7 @@ export function generateRandomSalt(): Hex {
   return ('0x' + Date.now().toString(16).padStart(64, '0')) as Hex
 }
 
-export function parseBytes(str: string, size = 32) {
+export function padAndHexify(str: string, size = 32) {
   return toHex(pad(stringToBytes(str), {size}))
 }
 
@@ -109,6 +109,10 @@ export function strictECDSA(signature: Signature): Signature {
 export function parseISODateToTimestampSeconds(date?: string) {
   if (!date) return 0
   return Math.floor(new Date(date).getTime() / 1000)
+}
+
+export function parseTimestampSecondsToISODate(timestampSeconds: number): string {
+  return new Date(timestampSeconds * 1000).toISOString()
 }
 
 export function sleep(ms: number): Promise<unknown> {
