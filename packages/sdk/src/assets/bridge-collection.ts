@@ -41,10 +41,15 @@ export class BridgeCollection extends BridgeAsset {
   ): Promise<Hex> {
     const erc721DeploymentConfigHash = getERC721DeploymentConfigHash(erc721DeploymentConfig, wallet.account.address)
 
-    const signature = await wallet.onChain(chainId).signMessage({
-      account: wallet.account,
-      message: erc721DeploymentConfigHash,
-    })
+    const signature = await wallet
+      .onChain(chainId)
+      .signMessage({
+        account: wallet.account,
+        message: erc721DeploymentConfigHash,
+      })
+      .catch(() => {
+        throw new Error('Signature rejected.')
+      })
 
     const initCode = encodeAbiParameters(
       parseAbiParameters([

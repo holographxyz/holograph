@@ -165,10 +165,15 @@ export class HolographLegacyCollection {
     const collectionPayload = await this._getCollectionPayload(account, chainId)
 
     const config = collectionPayload?.config
-    const signedMessage = await holographWallet.onChain(chainId).signMessage({
-      account: holographWallet.account,
-      message: config?.erc721ConfigHash,
-    })
+    const signedMessage = await holographWallet
+      .onChain(chainId)
+      .signMessage({
+        account: holographWallet.account,
+        message: config?.erc721ConfigHash,
+      })
+      .catch(() => {
+        throw new Error('Signature rejected.')
+      })
     const signature = destructSignature(signedMessage)
     this.signature = signature
 
