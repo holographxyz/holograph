@@ -5,9 +5,10 @@ import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './assets/colle
 import {NFT} from './assets/nft'
 import {MoeNFT} from './assets/nft-moe'
 import {HolographAccountFactory, HolographWallet, Config, HolographProtocol} from './services'
-import {DeploymentConfig, ERC721Config, HolographConfig, Signature, SignDeploy} from './utils/types'
+import {CollectionType, DeploymentConfig, ERC721Config, HolographConfig, Signature, SignDeploy} from './utils/types'
 
 export {
+  CollectionType,
   HolographLegacyCollection,
   HolographMoeERC721DropV1,
   HolographMoeERC721DropV2,

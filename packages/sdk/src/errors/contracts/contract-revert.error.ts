@@ -6,7 +6,9 @@ export class ContractRevertError extends HolographError {
       name: ContractRevertError.name,
       code: HolographErrorCode.HOLO_SDK_10002,
       options: {cause},
-      message: `Contract function ${contract}.${contractFunction} reverted with. ${cause.message}.`,
+      message: cause?.message?.includes('User rejected the request')
+        ? 'Transaction rejected.'
+        : `Contract function ${contract}.${contractFunction} reverted with. ${cause.message}.`,
       description: 'Contract function call reverted.',
       triggerFunction,
     })
