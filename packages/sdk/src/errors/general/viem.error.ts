@@ -6,7 +6,7 @@ export class ViemError extends HolographError {
       name: ViemError.name,
       code: HolographErrorCode.HOLO_SDK_10001,
       options: {cause},
-      message: `Viem error.`,
+      message: cause?.message?.includes('User rejected the request') ? 'Transaction rejected.' : `Viem error.`,
       description: `Holograph Error wrap around an viem error.`,
       triggerFunction,
     })

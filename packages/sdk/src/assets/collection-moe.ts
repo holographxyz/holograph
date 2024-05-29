@@ -270,10 +270,15 @@ export class HolographMoeERC721DropV1 {
 
     const {configHash, configHashBytes, ...config} = collectionPayload
 
-    const signedMessage = await holographWallet.onChain(chainId).signMessage({
-      account: holographWallet.account,
-      message: configHash,
-    })
+    const signedMessage = await holographWallet
+      .onChain(chainId)
+      .signMessage({
+        account: holographWallet.account,
+        message: configHash,
+      })
+      .catch(() => {
+        throw new Error('Signature rejected.')
+      })
     const signature = strictECDSA(destructSignature(signedMessage))
     const parsedSignature = {...signature, v: String(Number.parseInt(String(signature.v), 16)) as Hex}
     this.signature = parsedSignature
