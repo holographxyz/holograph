@@ -22,13 +22,25 @@ export function getERC721DeploymentConfigHash(erc721DeploymentConfig: Deployment
       ['bytes32', 'uint32', 'bytes32', 'bytes32', 'bytes32', 'address'],
       [
         erc721DeploymentConfig.contractType,
-        erc721DeploymentConfig.chainType,
+        Number(erc721DeploymentConfig.chainType),
         erc721DeploymentConfig.salt,
         keccak256(erc721DeploymentConfig.byteCode),
         keccak256(erc721DeploymentConfig.initCode),
         signerAddress,
       ],
     ),
+  )
+}
+
+export function getERC721DropDeploymentConfigHash(erc721DeploymentConfig: DeploymentConfig, signerAddress: Address) {
+  return keccak256(
+    ('0x' +
+      remove0x(erc721DeploymentConfig.contractType) +
+      remove0x(String(erc721DeploymentConfig.chainType)) +
+      remove0x(erc721DeploymentConfig.salt) +
+      remove0x(keccak256(erc721DeploymentConfig.byteCode)) +
+      remove0x(keccak256(erc721DeploymentConfig.initCode)) +
+      remove0x(signerAddress)) as Hex,
   )
 }
 

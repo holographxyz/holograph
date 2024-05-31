@@ -135,7 +135,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
       expect(collectionPayload).toHaveProperty('contractType')
       expect(collectionPayload).toHaveProperty('initCode')
       expect(collectionPayload).toHaveProperty('salt')
-      expect(chainType).to.be.a('number')
+      expect(chainType).to.be.a('string')
       expect(collectionPayload.byteCode).toBe(bytecodes.HolographDropERC721)
       expect(configHashBytes).to.be.a('Uint8Array')
 
@@ -187,7 +187,7 @@ describe('Asset class: HolographMoeERC721DropV2', () => {
 
       const properties = [account, byteCode, contractType, initCode, salt, r, s]
 
-      expect(chainType).to.be.a('number')
+      expect(chainType).to.be.a('string')
 
       properties.forEach(property => {
         expect(property).not.toBeUndefined()

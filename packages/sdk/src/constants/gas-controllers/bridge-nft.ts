@@ -1,9 +1,10 @@
 import {networks} from '@holographxyz/networks'
+
 import {GasParams} from '.'
 
 export const BRIDGE_NFT_GAS = {
   [networks.ethereum.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(40000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -15,13 +16,13 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.ethereumTestnetSepolia.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(1000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.polygon.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(200000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -33,25 +34,25 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.binanceSmartChain.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(3000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.binanceSmartChainTestnet.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(3000000000),
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.avalanche.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(30000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.avalancheTestnet.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(30000000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -69,13 +70,13 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.optimismTestnetSepolia.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.arbitrumOne.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -87,25 +88,25 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.arbitrumTestnetSepolia.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.mantle.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(20000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.mantleTestnet.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
   },
   [networks.zora.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(10000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -117,7 +118,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.zoraTestnetSepolia.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -135,7 +136,25 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.baseTestnetSepolia.chain]: {
+    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasLimit: undefined,
+    gasLimitMultiplier: 125,
+    gasPriceMultiplier: 150,
+  },
+  [networks.linea.chain]: {
     gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 125,
+    gasPriceMultiplier: 150,
+  },
+  [networks.lineaTestnetGoerli.chain]: {
+    gasPrice: BigInt(1500000000),
+    gasLimit: undefined,
+    gasLimitMultiplier: 125,
+    gasPriceMultiplier: 150,
+  },
+  [networks.lineaTestnetSepolia.chain]: {
+    gasPrice: BigInt(1500000000),
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,

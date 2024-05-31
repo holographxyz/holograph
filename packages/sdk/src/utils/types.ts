@@ -47,7 +47,7 @@ export type BridgeInERC721Args = {
  */
 export type DeploymentConfig = {
   readonly contractType: Hex
-  readonly chainType: number
+  readonly chainType: string | number
   readonly salt: Hex
   readonly byteCode: Hex
   readonly initCode: Hex
@@ -343,7 +343,6 @@ export type ViemPublicClient = PublicClient<Transport, Chain | undefined>
  *   & CheckIntegrity<A, C, A>
  */
 export type CheckTypeIntegrity<T, T2 extends T = any, T3 extends T2 = any> = never
-
 
 export enum CollectionType {
   CxipERC721 = 'CxipERC721',
