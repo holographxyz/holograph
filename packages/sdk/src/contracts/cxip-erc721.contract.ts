@@ -20,7 +20,7 @@ const ABIs = [...CxipERC721ABI, ...HolographERC721ABI]
 export class CxipERC721 extends HolographBaseContract {
   private collectionAddress: Address
 
-  constructor(collectionAddress: Address, _config?: Config, parentLogger?: HolographLogger) {
+  constructor(collectionAddress: Address, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -29,7 +29,7 @@ export class CxipERC721 extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: CxipERC721.name})
     }
 
-    super(logger, ABIs, 'CxipERC721', _config)
+    super(logger, ABIs, 'CxipERC721')
     this.collectionAddress = collectionAddress
   }
 

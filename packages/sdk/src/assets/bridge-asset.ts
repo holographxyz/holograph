@@ -15,14 +15,14 @@ export class BridgeAsset {
   private readonly _operator: Operator
   private readonly _factory: Factory
 
-  constructor(configObject?: HolographConfig, private gasSettings?: GasSettings, _logger?: HolographLogger) {
+  constructor(private gasSettings?: GasSettings, _logger?: HolographLogger) {
     this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
 
-    const config = Config.getInstance(configObject)
-    this._providers = new Providers(config)
-    this._bridge = new Bridge(config)
-    this._operator = new Operator(config)
-    this._factory = new Factory(config)
+    const config = Config.getInstance()
+    this._providers = new Providers()
+    this._bridge = new Bridge()
+    this._operator = new Operator()
+    this._factory = new Factory()
   }
 
   static createUnsignedBridgeOutTx(

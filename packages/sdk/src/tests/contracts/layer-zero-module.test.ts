@@ -5,7 +5,7 @@ import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 import {Addresses} from '../../constants/addresses'
 
 //TODO: localhost deploy needs to configure these values
@@ -27,8 +27,8 @@ describe('Contract class: LayerZeroModule', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    layerZeroModule = new LayerZeroModule(testConfig)
+    providersWrapper = new Providers()
+    layerZeroModule = new LayerZeroModule()
   })
 
   it('should be able to get the correct providers', () => {

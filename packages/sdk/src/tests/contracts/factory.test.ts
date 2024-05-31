@@ -4,7 +4,7 @@ import {Factory} from '../../contracts'
 import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {ONLY_ADMIN_ERROR_MESSAGE, testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {ONLY_ADMIN_ERROR_MESSAGE, testConfigObject, localhostContractAddresses} from '../setup'
 import {Addresses} from '../../constants/addresses'
 import {Address} from 'viem'
 
@@ -20,8 +20,8 @@ describe('Contract class: Factory', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    factory = new Factory(testConfig)
+    providersWrapper = new Providers()
+    factory = new Factory()
   })
 
   it('should be able to get the correct providers', () => {

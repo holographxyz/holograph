@@ -42,11 +42,10 @@ export class HolographBaseContract {
     protected _logger: HolographLogger,
     protected readonly _abi: Abi,
     private readonly _contractName: string,
-    _config?: Config,
   ) {
-    this._config = _config ?? Config.getInstance()
+    this._config = Config.getInstance()
     this.networks = this._config.networks
-    this._providers = new Providers(this._config)
+    this._providers = new Providers()
 
     if (this._config.accounts !== undefined) {
       this._walletManager = new HolographWalletManager(this._config)

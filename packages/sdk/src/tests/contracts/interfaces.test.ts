@@ -6,7 +6,7 @@ import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {ChainIdType, InterfaceType, TokenUriType} from '../../utils/types'
 
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -39,8 +39,8 @@ describe('Contract class: Interfaces', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    interfaces = new Interfaces(testConfig)
+    providersWrapper = new Providers()
+    interfaces = new Interfaces()
   })
 
   it('should be able to get the Interfaces wrapper class', () => {

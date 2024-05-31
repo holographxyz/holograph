@@ -17,7 +17,7 @@ import {Holograph} from '.'
  *
  */
 export class Treasury extends HolographBaseContract {
-  constructor(_config?: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -26,7 +26,7 @@ export class Treasury extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Treasury.name})
     }
 
-    super(logger, HolographTreasuryABI, 'HolographTreasury', _config)
+    super(logger, HolographTreasuryABI, 'HolographTreasury')
   }
 
   /**
@@ -37,7 +37,7 @@ export class Treasury extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this._config)
+      const holograph = new Holograph()
       const add = (await holograph.getTreasury(chainId)) as Address
       this._addresses[chainId] = add
     }

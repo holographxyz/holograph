@@ -1,7 +1,13 @@
 import {Environment, setEnvironment} from '@holographxyz/environment'
 import {Network, getNetworkByChainId} from '@holographxyz/networks'
 
-import {MissingHolographConfig, UnavailableNetworkError, UnknownError, normalizeException} from '../errors'
+import {
+  InstanceAlreadyExists,
+  MissingHolographConfig,
+  UnavailableNetworkError,
+  UnknownError,
+  normalizeException,
+} from '../errors'
 import {HolographLogger} from './logger.service'
 import {getChainIdsByNetworksConfig, getEnvRpcConfig, isFrontEnd} from '../utils/helpers'
 import {AccountsConfig, HolographConfig, NetworkRpc} from '../utils/types'
@@ -36,11 +42,11 @@ export class Config {
 
   static getInstance(holographConfig?: HolographConfig): Config {
     if (!Config._instance) {
-      if (!holographConfig) {
-        throw new MissingHolographConfig(Config.getInstance.name)
-      }
+      if (!holographConfig) throw new MissingHolographConfig(Config.getInstance.name)
+
       Config._instance = new Config(holographConfig)
     }
+
     return Config._instance
   }
 

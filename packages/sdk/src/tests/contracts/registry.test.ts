@@ -6,7 +6,7 @@ import {Registry} from '../../contracts'
 import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 // TODO: localhost deployment needs to better configure this contract and create an example
 const expectedValues = {
@@ -30,8 +30,8 @@ describe('Contract class: Registry', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    registry = new Registry(testConfig)
+    providersWrapper = new Providers()
+    registry = new Registry()
   })
 
   it('should be able to get the correct providers', () => {

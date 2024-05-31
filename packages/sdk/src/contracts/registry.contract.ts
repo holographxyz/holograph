@@ -18,7 +18,7 @@ import {Holograph} from '.'
  *
  */
 export class Registry extends HolographBaseContract {
-  constructor(_config?: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -27,7 +27,7 @@ export class Registry extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Registry.name})
     }
 
-    super(logger, HolographRegistryABI, 'HolographRegistry', _config)
+    super(logger, HolographRegistryABI, 'HolographRegistry')
   }
 
   /**
@@ -38,7 +38,7 @@ export class Registry extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this._config)
+      const holograph = new Holograph()
       const add = (await holograph.getRegistry(chainId)) as Address
       this._addresses[chainId] = add
     }

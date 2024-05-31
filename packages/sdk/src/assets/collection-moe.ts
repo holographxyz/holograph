@@ -18,7 +18,7 @@ import {Addresses} from '../constants/addresses'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
-import {Config, HolographWallet} from '../services'
+import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 import {getERC721DropDeploymentConfigHash} from '../utils/encoders'
@@ -66,9 +66,8 @@ export class HolographMoeERC721DropV1 {
     this.salesConfig = validate.salesConfig.parse(salesConfig)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
 
-    const config = Config.getInstance(holographConfig)
-    this.factory = new Factory(config)
-    this.registry = new Registry(config)
+    this.factory = new Factory()
+    this.registry = new Registry()
     this.chainIds = []
   }
 

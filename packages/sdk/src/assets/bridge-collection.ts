@@ -9,13 +9,9 @@ import {BridgeCollectionInput, DeploymentConfig, GasSettings, HolographConfig} f
 export class BridgeCollection extends BridgeAsset {
   private _initCode: Hex | undefined
 
-  constructor(
-    private readonly _bridgeCollectionInput: BridgeCollectionInput,
-    public holographConfig?: HolographConfig,
-    gasSettings?: GasSettings,
-  ) {
+  constructor(private readonly _bridgeCollectionInput: BridgeCollectionInput, gasSettings?: GasSettings) {
     const _logger = HolographLogger.createLogger({className: BridgeCollection.name})
-    super(holographConfig, gasSettings, _logger)
+    super(gasSettings, _logger)
   }
 
   get sourceChainId() {

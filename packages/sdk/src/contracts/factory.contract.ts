@@ -3,7 +3,7 @@ import {Hex} from 'viem'
 
 import {Holograph} from '.'
 import {HolographFactoryABI} from '../constants/abi/develop'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {
   BridgeSettings,
@@ -26,7 +26,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class Factory extends HolographBaseContract {
-  constructor(_config?: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -35,7 +35,7 @@ export class Factory extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Factory.name})
     }
 
-    super(logger, HolographFactoryABI, 'HolographFactory', _config)
+    super(logger, HolographFactoryABI, 'HolographFactory')
   }
 
   /**
@@ -46,7 +46,7 @@ export class Factory extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this._config)
+      const holograph = new Holograph()
       const add = (await holograph.getFactory(chainId)) as Address
       this._addresses[chainId] = add
     }

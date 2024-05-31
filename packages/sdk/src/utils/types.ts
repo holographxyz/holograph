@@ -13,10 +13,10 @@ import {
 } from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
-import {Network, NetworkKey} from '@holographxyz/networks'
+import {NetworkKey} from '@holographxyz/networks'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
-import {HolographLogger, HolographWallet} from '../services'
+import {HolographWallet} from '../services'
 
 type _PrimitiveType = AbiParameterToPrimitiveType<{
   name: 'test'

@@ -12,10 +12,11 @@ export class Providers {
   private readonly _providers: Record<number, PublicClient>
   private readonly _networks: Network[]
 
-  constructor(private readonly protocolConfig: Config) {
+  constructor() {
     this.logger = HolographLogger.createLogger({serviceName: Providers.name})
-    this._networks = this.protocolConfig.networks
-    this._clientProvider = this.protocolConfig.provider
+    const config = Config.getInstance()
+    this._networks = config.networks
+    this._clientProvider = config.provider
     this._providers = {}
 
     if (this._networks.length > 0) {

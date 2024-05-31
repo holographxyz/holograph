@@ -4,7 +4,7 @@ import {OVMGasPriceOracle} from '../../contracts'
 import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
@@ -17,8 +17,8 @@ describe('Contract class: OVMGasPriceOracle', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    ovmGasPriceOracle = new OVMGasPriceOracle(testConfig)
+    providersWrapper = new Providers()
+    ovmGasPriceOracle = new OVMGasPriceOracle()
   })
 
   it('should be able to get the correct providers', () => {

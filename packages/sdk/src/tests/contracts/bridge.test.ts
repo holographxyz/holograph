@@ -4,7 +4,7 @@ import {Bridge} from '../../contracts'
 import {REGEX} from '../../utils/transformers'
 import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -20,8 +20,8 @@ describe('Contract class: Bridge', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    bridge = new Bridge(testConfig)
+    providersWrapper = new Providers()
+    bridge = new Bridge()
   })
 
   it('should be able to get the correct providers', () => {

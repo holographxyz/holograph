@@ -5,7 +5,7 @@ import {Providers, Config} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -23,8 +23,8 @@ describe('Contract class: Treasury', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    treasury = new Treasury(testConfig)
+    providersWrapper = new Providers()
+    treasury = new Treasury()
   })
 
   it('should be able to get the Treasury wrapper class', () => {

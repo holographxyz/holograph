@@ -16,11 +16,9 @@ import {
   Treasury,
 } from '../contracts'
 import {HolographLogger} from './logger.service'
-import {CollectionType, EventInfo, TokenType} from '../utils/types'
-import {getReservedNamespaceFromHash, ReservedNamespaces, ReservedNamespacesHash} from '../utils/reserved-namespaces'
-import {decodeAbiParameters, getContract, Hex, parseAbi, parseAbiParameters} from 'viem'
+import {CollectionType, EventInfo} from '../utils/types'
+import {getContract, parseAbi} from 'viem'
 import {Providers} from './providers.service'
-import {CreateLegacyCollection, HolographMoeSalesConfig} from '../assets/collection.validation'
 import {HolographLegacyCollection} from '../assets/collection-legacy'
 import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from '../assets/collection-moe'
 import {parseTimestampSecondsToISODate} from '../utils/helpers'
@@ -48,19 +46,22 @@ export class HolographProtocol {
 
     this.protocolConfig = protocolConfig ?? Config.getInstance()
 
-    this.holographContract = new Holograph(this.protocolConfig)
-    this.registryContract = new Registry(this.protocolConfig)
-    this.treasuryContract = new Treasury(this.protocolConfig)
-    this.interfacesContract = new Interfaces(this.protocolConfig)
-    this.operatorContract = new Operator(this.protocolConfig)
-    this.layerZeroModuleContract = new LayerZeroModule(this.protocolConfig)
-    this.factoryContract = new Factory(this.protocolConfig)
-    this.ovmGasPriceOracleContract = new OVMGasPriceOracle(this.protocolConfig)
-    this.bridgeContract = new Bridge(this.protocolConfig)
-    this.cxipERC721Contract = new CxipERC721(this.collectionAddress!, this.protocolConfig) //TODO: improve this
-    this.holographDropERC721Contract = new HolographDropERC721(this.collectionAddress!, undefined, this.protocolConfig)
+    this.holographContract = new Holograph()
+    this.registryContract = new Registry()
+    this.treasuryContract = new Treasury()
+    this.interfacesContract = new Interfaces()
+    this.operatorContract = new Operator()
+    this.layerZeroModuleContract = new LayerZeroModule()
+    this.factoryContract = new Factory()
+    this.ovmGasPriceOracleContract = new OVMGasPriceOracle()
+    this.bridgeContract = new Bridge()
 
-    this._providers = new Providers(this.protocolConfig)
+    if (this.collectionAddress) {
+      this.cxipERC721Contract = new CxipERC721(this.collectionAddress)
+      this.holographDropERC721Contract = new HolographDropERC721(this.collectionAddress)
+    }
+
+    this._providers = new Providers()
   }
 
   get holograph(): Holograph {

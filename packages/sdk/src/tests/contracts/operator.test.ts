@@ -22,7 +22,7 @@ describe('Contract class: Operator', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    operator = new Operator(testConfig)
+    operator = new Operator()
   })
 
   it('should be able to get the operator wrapper class', () => {

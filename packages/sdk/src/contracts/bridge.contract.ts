@@ -1,15 +1,10 @@
 import {Address, Hex} from 'viem'
 
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {Holograph} from '.'
-import {
-  EstimateContractFunctionGasArgs,
-  GetContractFunctionArgs,
-  HolographBridgeFunctionNames,
-  SimulateContractFunctionArgs,
-} from '../utils/types'
+import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, SimulateContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
 /**
@@ -23,7 +18,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class Bridge extends HolographBaseContract {
-  constructor(_config?: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -32,7 +27,7 @@ export class Bridge extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Bridge.name})
     }
 
-    super(logger, HolographBridgeABI, 'HolographBridge', _config)
+    super(logger, HolographBridgeABI, 'HolographBridge')
   }
 
   /**
@@ -43,7 +38,7 @@ export class Bridge extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this._config)
+      const holograph = new Holograph()
       const add = (await holograph.getBridge(chainId)) as Address
       this._addresses[chainId] = add
     }

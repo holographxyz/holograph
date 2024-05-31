@@ -4,7 +4,7 @@ import {CxipERC721} from '../../contracts'
 import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {testConfig, testConfigObject} from '../setup'
+import {testConfigObject} from '../setup'
 
 const FAKE_COLLECTION_ADDRESS = '0xAbCdEf0123456789ABCDEF0123456789abcdef01'
 
@@ -14,8 +14,8 @@ describe('Contract class: CxipERC721', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    cxipERC721 = new CxipERC721(FAKE_COLLECTION_ADDRESS, testConfig)
+    providersWrapper = new Providers()
+    cxipERC721 = new CxipERC721(FAKE_COLLECTION_ADDRESS)
   })
 
   it('should be able to get the correct providers', () => {

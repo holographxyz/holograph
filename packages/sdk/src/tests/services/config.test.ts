@@ -1,10 +1,14 @@
-import {expect} from 'vitest'
+import {beforeEach, describe, expect, it} from 'vitest'
 import {Config} from '../../services'
-import {MissingHolographConfig} from '../../errors'
+import {InstanceAlreadyExists, MissingHolographConfig} from '../../errors'
 import {localhostRpc, testConfigObject} from '../setup'
 import {Environment} from '@holographxyz/environment'
 
 describe('Service: Config', () => {
+  beforeEach(() => {
+    resetConfig()
+  })
+
   it('should throw an error when requesting the instance without prior instantiation', () => {
     expect(() => Config.getInstance()).toThrow(MissingHolographConfig)
   })
@@ -31,3 +35,7 @@ describe('Service: Config', () => {
     expect(requestedInstance).toBe(initialInstance)
   })
 })
+
+function resetConfig() {
+  Config['_instance'] = undefined // Resetting for test purposes; an instance already exists from the test setup
+}

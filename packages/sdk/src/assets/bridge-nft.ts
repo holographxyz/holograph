@@ -7,13 +7,9 @@ import {BridgeNFTInput, GasSettings, HolographConfig} from '../utils/types'
 export class BridgeNFT extends BridgeAsset {
   private _initCode: Hex | undefined
 
-  constructor(
-    private readonly _bridgeNFTInput: BridgeNFTInput,
-    public holographConfig?: HolographConfig,
-    gasSettings?: GasSettings,
-  ) {
+  constructor(private readonly _bridgeNFTInput: BridgeNFTInput, gasSettings?: GasSettings) {
     const _logger = HolographLogger.createLogger({className: BridgeNFT.name})
-    super(holographConfig, gasSettings, _logger)
+    super(gasSettings, _logger)
   }
 
   get contractAddress() {

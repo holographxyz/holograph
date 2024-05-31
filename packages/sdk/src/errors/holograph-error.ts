@@ -22,6 +22,7 @@ export enum HolographErrorCode {
   HOLO_SDK_10011 = 'HOLO_SDK_10011',
   HOLO_SDK_10012 = 'HOLO_SDK_10012',
   HOLO_SDK_10013 = 'HOLO_SDK_10013',
+  HOLO_SDK_10014 = 'HOLO_SDK_10014',
 }
 
 interface HolographErrorParams {

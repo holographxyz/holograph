@@ -24,7 +24,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class OVMGasPriceOracle extends HolographBaseContract {
-  constructor(_config?: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -33,7 +33,7 @@ export class OVMGasPriceOracle extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: OVMGasPriceOracle.name})
     }
 
-    super(logger, OVM_GasPriceOracleABI, 'OVM_GasPriceOracle', _config)
+    super(logger, OVM_GasPriceOracleABI, 'OVM_GasPriceOracle')
   }
 
   /**

@@ -14,8 +14,8 @@ describe('Contract class: HolographDropERC721', () => {
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    providersWrapper = new Providers(testConfig)
-    holographDropERC721 = new HolographDropERC721(FAKE_COLLECTION_ADDRESS, undefined, testConfig)
+    providersWrapper = new Providers()
+    holographDropERC721 = new HolographDropERC721(FAKE_COLLECTION_ADDRESS)
   })
 
   it('should be able to get the correct providers', () => {
