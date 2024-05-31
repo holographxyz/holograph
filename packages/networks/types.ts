@@ -13,9 +13,10 @@ export interface Network {
   tokenName: string;
   tokenSymbol: string;
   explorer: string | undefined;
-  lzEndpoint: string;
-  lzId: number;
-  ccipEndpoint: string;
+  lzEndpoint: string | undefined;
+  lzExecutor: string | undefined;
+  lzId: number; // NOTE: This currently represents the LayerZero endpoint id for LZ V1
+  ccipEndpoint: string | undefined;
   ccipId: BigNumberish;
   active: boolean;
   protocolMultisig: string | undefined;
