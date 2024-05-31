@@ -28,6 +28,7 @@ import {parseTimestampSecondsToISODate} from '../utils/helpers'
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
   private readonly logger: HolographLogger
+  private readonly protocolConfig: Config
   private holographContract!: Holograph
   private registryContract!: Registry
   private treasuryContract!: Treasury
@@ -42,8 +43,10 @@ export class HolographProtocol {
 
   private readonly _providers: Providers
 
-  constructor(private readonly protocolConfig: Config, private readonly collectionAddress?: Address) {
+  constructor(protocolConfig?: Config, private readonly collectionAddress?: Address) {
     this.logger = HolographLogger.createLogger({serviceName: HolographProtocol.name})
+
+    this.protocolConfig = protocolConfig ?? Config.getInstance()
 
     this.holographContract = new Holograph(this.protocolConfig)
     this.registryContract = new Registry(this.protocolConfig)
@@ -54,8 +57,8 @@ export class HolographProtocol {
     this.factoryContract = new Factory(this.protocolConfig)
     this.ovmGasPriceOracleContract = new OVMGasPriceOracle(this.protocolConfig)
     this.bridgeContract = new Bridge(this.protocolConfig)
-    this.cxipERC721Contract = new CxipERC721(this.protocolConfig, this.collectionAddress!)
-    this.holographDropERC721Contract = new HolographDropERC721(this.protocolConfig, this.collectionAddress!)
+    this.cxipERC721Contract = new CxipERC721(this.collectionAddress!, this.protocolConfig) //TODO: improve this
+    this.holographDropERC721Contract = new HolographDropERC721(this.collectionAddress!, undefined, this.protocolConfig)
 
     this._providers = new Providers(this.protocolConfig)
   }

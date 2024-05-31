@@ -1,11 +1,11 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {LayerZeroModule} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
 import {Addresses} from '../../constants/addresses'
 
 //TODO: localhost deploy needs to configure these values
@@ -22,15 +22,13 @@ const expectedValues = {
 }
 
 describe('Contract class: LayerZeroModule', () => {
-  let config: Config
   let providersWrapper: Providers
   let layerZeroModule: LayerZeroModule
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    layerZeroModule = new LayerZeroModule(config)
+    providersWrapper = new Providers(testConfig)
+    layerZeroModule = new LayerZeroModule(testConfig)
   })
 
   it('should be able to get the correct providers', () => {

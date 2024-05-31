@@ -2,11 +2,11 @@ import {Address} from 'abitype'
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Interfaces} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {ChainIdType, InterfaceType, TokenUriType} from '../../utils/types'
 
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -34,15 +34,13 @@ const supportedPrepends: {type: number; prepend: string}[] = [
 const EIP165_ID = '0x01ffc9a7'
 
 describe('Contract class: Interfaces', () => {
-  let config: Config
   let providersWrapper: Providers
   let interfaces: Interfaces
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    interfaces = new Interfaces(config)
+    providersWrapper = new Providers(testConfig)
+    interfaces = new Interfaces(testConfig)
   })
 
   it('should be able to get the Interfaces wrapper class', () => {

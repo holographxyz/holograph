@@ -18,7 +18,7 @@ import {Holograph} from '.'
  *
  */
 export class Registry extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(_config?: Config, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -27,7 +27,7 @@ export class Registry extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Registry.name})
     }
 
-    super(_config, logger, HolographRegistryABI, 'HolographRegistry')
+    super(logger, HolographRegistryABI, 'HolographRegistry', _config)
   }
 
   /**

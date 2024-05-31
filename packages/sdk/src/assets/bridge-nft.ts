@@ -8,12 +8,12 @@ export class BridgeNFT extends BridgeAsset {
   private _initCode: Hex | undefined
 
   constructor(
-    public holographConfig: HolographConfig,
     private readonly _bridgeNFTInput: BridgeNFTInput,
+    public holographConfig?: HolographConfig,
     gasSettings?: GasSettings,
   ) {
     const _logger = HolographLogger.createLogger({className: BridgeNFT.name})
-    super(holographConfig, _logger, gasSettings)
+    super(holographConfig, gasSettings, _logger)
   }
 
   get contractAddress() {

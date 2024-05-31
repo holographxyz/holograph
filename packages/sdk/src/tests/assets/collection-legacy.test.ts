@@ -4,15 +4,15 @@ import {isAddress} from 'viem'
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
 import {ContractRevertError} from '../../errors'
 import {HolographWallet} from '../../services'
-import {configObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
+import {testConfigObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
 describe('Asset class: HolographLegacyCollection', () => {
-  const account: HolographAccount = configObject.accounts?.default!
+  const account: HolographAccount = testConfigObject.accounts?.default!
   const accountAddress = account?.address
   let collection: HolographLegacyCollection
-  const wallet = new HolographWallet({account, networks: configObject.networks})
+  const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   beforeEach(() => {
     collection = new HolographLegacyCollection({

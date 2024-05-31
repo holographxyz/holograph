@@ -17,7 +17,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class Operator extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(_config?: Config, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -26,7 +26,7 @@ export class Operator extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Operator.name})
     }
 
-    super(_config, logger, HolographOperatorABI, 'HolographOperator')
+    super(logger, HolographOperatorABI, 'HolographOperator', _config)
   }
 
   /**

@@ -1,10 +1,10 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {OVMGasPriceOracle} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
@@ -12,15 +12,13 @@ const expectedValues = {
 }
 
 describe('Contract class: OVMGasPriceOracle', () => {
-  let config: Config
   let providersWrapper: Providers
   let ovmGasPriceOracle: OVMGasPriceOracle
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    ovmGasPriceOracle = new OVMGasPriceOracle(config)
+    providersWrapper = new Providers(testConfig)
+    ovmGasPriceOracle = new OVMGasPriceOracle(testConfig)
   })
 
   it('should be able to get the correct providers', () => {

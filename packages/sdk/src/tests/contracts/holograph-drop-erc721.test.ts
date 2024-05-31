@@ -1,23 +1,21 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {HolographDropERC721} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject} from '../setup'
+import {testConfigObject, testConfig} from '../setup'
 
 const FAKE_COLLECTION_ADDRESS = '0x9876543210987654321098765432109876543210'
 
 describe('Contract class: HolographDropERC721', () => {
-  let config: Config
   let providersWrapper: Providers
   let holographDropERC721: HolographDropERC721
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    holographDropERC721 = new HolographDropERC721(config, FAKE_COLLECTION_ADDRESS)
+    providersWrapper = new Providers(testConfig)
+    holographDropERC721 = new HolographDropERC721(FAKE_COLLECTION_ADDRESS, undefined, testConfig)
   })
 
   it('should be able to get the correct providers', () => {

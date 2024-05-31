@@ -26,8 +26,9 @@ export class NFT {
     this.metadata = validate.metadata.parse(metadata)
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
     this.collection = validate.collection.parse(collection)
+
     const config = Config.getInstance(collection.holographConfig)
-    this.cxipERC721 = new CxipERC721(config, collection.collectionAddress!)
+    this.cxipERC721 = new CxipERC721(collection.collectionAddress!, config)
     this.isMinted = false
   }
 

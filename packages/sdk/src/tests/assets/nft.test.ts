@@ -5,14 +5,14 @@ import {NFT} from '../../assets/nft'
 import {NOT_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/not-minted-nft.error'
 import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
 import {HolographWallet} from '../../services'
-import {LOCALHOST2_CHAIN_ID, configObject} from '../setup'
+import {LOCALHOST2_CHAIN_ID, testConfigObject} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
 const expectedValues = {
   mintedNFTTokenId: '0x0000000000000000000000000000000000000000000000000000000000000001',
   notMintedNFTTokenId: '0x0000000000000000000000000000000000000000000000000000000000000002',
-  owner: configObject.accounts?.default?.address!,
+  owner: testConfigObject.accounts?.default?.address!,
   tokenId: {
     hex: '0x000000060000000000000000000000000000000000000000000000000000a4f4',
     decimal: '161759680002903838768002090522117784041822866535243434886621661537524',
@@ -24,8 +24,8 @@ const expectedValues = {
 }
 
 describe('Asset class: NFT', () => {
-  const account: HolographAccount = configObject.accounts?.default!
-  const wallet = new HolographWallet({account, networks: configObject.networks})
+  const account: HolographAccount = testConfigObject.accounts?.default!
+  const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   let collection: HolographLegacyCollection
   let nft: NFT

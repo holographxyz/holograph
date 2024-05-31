@@ -14,7 +14,7 @@ export class MoeNFT extends NFT {
   constructor({collection, metadata, version = HolographVersion.V2}: CreateNFT) {
     super({collection, metadata, version})
     const config = Config.getInstance(collection.holographConfig)
-    const holographDropERC721 = new HolographDropERC721(config, collection.collectionAddress!, version)
+    const holographDropERC721 = new HolographDropERC721(collection.collectionAddress!, version, config)
     this.holographDropERC721 = holographDropERC721
   }
 

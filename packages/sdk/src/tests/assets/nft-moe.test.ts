@@ -3,18 +3,18 @@ import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
 import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
 import {MoeNFT} from '../../assets/nft-moe'
 import {HolographWallet} from '../../services'
-import {LOCALHOST2_CHAIN_ID, configObject} from '../setup'
+import {LOCALHOST2_CHAIN_ID, testConfigObject} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
 const expectedValues = {
   mintedNFTTokenId: '0x0000000000000000000000000000000000000000000000000000000000000001',
-  owner: configObject.accounts?.default?.address!,
+  owner: testConfigObject.accounts?.default?.address!,
 }
 
 describe('Asset class: MoeNFT', () => {
-  const account: HolographAccount = configObject.accounts?.default!
-  const wallet = new HolographWallet({account, networks: configObject.networks})
+  const account: HolographAccount = testConfigObject.accounts?.default!
+  const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   let collection: HolographMoeERC721DropV2
   let nft: MoeNFT

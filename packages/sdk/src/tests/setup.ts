@@ -44,13 +44,16 @@ const accounts: {[name: string]: {address: Address; privateKey: Hex}} = {
 export const LOCALHOST_CHAIN_ID = 1338
 export const LOCALHOST2_CHAIN_ID = 1339
 
-const localhost = holographToViemChain(LOCALHOST_CHAIN_ID)
-const localhost2 = holographToViemChain(LOCALHOST2_CHAIN_ID)
+const localhostChain = holographToViemChain(LOCALHOST_CHAIN_ID)
+const localhost2Chain = holographToViemChain(LOCALHOST2_CHAIN_ID)
 
-export const configObject: HolographConfig = {
+export const localhostRpc = localhostChain.rpcUrls.default.http[0]
+export const localhost2Rpc = localhost2Chain.rpcUrls.default.http[0]
+
+export const testConfigObject: HolographConfig = {
   networks: {
-    localhost: localhost.rpcUrls.default.http[0],
-    localhost2: localhost2.rpcUrls.default.http[0],
+    localhost: localhostRpc,
+    localhost2: localhost2Rpc,
   },
   accounts: {
     default: HolographAccountFactory.createAccountUsingPrivateKey(accounts.default.privateKey),
@@ -60,16 +63,16 @@ export const configObject: HolographConfig = {
   environment: Environment.localhost,
 }
 
-export const config = Config.getInstance(configObject)
+export const testConfig = Config.getInstance(testConfigObject)
 
 export const testClient = createTestClient({
-  chain: localhost,
+  chain: localhostChain,
   mode: 'anvil',
-  transport: http(localhost.rpcUrls.default.http[0]),
+  transport: http(localhostRpc),
 })
 
 export const testClient2 = createTestClient({
-  chain: localhost2,
+  chain: localhost2Chain,
   mode: 'anvil',
-  transport: http(localhost2.rpcUrls.default.http[0]),
+  transport: http(localhost2Rpc),
 })

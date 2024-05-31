@@ -16,7 +16,7 @@ import {Environment} from '@holographxyz/environment'
 import {Network, NetworkKey} from '@holographxyz/networks'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
-import {HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 
 type _PrimitiveType = AbiParameterToPrimitiveType<{
   name: 'test'
@@ -243,6 +243,7 @@ export type BridgeCollectionInput = {
   contractAddress: Address
   erc721DeploymentConfig: DeploymentConfig
   wallet: HolographWallet
+  gasSettings?: GasSettings
 }
 
 export type BridgeNFTInput = {

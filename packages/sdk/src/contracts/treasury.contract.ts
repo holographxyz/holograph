@@ -17,7 +17,7 @@ import {Holograph} from '.'
  *
  */
 export class Treasury extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(_config?: Config, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -26,7 +26,7 @@ export class Treasury extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Treasury.name})
     }
 
-    super(_config, logger, HolographTreasuryABI, 'HolographTreasury')
+    super(logger, HolographTreasuryABI, 'HolographTreasury', _config)
   }
 
   /**

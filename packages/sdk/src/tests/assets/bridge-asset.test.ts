@@ -8,7 +8,7 @@ import {BridgeAsset} from '../../assets/bridge-asset'
 import {generateRandomSalt} from '../../utils/helpers'
 import {BridgeCollection} from '../../assets/bridge-collection'
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
-import {configObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
+import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 import {getTestGasLimit, MAX_GAS_VALUE} from '../../utils/gas'
 
 /**
@@ -17,9 +17,9 @@ import {getTestGasLimit, MAX_GAS_VALUE} from '../../utils/gas'
  * Once `getMessageFee` is functional for localhost, remove the `describe.skip` and update the tests.
  */
 describe('Asset class: BridgeAsset', () => {
-  const account: HolographAccount = configObject.accounts?.default!
+  const account: HolographAccount = testConfigObject.accounts?.default!
   const accountAddress = account?.address
-  const wallet = new HolographWallet({account, networks: configObject.networks})
+  const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   let bridgeAsset: BridgeAsset
   let sourceChainId: number
@@ -32,7 +32,7 @@ describe('Asset class: BridgeAsset', () => {
   let factoryAddress
 
   beforeAll(async () => {
-    bridgeAsset = new BridgeAsset(configObject)
+    bridgeAsset = new BridgeAsset()
 
     sourceChainId = LOCALHOST_CHAIN_ID
     destinationChainId = LOCALHOST2_CHAIN_ID

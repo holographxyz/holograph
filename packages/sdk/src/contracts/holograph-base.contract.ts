@@ -30,6 +30,7 @@ import {
  *
  */
 export class HolographBaseContract {
+  protected readonly _config: Config
   /** The list of networks in which the contract was instantiated. */
   public readonly networks: Network[]
   /** The record of addresses per chainId. */
@@ -38,16 +39,17 @@ export class HolographBaseContract {
   protected _walletManager?: HolographWalletManager
 
   constructor(
-    protected readonly _config: Config,
     protected _logger: HolographLogger,
     protected readonly _abi: Abi,
     private readonly _contractName: string,
+    _config?: Config,
   ) {
+    this._config = _config ?? Config.getInstance()
     this.networks = this._config.networks
-    this._providers = new Providers(_config)
+    this._providers = new Providers(this._config)
 
-    if (_config.accounts !== undefined) {
-      this._walletManager = new HolographWalletManager(_config)
+    if (this._config.accounts !== undefined) {
+      this._walletManager = new HolographWalletManager(this._config)
     }
   }
 

@@ -23,9 +23,9 @@ export class HolographDropERC721 extends HolographBaseContract {
   private abis: typeof ABIs | typeof V2ABIs
 
   constructor(
-    _config: Config,
     collectionAddress: Address,
     version = HolographVersion.V2,
+    _config?: Config,
     parentLogger?: HolographLogger,
   ) {
     let logger: HolographLogger
@@ -38,7 +38,7 @@ export class HolographDropERC721 extends HolographBaseContract {
 
     const isV2 = version === HolographVersion.V2
     const abis = isV2 ? V2ABIs : ABIs
-    super(_config, logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721')
+    super(logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721', _config)
     this.collectionAddress = collectionAddress
     this.abis = abis
   }
