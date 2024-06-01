@@ -355,7 +355,7 @@ importers:
         specifier: ^0.1.11
         version: link:../environment
       '@holographxyz/networks':
-        specifier: ^0.2.11
+        specifier: workspace:^
         version: link:../networks
       uuid:
         specifier: ^9.0.1
