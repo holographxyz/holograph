@@ -251,9 +251,10 @@ export type BridgeNFTInput = {
   destinationChainId: number
   contractAddress: Address
   tokenId: Hex
+  wallet: HolographWallet
   from?: Address
   to?: Address
-  wallet: HolographWallet
+  gasSettings?: GasSettings
 }
 
 export type ReadContractArgs<TAbi extends Abi> = {

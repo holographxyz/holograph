@@ -2,7 +2,7 @@ import {Hex} from 'viem'
 import {Address} from 'abitype'
 
 import {HolographRegistryABI} from '../constants/abi/develop'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
