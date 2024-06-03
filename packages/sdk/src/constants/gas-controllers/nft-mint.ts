@@ -141,6 +141,24 @@ export const NFT_MINT_GAS = {
     gasLimitMultiplier: undefined,
     gasPriceMultiplier: 110,
   },
+  [networks.linea.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: undefined,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: undefined,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: undefined,
+    gasPriceMultiplier: 110,
+  },
   [networks.localhost.chain]: {
     gasPrice: undefined,
     gasLimit: undefined,

@@ -1,5 +1,5 @@
 import * as z from 'zod'
-import {Hex, isAddress, pad, stringToBytes, toHex} from 'viem'
+import {Hex, isAddress, pad, stringToBytes, stringToHex, toHex} from 'viem'
 import {NETWORK_KEY_BY_RPC_URL, NetworkKey, networks} from '@holographxyz/networks'
 
 import {getEnv} from '../config/env.validation'
@@ -60,6 +60,10 @@ export function generateRandomSalt(): Hex {
 
 export function padAndHexify(str: string, size = 32) {
   return toHex(pad(stringToBytes(str), {size}))
+}
+
+export function hexify(str: string) {
+  return ('0x' + stringToHex(str).slice(2).padStart(64, '0')) as Hex
 }
 
 export function capitalizeFirstLetter(string: string) {

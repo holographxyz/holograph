@@ -141,6 +141,24 @@ export const MOE_COLLECTION_DEPLOY_GAS = {
     gasLimitMultiplier: 120,
     gasPriceMultiplier: 110,
   },
+  [networks.linea.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 120,
+    gasPriceMultiplier: 110,
+  },
   [networks.localhost.chain]: {
     gasPrice: undefined,
     gasLimit: undefined,

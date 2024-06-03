@@ -1,4 +1,4 @@
-import {Address, Hex, encodeAbiParameters, parseAbiParameters, toBytes} from 'viem'
+import {Address, Hex, encodeAbiParameters, hexToBytes, parseAbiParameters} from 'viem'
 
 import {
   CollectionInfo,
@@ -21,13 +21,13 @@ import {Factory, Registry} from '../contracts'
 import {Config, HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
-import {getERC721DeploymentConfigHash} from '../utils/encoders'
+import {getERC721DropDeploymentConfigHash} from '../utils/encoders'
 import {
   destructSignature,
   enableDropEvents,
   enableDropEventsV2,
   generateRandomSalt,
-  padAndHexify,
+  hexify,
   parseISODateToTimestampSeconds,
   strictECDSA,
 } from '../utils/helpers'
@@ -338,7 +338,7 @@ export class HolographMoeERC721DropV1 {
   }
 
   protected _getDropContractType() {
-    return padAndHexify('HolographDropERC721')
+    return hexify('HolographDropERC721')
   }
 
   protected _getEventConfig() {
@@ -404,16 +404,16 @@ export class HolographMoeERC721DropV1 {
     const registryAddress = await this._getRegistryAddress(chainId)
     const metadataRendererAddress = this._getMetadataRendererAddress(chainId)
     const salesConfig = {
-      publicSalePrice: BigInt(this.publicSalePrice), // In USD
+      publicSalePrice: BigInt(this.publicSalePrice * Math.pow(10, 6)),
       maxSalePurchasePerAddress: this.maxSalePurchasePerAddress,
       publicSaleStart: parseISODateToTimestampSeconds(this.publicSaleStart),
       publicSaleEnd: parseISODateToTimestampSeconds(this.publicSaleEnd),
-      presaleStart: 0, // No presale
-      presaleEnd: 0, // No presale
-      presaleMerkleRoot: '0x0000000000000000000000000000000000000000000000000000000000000000', // No presale
+      presaleStart: parseISODateToTimestampSeconds(this.presaleStart),
+      presaleEnd: parseISODateToTimestampSeconds(this.presaleEnd),
+      presaleMerkleRoot: this.presaleMerkleRoot || '0x0000000000000000000000000000000000000000000000000000000000000000',
     }
-
     const salesConfigArray = Object.values(salesConfig)
+
     const imagePinataLink = this.nftIpfsUrl
     const imageCid = this.nftIpfsImageCid
     const imageFileName = imagePinataLink.split('/').at(-1)
@@ -469,8 +469,8 @@ export class HolographMoeERC721DropV1 {
     })
 
     const byteCode = bytecodes.HolographDropERC721
-    const chainType = evm2hlg(this.primaryChainId)
-    const contractType = padAndHexify('HolographERC721')
+    const chainType = '0x' + evm2hlg(this.primaryChainId).toString(16).padStart(8, '0')
+    const contractType = hexify('HolographERC721')
 
     const erc721Config = {
       contractType,
@@ -480,10 +480,10 @@ export class HolographMoeERC721DropV1 {
       salt,
     }
 
-    const configHash = getERC721DeploymentConfigHash(erc721Config, account)
+    const configHash = getERC721DropDeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = configHash
 
-    const configHashBytes = toBytes(configHash)
+    const configHashBytes = hexToBytes(configHash)
 
     return {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt} //TODO: adjust return type to match CollectionLegacy._getCollectionPayload
   }
@@ -568,7 +568,7 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
   }
 
   protected _getDropContractType() {
-    return padAndHexify('HolographDropERC721V2')
+    return hexify('HolographDropERC721V2')
   }
 
   protected _getEventConfig() {

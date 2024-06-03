@@ -106,7 +106,7 @@ export const MOE_NFT_MINT_GAS = {
     gasPriceMultiplier: 110,
   },
   [networks.zora.chain]: {
-    gasPrice: BigInt(100000000),
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 110,
     gasPriceMultiplier: 110,
@@ -136,6 +136,24 @@ export const MOE_NFT_MINT_GAS = {
     gasPriceMultiplier: 110,
   },
   [networks.baseTestnetSepolia.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 110,
+    gasPriceMultiplier: 110,
+  },
+  [networks.linea.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 110,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetGoerli.chain]: {
+    gasPrice: undefined,
+    gasLimit: undefined,
+    gasLimitMultiplier: 110,
+    gasPriceMultiplier: 110,
+  },
+  [networks.lineaTestnetSepolia.chain]: {
     gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 110,

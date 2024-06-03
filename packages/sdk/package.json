@@ -1,6 +1,6 @@
 {
   "name": "@holographxyz/sdk",
-  "version": "0.1.0-alpha.45",
+  "version": "0.1.0-alpha.49",
   "description": "Holograph SDK for interacting with the Holograph Protocol.",
   "license": "SEE LICENSE IN LICENSE.md",
   "keywords": [
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@holographxyz/environment": "^0.1.11",
-    "@holographxyz/networks": "^0.2.11",
+    "@holographxyz/networks": "workspace:^",
     "uuid": "^9.0.1",
     "viem": "^2.7.6"
   },

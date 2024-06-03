@@ -1,8 +1,8 @@
+import {BRIDGE_NFT_GAS} from './bridge-nft'
 import {LEGACY_COLLECTION_DEPLOY_GAS} from './legacy-collection-deploy'
 import {MOE_COLLECTION_DEPLOY_GAS} from './moe-collection-deploy'
 import {MOE_NFT_MINT_GAS} from './moe-nft-mint'
 import {NFT_MINT_GAS} from './nft-mint'
-import {BRIDGE_NFT_GAS} from './bridge-nft'
 
 export type GasParams = {
   gasPrice?: bigint // in wei
