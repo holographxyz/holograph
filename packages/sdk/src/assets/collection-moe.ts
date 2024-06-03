@@ -57,10 +57,7 @@ export class HolographMoeERC721DropV1 {
   private factory: Factory
   private registry: Registry
 
-  constructor(
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
-    public holographConfig?: HolographConfig,
-  ) {
+  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.nftInfo = validate.nftInfo.parse(nftInfo)
     this.salesConfig = validate.salesConfig.parse(salesConfig)
@@ -528,11 +525,8 @@ export class HolographMoeERC721DropV1 {
 }
 
 export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
-  constructor(
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
-    configObject?: HolographConfig,
-  ) {
-    super({collectionInfo, nftInfo, primaryChainId, salesConfig}, configObject)
+  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
+    super({collectionInfo, nftInfo, primaryChainId, salesConfig})
   }
 
   static hydrate({

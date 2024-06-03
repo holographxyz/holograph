@@ -4,7 +4,7 @@ import {Address, Hex, Transaction, encodeFunctionData} from 'viem'
 import {Bridge, Factory, Operator} from '../contracts'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
-import {Config, HolographLogger, HolographWallet, Providers} from '../services'
+import {HolographLogger, HolographWallet, Providers} from '../services'
 import {EstimateBridgeOutResult, GasPricing, GasSettings, HolographConfig} from '../utils/types'
 import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit, MAX_GAS_VALUE} from '../utils/gas'
 
@@ -18,7 +18,6 @@ export class BridgeAsset {
   constructor(private gasSettings?: GasSettings, _logger?: HolographLogger) {
     this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
 
-    const config = Config.getInstance()
     this._providers = new Providers()
     this._bridge = new Bridge()
     this._operator = new Operator()
