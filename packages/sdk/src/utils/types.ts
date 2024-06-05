@@ -13,7 +13,7 @@ import {
 } from 'viem'
 import {Account} from 'viem/accounts'
 import {Environment} from '@holographxyz/environment'
-import {Network, NetworkKey} from '@holographxyz/networks'
+import {NetworkKey} from '@holographxyz/networks'
 
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {HolographWallet} from '../services'
@@ -243,6 +243,7 @@ export type BridgeCollectionInput = {
   contractAddress: Address
   erc721DeploymentConfig: DeploymentConfig
   wallet: HolographWallet
+  gasSettings?: GasSettings
 }
 
 export type BridgeNFTInput = {
@@ -250,9 +251,10 @@ export type BridgeNFTInput = {
   destinationChainId: number
   contractAddress: Address
   tokenId: Hex
+  wallet: HolographWallet
   from?: Address
   to?: Address
-  wallet: HolographWallet
+  gasSettings?: GasSettings
 }
 
 export type ReadContractArgs<TAbi extends Abi> = {

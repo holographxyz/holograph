@@ -1,23 +1,21 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {CxipERC721} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject} from '../setup'
+import {testConfigObject} from '../setup'
 
 const FAKE_COLLECTION_ADDRESS = '0xAbCdEf0123456789ABCDEF0123456789abcdef01'
 
 describe('Contract class: CxipERC721', () => {
-  let config: Config
   let providersWrapper: Providers
   let cxipERC721: CxipERC721
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    cxipERC721 = new CxipERC721(config, FAKE_COLLECTION_ADDRESS)
+    providersWrapper = new Providers()
+    cxipERC721 = new CxipERC721(FAKE_COLLECTION_ADDRESS)
   })
 
   it('should be able to get the correct providers', () => {

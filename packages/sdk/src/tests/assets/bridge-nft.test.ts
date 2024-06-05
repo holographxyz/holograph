@@ -6,7 +6,7 @@ import {HolographAccount} from '../../utils/types'
 import {generateRandomSalt} from '../../utils/helpers'
 import {BridgeCollection} from '../../assets/bridge-collection'
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
-import {configObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
+import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 import {NFT} from '../../assets/nft'
 import {BridgeNFT} from '../../assets/bridge-nft'
 
@@ -15,10 +15,10 @@ import {BridgeNFT} from '../../assets/bridge-nft'
  * These tests should be executed on a testnet as they are not expected to run successfully locally.
  */
 describe('Asset class: BridgeNFT', () => {
-  const account: HolographAccount = configObject.accounts?.default!
+  const account: HolographAccount = testConfigObject.accounts?.default!
   const wallet = new HolographWallet({
     account,
-    networks: configObject.networks,
+    networks: testConfigObject.networks,
   })
 
   let collection: HolographLegacyCollection
@@ -65,7 +65,7 @@ describe('Asset class: BridgeNFT', () => {
 
     contractAddress = collectionAddress
 
-    bridgeNFT = new BridgeNFT(configObject, {
+    bridgeNFT = new BridgeNFT({
       sourceChainId,
       destinationChainId,
       contractAddress,

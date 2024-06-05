@@ -3,10 +3,10 @@ import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {Addresses} from '../../constants/addresses'
 import {Registry} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 // TODO: localhost deployment needs to better configure this contract and create an example
 const expectedValues = {
@@ -25,15 +25,13 @@ const expectedValues = {
 }
 
 describe('Contract class: Registry', () => {
-  let config: Config
   let providersWrapper: Providers
   let registry: Registry
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    registry = new Registry(config)
+    providersWrapper = new Providers()
+    registry = new Registry()
   })
 
   it('should be able to get the correct providers', () => {

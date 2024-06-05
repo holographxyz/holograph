@@ -2,7 +2,7 @@ import {Address} from 'abitype'
 
 import {HolographDropERC721ABI, HolographDropERC721V2ABI, HolographERC721ABI} from '../constants/abi/develop'
 import {HolographBaseContract} from './holograph-base.contract'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {
   EstimateContractFunctionGasArgs,
   GetContractFunctionArgs,
@@ -22,12 +22,7 @@ export class HolographDropERC721 extends HolographBaseContract {
   private collectionAddress: Address
   private abis: typeof ABIs | typeof V2ABIs
 
-  constructor(
-    _config: Config,
-    collectionAddress: Address,
-    version = HolographVersion.V2,
-    parentLogger?: HolographLogger,
-  ) {
+  constructor(collectionAddress: Address, version = HolographVersion.V2, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -38,7 +33,7 @@ export class HolographDropERC721 extends HolographBaseContract {
 
     const isV2 = version === HolographVersion.V2
     const abis = isV2 ? V2ABIs : ABIs
-    super(_config, logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721')
+    super(logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721')
     this.collectionAddress = collectionAddress
     this.abis = abis
   }

@@ -2,7 +2,6 @@ import {Hex, pad, toHex} from 'viem'
 
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {HolographDropERC721} from '../contracts'
-import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {HolographVersion, MintConfig, WriteContractOptions} from '../utils/types'
 import {NFT} from './nft'
@@ -13,8 +12,8 @@ export class MoeNFT extends NFT {
 
   constructor({collection, metadata, version = HolographVersion.V2}: CreateNFT) {
     super({collection, metadata, version})
-    const config = Config.getInstance(collection.holographConfig)
-    const holographDropERC721 = new HolographDropERC721(config, collection.collectionAddress!, version)
+
+    const holographDropERC721 = new HolographDropERC721(collection.collectionAddress!, version)
     this.holographDropERC721 = holographDropERC721
   }
 

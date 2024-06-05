@@ -6,7 +6,6 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {CxipERC721} from '../contracts'
 import {NotMintedNFTError} from '../errors/assets/not-minted-nft.error'
 import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, NFTIpfsInfo, validate} from './nft.validation'
-import {Config} from '../services'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
 import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
@@ -26,8 +25,8 @@ export class NFT {
     this.metadata = validate.metadata.parse(metadata)
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
     this.collection = validate.collection.parse(collection)
-    const config = Config.getInstance(collection.holographConfig)
-    this.cxipERC721 = new CxipERC721(config, collection.collectionAddress!)
+
+    this.cxipERC721 = new CxipERC721(collection.collectionAddress!)
     this.isMinted = false
   }
 

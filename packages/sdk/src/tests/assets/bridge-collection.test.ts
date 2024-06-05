@@ -6,16 +6,16 @@ import {HolographAccount} from '../../utils/types'
 import {generateRandomSalt} from '../../utils/helpers'
 import {BridgeCollection} from '../../assets/bridge-collection'
 import {HolographLegacyCollection} from '../../assets/collection-legacy'
-import {configObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
+import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 
 /**
  * TODO:
  * These tests should be executed on a testnet as they are not expected to run successfully locally.
  */
 describe('Asset class: BridgeCollection', () => {
-  const account: HolographAccount = configObject.accounts?.default!
+  const account: HolographAccount = testConfigObject.accounts?.default!
   const accountAddress = account?.address
-  const wallet = new HolographWallet({account, networks: configObject.networks})
+  const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   let collection: HolographLegacyCollection
   let bridgeCollection: BridgeCollection
@@ -44,7 +44,7 @@ describe('Asset class: BridgeCollection', () => {
 
     contractAddress = collectionAddress
 
-    bridgeCollection = new BridgeCollection(configObject, {
+    bridgeCollection = new BridgeCollection({
       sourceChainId,
       contractAddress,
       erc721DeploymentConfig,

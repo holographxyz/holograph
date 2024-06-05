@@ -1,10 +1,10 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Factory} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
-import {ONLY_ADMIN_ERROR_MESSAGE, configObject, localhostContractAddresses} from '../setup'
+import {ONLY_ADMIN_ERROR_MESSAGE, testConfigObject, localhostContractAddresses} from '../setup'
 import {Addresses} from '../../constants/addresses'
 import {Address} from 'viem'
 
@@ -15,15 +15,13 @@ const expectedValues = {
 }
 
 describe('Contract class: Factory', () => {
-  let config: Config
   let providersWrapper: Providers
   let factory: Factory
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    factory = new Factory(config)
+    providersWrapper = new Providers()
+    factory = new Factory()
   })
 
   it('should be able to get the correct providers', () => {

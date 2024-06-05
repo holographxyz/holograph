@@ -1,11 +1,11 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Holograph} from '../../contracts'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -21,15 +21,13 @@ const expectedValues = {
 }
 
 describe('Contract class: Holograph', () => {
-  let config: Config
   let providersWrapper: Providers
   let holograph: Holograph
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    holograph = new Holograph(config)
+    providersWrapper = new Providers()
+    holograph = new Holograph()
   })
 
   it('should be able to get the correct providers', () => {

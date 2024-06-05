@@ -2,7 +2,7 @@ import {Hex} from 'viem'
 import {Address} from 'abitype'
 
 import {HolographRegistryABI} from '../constants/abi/develop'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
@@ -18,7 +18,7 @@ import {Holograph} from '.'
  *
  */
 export class Registry extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -27,7 +27,7 @@ export class Registry extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Registry.name})
     }
 
-    super(_config, logger, HolographRegistryABI, 'HolographRegistry')
+    super(logger, HolographRegistryABI, 'HolographRegistry')
   }
 
   /**
@@ -38,7 +38,7 @@ export class Registry extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph(this._config)
+      const holograph = new Holograph()
       const add = (await holograph.getRegistry(chainId)) as Address
       this._addresses[chainId] = add
     }

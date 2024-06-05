@@ -2,7 +2,7 @@ import {Address, Hex} from 'viem'
 
 import {Addresses} from '../constants/addresses'
 import {LayerZeroModuleABI} from '../constants/abi/develop'
-import {HolographLogger, Config, HolographWallet} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs, GasParameters} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
@@ -18,7 +18,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class LayerZeroModule extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -27,7 +27,7 @@ export class LayerZeroModule extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: LayerZeroModule.name})
     }
 
-    super(_config, logger, LayerZeroModuleABI, 'LayerZeroModule')
+    super(logger, LayerZeroModuleABI, 'LayerZeroModule')
   }
 
   /**

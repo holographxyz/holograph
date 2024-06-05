@@ -2,9 +2,9 @@ import {beforeAll, describe, expect, it} from 'vitest'
 
 import {Bridge} from '../../contracts'
 import {REGEX} from '../../utils/transformers'
-import {Providers, Config} from '../../services'
+import {Providers} from '../../services'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-import {configObject, localhostContractAddresses} from '../setup'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -15,15 +15,13 @@ const expectedValues = {
 }
 
 describe('Contract class: Bridge', () => {
-  let config: Config
   let providersWrapper: Providers
   let bridge: Bridge
-  const chainIds = getChainIdsByNetworksConfig(configObject.networks)
+  const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    config = Config.getInstance(configObject)
-    providersWrapper = new Providers(config)
-    bridge = new Bridge(config)
+    providersWrapper = new Providers()
+    bridge = new Bridge()
   })
 
   it('should be able to get the correct providers', () => {

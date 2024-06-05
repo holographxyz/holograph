@@ -4,7 +4,7 @@ import {CollectionInfo, CreateLegacyCollection, HydrateLegacyCollection, validat
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
-import {Config, HolographWallet} from '../services'
+import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, padAndHexify} from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
@@ -35,13 +35,12 @@ export class HolographLegacyCollection {
   private readonly factory: Factory
   private readonly registry: Registry
 
-  constructor({collectionInfo, primaryChainId}: CreateLegacyCollection, public holographConfig?: HolographConfig) {
+  constructor({collectionInfo, primaryChainId}: CreateLegacyCollection) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
 
-    const config = Config.getInstance(holographConfig)
-    this.factory = new Factory(config)
-    this.registry = new Registry(config)
+    this.factory = new Factory()
+    this.registry = new Registry()
     this.chainIds = []
   }
 

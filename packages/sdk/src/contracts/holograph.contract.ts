@@ -2,7 +2,7 @@ import {Address} from 'abitype'
 
 import {Addresses} from '../constants/addresses'
 import {HolographABI} from '../constants/abi/develop'
-import {HolographLogger, Config} from '../services'
+import {HolographLogger} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
@@ -21,7 +21,7 @@ import {HolographBaseContract} from './holograph-base.contract'
  *
  */
 export class Holograph extends HolographBaseContract {
-  constructor(_config: Config, parentLogger?: HolographLogger) {
+  constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
@@ -30,7 +30,7 @@ export class Holograph extends HolographBaseContract {
       logger = HolographLogger.createLogger({className: Holograph.name})
     }
 
-    super(_config, logger, HolographABI, 'Holograph')
+    super(logger, HolographABI, 'Holograph')
   }
 
   /**

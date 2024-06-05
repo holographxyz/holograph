@@ -18,7 +18,7 @@ import {Addresses} from '../constants/addresses'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {Factory, Registry} from '../contracts'
-import {Config, HolographWallet} from '../services'
+import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 import {getERC721DropDeploymentConfigHash} from '../utils/encoders'
@@ -57,18 +57,14 @@ export class HolographMoeERC721DropV1 {
   private factory: Factory
   private registry: Registry
 
-  constructor(
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
-    public holographConfig?: HolographConfig,
-  ) {
+  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
     this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
     this.nftInfo = validate.nftInfo.parse(nftInfo)
     this.salesConfig = validate.salesConfig.parse(salesConfig)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
 
-    const config = Config.getInstance(holographConfig)
-    this.factory = new Factory(config)
-    this.registry = new Registry(config)
+    this.factory = new Factory()
+    this.registry = new Registry()
     this.chainIds = []
   }
 
@@ -529,11 +525,8 @@ export class HolographMoeERC721DropV1 {
 }
 
 export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
-  constructor(
-    {collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection,
-    configObject?: HolographConfig,
-  ) {
-    super({collectionInfo, nftInfo, primaryChainId, salesConfig}, configObject)
+  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
+    super({collectionInfo, nftInfo, primaryChainId, salesConfig})
   }
 
   static hydrate({
