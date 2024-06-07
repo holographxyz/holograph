@@ -29,7 +29,6 @@ describe('Asset class: BridgeAsset', () => {
   let gasLimit: bigint
   let gasPrice: bigint
   let bridgeOutPayload: Hex
-  let factoryAddress
 
   beforeAll(async () => {
     bridgeAsset = new BridgeAsset()
@@ -55,7 +54,6 @@ describe('Asset class: BridgeAsset', () => {
     holographableContract = collectionAddress
 
     const erc721DeploymentConfig = await collection['createERC721DeploymentConfig'](accountAddress)
-    factoryAddress = await collection['_getFactoryAddress']()
 
     bridgeOutPayload = await BridgeCollection.createInitCode(sourceChainId, erc721DeploymentConfig, wallet)
 
@@ -94,7 +92,7 @@ describe('Asset class: BridgeAsset', () => {
       const payload = await bridgeAsset['_createBridgeOutPayload'](
         sourceChainId,
         holographChainId,
-        factoryAddress,
+        holographableContract,
         MAX_GAS_VALUE,
         MAX_GAS_VALUE,
         bridgeOutPayload,
