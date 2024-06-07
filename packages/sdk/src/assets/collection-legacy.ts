@@ -8,15 +8,7 @@ import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, padAndHexify} from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
-import {
-  DeploymentConfig,
-  ERC721Config,
-  GasFee,
-  HolographConfig,
-  Signature,
-  SignDeploy,
-  WriteContractOptions,
-} from '../utils/types'
+import {DeploymentConfig, ERC721Config, GasFee, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
 import {create2AddressFromDeploymentHash, getERC721DeploymentConfigHash} from '../utils/encoders'
 import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 

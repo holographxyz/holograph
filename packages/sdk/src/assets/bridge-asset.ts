@@ -1,11 +1,11 @@
 import {getNetworkByChainId} from '@holographxyz/networks'
 import {Address, Hex, Transaction, encodeFunctionData} from 'viem'
 
-import {Bridge, Factory, Operator} from '../contracts'
+import {Bridge, Operator} from '../contracts'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {HolographLogger, HolographWallet, Providers} from '../services'
-import {EstimateBridgeOutResult, GasPricing, GasSettings, HolographConfig} from '../utils/types'
+import {EstimateBridgeOutResult, GasPricing, GasSettings} from '../utils/types'
 import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit, MAX_GAS_VALUE} from '../utils/gas'
 
 export class BridgeAsset {
@@ -13,7 +13,6 @@ export class BridgeAsset {
   private readonly _providers: Providers
   private readonly _bridge: Bridge
   private readonly _operator: Operator
-  private readonly _factory: Factory
 
   constructor(private gasSettings?: GasSettings, _logger?: HolographLogger) {
     this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
@@ -21,7 +20,6 @@ export class BridgeAsset {
     this._providers = new Providers()
     this._bridge = new Bridge()
     this._operator = new Operator()
-    this._factory = new Factory()
   }
 
   static createUnsignedBridgeOutTx(
@@ -41,7 +39,7 @@ export class BridgeAsset {
   protected async _createBridgeOutPayload(
     chainId: number,
     holographChainId: number,
-    factoryAddress: Address,
+    contractAddress: Address,
     gasLimit: bigint,
     gasPrice: bigint,
     bridgeOutPayload: Hex,
@@ -52,7 +50,7 @@ export class BridgeAsset {
       chainId,
       args: {
         holographChainId,
-        factoryAddress,
+        contractAddress,
         gasLimit,
         gasPrice,
         bridgeOutPayload,
@@ -63,7 +61,7 @@ export class BridgeAsset {
       await this._bridge.simulateContractFunction({
         chainId,
         functionName: 'getBridgeOutRequestPayload',
-        args: [holographChainId, factoryAddress, gasLimit, gasPrice, bridgeOutPayload],
+        args: [holographChainId, contractAddress, gasLimit, gasPrice, bridgeOutPayload],
       })
     ).result as Hex
   }
@@ -144,7 +142,7 @@ export class BridgeAsset {
   protected async _estimateBridgeOutDestinationGas(
     chainId: number,
     destinationChainId: number,
-    factoryAddress: Address,
+    contractAddress: Address,
     bridgeOutPayload: Hex,
   ) {
     const logger = this._logger.addContext({functionName: this._estimateBridgeOutDestinationGas.name})
@@ -167,7 +165,7 @@ export class BridgeAsset {
       const bridgeRequestPayloadStub: Hex = await this._createBridgeOutPayload(
         chainId,
         destinationHolographChainId,
-        factoryAddress,
+        contractAddress,
         MAX_GAS_VALUE,
         MAX_GAS_VALUE,
         bridgeOutPayload,
@@ -224,14 +222,12 @@ export class BridgeAsset {
 
     let logObject: any = {}
 
-    const factoryAddress = await this._factory.getAddress(chainId)
-
-    logObject = {...logObject, factoryAddress}
+    logObject = {...logObject, contractAddress}
 
     const {destinationGasPrice, destinationGasLimit} = await this._estimateBridgeOutDestinationGas(
       chainId,
       destinationChainId,
-      factoryAddress,
+      contractAddress,
       bridgeOutPayload,
     )
 
@@ -245,7 +241,7 @@ export class BridgeAsset {
     const bridgeRequestPayload = await this._createBridgeOutPayload(
       chainId,
       destinationHolographChainId,
-      factoryAddress,
+      contractAddress,
       destinationGasLimit,
       destinationGasPrice,
       bridgeOutPayload,

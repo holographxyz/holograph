@@ -32,14 +32,7 @@ import {
   strictECDSA,
 } from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
-import {
-  GasFee,
-  GetDropInitCodeParams,
-  HolographConfig,
-  SignDeploy,
-  Signature,
-  WriteContractOptions,
-} from '../utils/types'
+import {GasFee, GetDropInitCodeParams, SignDeploy, Signature, WriteContractOptions} from '../utils/types'
 
 export class HolographMoeERC721DropV1 {
   protected _isHydrated = false
