@@ -150,6 +150,8 @@ export enum BytecodeType {
   HolographDropERC721 = 'HolographDropERC721',
   Holographer = 'Holographer',
   EditionsMetadataRenderer = 'EditionsMetadataRenderer',
+  CustomERC721 = 'CustomERC721',
+  CustomERC721Proxy = 'CustomERC721Proxy',
 }
 
 export enum HolographEventName {
@@ -205,6 +207,33 @@ export enum TokenUriType {
   IPFS = 1,
   HTTPS = 2,
   ARWEAVE = 3,
+}
+
+/**
+ * Enum designed to mirror the equivalent Solidity enum.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/contracts/struct/SaleDetails.sol
+ */
+export type SaleDetails = {
+  // Synthesized status variables for sale and presale
+  publicSaleActive: boolean
+  presaleActive: boolean
+  // Price for public sale
+  publicSalePrice: bigint
+  // Timed sale actions for public sale
+  publicSaleStart: bigint
+  publicSaleEnd: bigint
+  // Timed sale actions for presale
+  presaleStart: bigint
+  presaleEnd: bigint
+  // Merkle root (includes address, quantity, and price data for each entry)
+  presaleMerkleRoot: Hex
+  // Limit public sale to a specific number of mints per wallet
+  maxSalePurchasePerAddress: bigint
+  // Information about the rest of the supply
+  // Total that have been minted
+  totalMinted: bigint
+  // The total supply available
+  maxSupply: bigint
 }
 
 export enum HolographVersion {
