@@ -1,24 +1,23 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {OVMGasPriceOracle} from '../../contracts'
+import {OVMGasPriceOracleContract} from '../../contracts'
 import {Providers} from '../../services'
-import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-
 import {testConfigObject, localhostContractAddresses} from '../setup'
+import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
 //NOTICE: the expected values are for the development env
 const expectedValues = {
   ovmGasPriceOracleAddress: localhostContractAddresses.ovmGasPriceOracle,
 }
 
-describe('Contract class: OVMGasPriceOracle', () => {
+describe('Contract class: OVMGasPriceOracleContract', () => {
   let providersWrapper: Providers
-  let ovmGasPriceOracle: OVMGasPriceOracle
+  let ovmGasPriceOracle: OVMGasPriceOracleContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    ovmGasPriceOracle = new OVMGasPriceOracle()
+    ovmGasPriceOracle = new OVMGasPriceOracleContract()
   })
 
   it('should be able to get the correct providers', () => {
@@ -27,7 +26,7 @@ describe('Contract class: OVMGasPriceOracle', () => {
     expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
-  it('should be able to get the OVMGasPriceOracle wrapper class', () => {
+  it('should be able to get the OVMGasPriceOracleContract wrapper class', () => {
     expect(ovmGasPriceOracle).toHaveProperty('getAddress')
     expect(ovmGasPriceOracle).toHaveProperty('getL1Fee')
     expect(ovmGasPriceOracle).toHaveProperty('getL1GasUsed')

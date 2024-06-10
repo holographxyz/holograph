@@ -5,7 +5,7 @@ import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
-import {Holograph} from '.'
+import {HolographContract} from '.'
 
 /**
  * @group Contracts
@@ -16,14 +16,14 @@ import {Holograph} from '.'
  * The Treasury holds and manages the protocol treasury.
  *
  */
-export class Treasury extends HolographBaseContract {
+export class TreasuryContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Treasury.name})
+      logger = parentLogger.addContext({className: TreasuryContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Treasury.name})
+      logger = HolographLogger.createLogger({className: TreasuryContract.name})
     }
 
     super(logger, HolographTreasuryABI, 'HolographTreasury')
@@ -37,7 +37,7 @@ export class Treasury extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getTreasury(chainId)) as Address
       this._addresses[chainId] = add
     }

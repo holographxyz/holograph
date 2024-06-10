@@ -1,14 +1,17 @@
 import {isAddress} from 'viem'
 import * as z from 'zod'
 
-import {HolographLegacyCollection} from './collection-legacy'
-import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './collection-moe'
+import {HolographERC721Contract} from './holograph-erc721-contract'
+import {
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from './holograph-open-edition-erc721-contract'
 import {CheckTypeIntegrity, HolographVersion} from '../utils/types'
 
-const collectionSchema = z
-  .instanceof(HolographLegacyCollection)
-  .or(z.instanceof(HolographMoeERC721DropV1))
-  .or(z.instanceof(HolographMoeERC721DropV2))
+const contractSchema = z
+  .instanceof(HolographERC721Contract)
+  .or(z.instanceof(HolographOpenEditionERC721ContractV1))
+  .or(z.instanceof(HolographOpenEditionERC721ContractV2))
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().min(1, {message: 'Description is required'})
 const creatorSchema = z.string().min(1, {message: 'Creator is required'})
@@ -37,14 +40,14 @@ const metadataSchema = z.object({
 })
 
 export const createNFTSchema = z.object({
-  collection: collectionSchema,
+  contract: contractSchema,
   ipfsInfo: ipfsInfoSchema,
   metadata: metadataSchema,
   version: versionSchema,
 })
 
 export const validate = {
-  collection: collectionSchema,
+  contract: contractSchema,
   name: nameSchema,
   description: descriptionSchema,
   creator: creatorSchema,
@@ -62,7 +65,7 @@ export const validate = {
 export type CreateNFTSchema = z.infer<typeof createNFTSchema>
 
 export type CreateNFT = {
-  collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
+  contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
   ipfsInfo?: {
     ipfsImageCid: string
     ipfsMetadataCid: string
@@ -77,7 +80,7 @@ export type CreateNFT = {
   version?: HolographVersion
 }
 
-type CheckCreateLegacyCollectionType = CheckTypeIntegrity<CreateNFTSchema, CreateNFT, CreateNFTSchema>
+type CheckCreateNFT = CheckTypeIntegrity<CreateNFTSchema, CreateNFT, CreateNFTSchema>
 
 export type HolographNFTMetadata = z.infer<typeof metadataSchema>
 

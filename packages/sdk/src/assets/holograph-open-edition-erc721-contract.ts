@@ -1,115 +1,115 @@
 import {Address, Hex, encodeAbiParameters, hexToBytes, parseAbiParameters} from 'viem'
 
 import {
-  CollectionInfo,
-  CreateMoeCollection,
-  HolographDropERC721InitCodeV1Params,
-  HolographDropERC721InitCodeV2Params,
+  CreateHolographOpenEditionERC721Contract,
+  ContractInfo,
   HolographERC721InitCodeParams,
-  HolographMoeSalesConfig,
-  MoeCollectionInfo,
+  HolographOpenEditionERC721InitCodeV2Params,
+  HolographOpenEditionERC721InitCodeV1Params,
+  HydrateHolographOpenEditionERC721Contract,
   NFTInfo,
-  DROP_INIT_CODE_ABI_PARAMETERS,
+  OpenEditionContractInfo,
+  OpenEditionSalesConfig,
+  OPEN_EDITION_INIT_CODE_ABI_PARAMETERS,
   validate,
-  HydrateMoeCollection,
-} from './collection.validation'
+} from './contract.validation'
 import {getEnv} from '../config/env.validation'
 import {Addresses} from '../constants/addresses'
 import {bytecodes} from '../constants/bytecodes'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
-import {Factory, Registry} from '../contracts'
+import {FactoryContract, RegistryContract} from '../contracts'
 import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
 import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
-import {getERC721DropDeploymentConfigHash} from '../utils/encoders'
+import {getERC721OpenEditionDeploymentConfigHash} from '../utils/encoders'
 import {
   destructSignature,
-  enableDropEvents,
-  enableDropEventsV2,
+  enableOpenEditionEvents,
+  enableOpenEditionEventsV2,
   generateRandomSalt,
   hexify,
   parseISODateToTimestampSeconds,
   strictECDSA,
 } from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
-import {GasFee, GetDropInitCodeParams, SignDeploy, Signature, WriteContractOptions} from '../utils/types'
+import {GasFee, GetOpenEditionInitCodeParams, SignDeploy, Signature, WriteContractOptions} from '../utils/types'
 
-export class HolographMoeERC721DropV1 {
+export class HolographOpenEditionERC721ContractV1 {
   protected _isHydrated = false
-  protected _collectionInfo: CollectionInfo
+  protected _contractInfo: ContractInfo
   public nftInfo: NFTInfo
-  public salesConfig: HolographMoeSalesConfig
+  public salesConfig: OpenEditionSalesConfig
   public primaryChainId: number
   public account?: Address
   public chainIds?: number[]
-  public collectionAddress?: Address
+  public contractAddress?: Address
   public erc721ConfigHash?: Hex
   public signature?: Signature
   public txHash?: string
 
-  private factory: Factory
-  private registry: Registry
+  private factory: FactoryContract
+  private registry: RegistryContract
 
-  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
-    this._collectionInfo = validate.collectionInfo.parse(collectionInfo)
+  constructor({contractInfo, nftInfo, primaryChainId, salesConfig}: CreateHolographOpenEditionERC721Contract) {
+    this._contractInfo = validate.contractInfo.parse(contractInfo)
     this.nftInfo = validate.nftInfo.parse(nftInfo)
     this.salesConfig = validate.salesConfig.parse(salesConfig)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
 
-    this.factory = new Factory()
-    this.registry = new Registry()
+    this.factory = new FactoryContract()
+    this.registry = new RegistryContract()
     this.chainIds = []
   }
 
   static hydrate({
-    collectionInfo,
+    contractInfo,
     nftInfo,
     salesConfig,
     chainId,
     address,
     txHash,
-  }: HydrateMoeCollection): HolographMoeERC721DropV1 {
-    const instance = new HolographMoeERC721DropV1({
-      collectionInfo,
+  }: HydrateHolographOpenEditionERC721Contract): HolographOpenEditionERC721ContractV1 {
+    const instance = new HolographOpenEditionERC721ContractV1({
+      contractInfo,
       nftInfo,
       salesConfig,
       primaryChainId: chainId,
     })
 
     instance.chainIds = [chainId]
-    instance.collectionAddress = address
+    instance.contractAddress = address
     instance.txHash = txHash
     instance._isHydrated = true
 
-    if (!collectionInfo.salt) {
-      instance._collectionInfo.salt = '0x0' as Hex
+    if (!contractInfo.salt) {
+      instance._contractInfo.salt = '0x0' as Hex
     }
 
     return instance
   }
 
   get name() {
-    return this._collectionInfo.name
+    return this._contractInfo.name
   }
 
   get description(): string | undefined {
-    return this._collectionInfo.description
+    return this._contractInfo.description
   }
 
   get symbol() {
-    return this._collectionInfo.symbol
+    return this._contractInfo.symbol
   }
 
   get tokenType() {
-    return this._collectionInfo.tokenType
+    return this._contractInfo.tokenType
   }
 
   get royaltiesBps() {
-    return this._collectionInfo.royaltiesBps
+    return this._contractInfo.royaltiesBps
   }
 
   get salt() {
-    return this._collectionInfo.salt
+    return this._contractInfo.salt
   }
 
   get publicSalePrice() {
@@ -152,44 +152,44 @@ export class HolographMoeERC721DropV1 {
     return this._isHydrated
   }
 
-  public getCollectionInfo(): MoeCollectionInfo {
-    return {...this._collectionInfo, ...this.nftInfo, ...this.salesConfig}
+  public getContractInfo(): OpenEditionContractInfo {
+    return {...this._contractInfo, ...this.nftInfo, ...this.salesConfig}
   }
 
   @IsNotDeployed()
   public setName(name: string) {
     validate.name.parse(name)
-    this._collectionInfo.name = name
+    this._contractInfo.name = name
   }
 
   @IsNotDeployed()
   public setDescription(description: string) {
     validate.description.parse(description)
-    this._collectionInfo.description = description
+    this._contractInfo.description = description
   }
 
   @IsNotDeployed()
   public setSymbol(symbol: string) {
     validate.symbol.parse(symbol)
-    this._collectionInfo.symbol = symbol
+    this._contractInfo.symbol = symbol
   }
 
   @IsNotDeployed()
-  public setTokenType(tokenType: CollectionInfo['tokenType']) {
+  public setTokenType(tokenType: ContractInfo['tokenType']) {
     validate.tokenType.parse(tokenType)
-    this._collectionInfo.tokenType = tokenType
+    this._contractInfo.tokenType = tokenType
   }
 
   @IsNotDeployed()
   public setRoyaltiesBps(royalties: number) {
     validate.royaltiesBps.parse(royalties)
-    this._collectionInfo.royaltiesBps = royalties
+    this._contractInfo.royaltiesBps = royalties
   }
 
   @IsNotDeployed()
   public setSalt(salt: Hex) {
     validate.salt.parse(salt)
-    this._collectionInfo.salt = salt
+    this._contractInfo.salt = salt
   }
 
   @IsNotDeployed()
@@ -249,15 +249,15 @@ export class HolographMoeERC721DropV1 {
   /**
    * @param holographWallet - The HolographWallet instance to sign the deploy.
    * @param chainId - The chainId to sign the deploy. It's optional and defaults to the primaryChainId.
-   * @returns - The signature data with the config and signature to deploy the collection contract.
+   * @returns - The signature data with the config and signature to deploy the contract contract.
    */
   @EnforceHydrateCheck()
   public async signDeploy(holographWallet: HolographWallet, chainId = this.primaryChainId): Promise<SignDeploy> {
     const account = holographWallet.account.address
     this.account = account
-    const collectionPayload = await this._getCollectionPayload(account, chainId)
+    const contractPayload = await this._getContractPayload(account, chainId)
 
-    const {configHash, configHashBytes, ...config} = collectionPayload
+    const {configHash, configHashBytes, ...config} = contractPayload
 
     const signedMessage = await holographWallet
       .onChain(chainId)
@@ -290,11 +290,11 @@ export class HolographMoeERC721DropV1 {
     signatureData: SignDeploy,
     options?: WriteContractOptions,
   ): Promise<{
-    collectionAddress: Address
+    contractAddress: Address
     txHash: Hex
   }> {
     const {account, chainId, config, signature, wallet} = signatureData
-    const {gasLimit, gasPrice} = await this._estimateGasForDeployingCollection(signatureData, chainId)
+    const {gasLimit, gasPrice} = await this._estimateGasForDeployingContract(signatureData, chainId)
     const txHash = (await this.factory.deployHolographableContract(chainId!, config, signature, account, wallet, {
       ...options,
       gasPrice,
@@ -303,14 +303,14 @@ export class HolographMoeERC721DropV1 {
 
     const client = await this.factory.getClientByChainId(chainId!)
     const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const collectionAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
+    const contractAddress = decodeBridgeableContractDeployedEvent(receipt)?.[0]?.values?.[0]
 
-    this.collectionAddress = collectionAddress
+    this.contractAddress = contractAddress
     this.chainIds?.push(chainId!)
     this.txHash = txHash
 
     return {
-      collectionAddress,
+      contractAddress,
       txHash,
     }
   }
@@ -326,19 +326,19 @@ export class HolographMoeERC721DropV1 {
     return Addresses.editionsMetadataRendererV1()
   }
 
-  protected _getDropContractType() {
-    return hexify('HolographDropERC721')
+  protected _getOpenEditionContractType() {
+    return hexify('HolographOpenEditionERC721')
   }
 
   protected _getEventConfig() {
-    return enableDropEvents()
+    return enableOpenEditionEvents()
   }
 
   protected _generateMetadataRendererInitCode(description: string, imageURI: string, animationURI = '') {
     return encodeAbiParameters(parseAbiParameters('string, string, string'), [description, imageURI, animationURI])
   }
 
-  protected _generateHolographDropERC721InitCode(data: HolographDropERC721InitCodeV1Params) {
+  protected _generateHolographOpenEditionERC721InitCode(data: HolographOpenEditionERC721InitCodeV1Params) {
     const {
       contractType,
       enableOpenSeaRoyaltyRegistry,
@@ -354,7 +354,7 @@ export class HolographMoeERC721DropV1 {
       salesConfigArray,
     } = data
 
-    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V1, [
+    const openEditionDataInitCode = encodeAbiParameters(OPEN_EDITION_INIT_CODE_ABI_PARAMETERS.V1, [
       [
         erc721TransferHelper,
         marketFilterAddress,
@@ -372,20 +372,20 @@ export class HolographMoeERC721DropV1 {
     return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
       contractType as Hex,
       registryAddress,
-      moeDataInitCode,
+      openEditionDataInitCode,
     ])
   }
 
   protected _generateHolographERC721InitCode(data: HolographERC721InitCodeParams) {
-    const {collectionName, collectionSymbol, royaltyBps, eventConfig, skipInit, holographDropERC721InitCode} = data
+    const {contractName, contractSymbol, royaltyBps, eventConfig, skipInit, holographOpenEditionERC721InitCode} = data
     return encodeAbiParameters(parseAbiParameters('string, string, uint16, uint256, bool, bytes'), [
-      collectionName,
-      collectionSymbol,
+      contractName,
+      contractSymbol,
       royaltyBps,
       // @ts-ignore
       eventConfig,
       skipInit,
-      holographDropERC721InitCode as Hex,
+      holographOpenEditionERC721InitCode as Hex,
     ])
   }
 
@@ -410,23 +410,29 @@ export class HolographMoeERC721DropV1 {
       JSON.stringify(this.description).slice(1, -1),
       `ipfs://${imageCid}/${imageFileName}`,
     )
-    const dropContractType = this._getDropContractType()
+    const openEditionContractType = this._getOpenEditionContractType()
 
-    return {dropContractType, metadataRendererAddress, metadataRendererInitCode, registryAddress, salesConfigArray}
+    return {
+      openEditionContractType,
+      metadataRendererAddress,
+      metadataRendererInitCode,
+      registryAddress,
+      salesConfigArray,
+    }
   }
 
   @EnforceHydrateCheck()
-  protected _getDropInitCode({
+  protected _getOpenEditionInitCode({
     account,
     metadataRendererAddress,
     metadataRendererInitCode,
     registryAddress,
     salesConfigArray,
-  }: GetDropInitCodeParams): Hex {
-    const dropContractType = this._getDropContractType()
+  }: GetOpenEditionInitCodeParams): Hex {
+    const openEditionContractType = this._getOpenEditionContractType()
 
-    return this._generateHolographDropERC721InitCode({
-      contractType: dropContractType,
+    return this._generateHolographOpenEditionERC721InitCode({
+      contractType: openEditionContractType,
       enableOpenSeaRoyaltyRegistry: false,
       erc721TransferHelper: '0x0000000000000000000000000000000000000000',
       fundsRecipient: account,
@@ -442,19 +448,19 @@ export class HolographMoeERC721DropV1 {
   }
 
   @EnforceHydrateCheck()
-  protected async _getCollectionPayload(account: Address, chainId = this.primaryChainId) {
+  protected async _getContractPayload(account: Address, chainId = this.primaryChainId) {
     if (!this.salt) this.setSalt(generateRandomSalt())
     const salt = this.salt
     const initialPayload = await this._getInitialPayload(chainId)
-    const dropInitCode = this._getDropInitCode({...initialPayload, account})
+    const openEditionInitCode = this._getOpenEditionInitCode({...initialPayload, account})
 
     const initCode = this._generateHolographERC721InitCode({
-      collectionName: JSON.stringify(this.name).slice(1, -1),
-      collectionSymbol: JSON.stringify(this.symbol).slice(1, -1),
+      contractName: JSON.stringify(this.name).slice(1, -1),
+      contractSymbol: JSON.stringify(this.symbol).slice(1, -1),
       royaltyBps: this.royaltiesBps,
       eventConfig: this._getEventConfig(),
       skipInit: false,
-      holographDropERC721InitCode: dropInitCode,
+      holographOpenEditionERC721InitCode: openEditionInitCode,
     })
 
     const byteCode = bytecodes.HolographDropERC721
@@ -469,18 +475,18 @@ export class HolographMoeERC721DropV1 {
       salt,
     }
 
-    const configHash = getERC721DropDeploymentConfigHash(erc721Config, account)
+    const configHash = getERC721OpenEditionDeploymentConfigHash(erc721Config, account)
     this.erc721ConfigHash = configHash
 
     const configHashBytes = hexToBytes(configHash)
 
-    return {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt} //TODO: adjust return type to match CollectionLegacy._getCollectionPayload
+    return {byteCode, chainType, configHash, configHashBytes, contractType, initCode, salt}
   }
 
-  protected async _estimateGasForDeployingCollection(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
+  protected async _estimateGasForDeployingContract(data: SignDeploy, chainId = this.primaryChainId): Promise<GasFee> {
     const {account, config, signature, wallet} = data
     let gasLimit: bigint, gasPrice: bigint
-    const gasController = GAS_CONTROLLER.moeCollectionDeploy[chainId]
+    const gasController = GAS_CONTROLLER.openEditionContractDeployment[chainId]
 
     if (gasController?.gasPrice) {
       gasPrice = gasController.gasPrice
@@ -517,33 +523,33 @@ export class HolographMoeERC721DropV1 {
   }
 }
 
-export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
-  constructor({collectionInfo, nftInfo, primaryChainId, salesConfig}: CreateMoeCollection) {
-    super({collectionInfo, nftInfo, primaryChainId, salesConfig})
+export class HolographOpenEditionERC721ContractV2 extends HolographOpenEditionERC721ContractV1 {
+  constructor({contractInfo, nftInfo, primaryChainId, salesConfig}: CreateHolographOpenEditionERC721Contract) {
+    super({contractInfo, nftInfo, primaryChainId, salesConfig})
   }
 
   static hydrate({
-    collectionInfo,
+    contractInfo,
     nftInfo,
     salesConfig,
     chainId,
     address,
     txHash,
-  }: HydrateMoeCollection): HolographMoeERC721DropV2 {
-    const instance = new HolographMoeERC721DropV2({
-      collectionInfo,
+  }: HydrateHolographOpenEditionERC721Contract): HolographOpenEditionERC721ContractV2 {
+    const instance = new HolographOpenEditionERC721ContractV2({
+      contractInfo,
       nftInfo,
       salesConfig,
       primaryChainId: chainId,
     })
 
     instance.chainIds = [chainId]
-    instance.collectionAddress = address
+    instance.contractAddress = address
     instance.txHash = txHash
     instance._isHydrated = true
 
-    if (!collectionInfo.salt) {
-      instance._collectionInfo.salt = '0x0' as Hex
+    if (!contractInfo.salt) {
+      instance._contractInfo.salt = '0x0' as Hex
     }
 
     return instance
@@ -553,15 +559,15 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
     return Addresses.editionsMetadataRenderer(getEnv().HOLOGRAPH_ENVIRONMENT, chainId)
   }
 
-  protected _getDropContractType() {
-    return hexify('HolographDropERC721V2')
+  protected _getOpenEditionContractType() {
+    return hexify('HolographOpenEditionERC721V2')
   }
 
   protected _getEventConfig() {
-    return enableDropEventsV2()
+    return enableOpenEditionEventsV2()
   }
 
-  protected _generateHolographDropERC721InitCode(data: HolographDropERC721InitCodeV2Params) {
+  protected _generateHolographOpenEditionERC721InitCode(data: HolographOpenEditionERC721InitCodeV2Params) {
     const {
       contractType,
       fundsRecipient,
@@ -574,7 +580,7 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
       salesConfigArray,
     } = data
 
-    const moeDataInitCode = encodeAbiParameters(DROP_INIT_CODE_ABI_PARAMETERS.V2, [
+    const openEditionDataInitCode = encodeAbiParameters(OPEN_EDITION_INIT_CODE_ABI_PARAMETERS.V2, [
       [
         initialOwner,
         fundsRecipient,
@@ -589,22 +595,22 @@ export class HolographMoeERC721DropV2 extends HolographMoeERC721DropV1 {
     return encodeAbiParameters(parseAbiParameters('bytes32, address, bytes'), [
       contractType as Hex,
       registryAddress,
-      moeDataInitCode,
+      openEditionDataInitCode,
     ])
   }
 
   @EnforceHydrateCheck()
-  protected _getDropInitCode({
+  protected _getOpenEditionInitCode({
     account,
     metadataRendererAddress,
     metadataRendererInitCode,
     registryAddress,
     salesConfigArray,
-  }: GetDropInitCodeParams): Hex {
-    const dropContractType = this._getDropContractType()
+  }: GetOpenEditionInitCodeParams): Hex {
+    const openEditionContractType = this._getOpenEditionContractType()
 
-    return this._generateHolographDropERC721InitCode({
-      contractType: dropContractType,
+    return this._generateHolographOpenEditionERC721InitCode({
+      contractType: openEditionContractType,
       fundsRecipient: account,
       initialOwner: account,
       metadataRendererAddress,

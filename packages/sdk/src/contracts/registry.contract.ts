@@ -6,7 +6,7 @@ import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {GetContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
-import {Holograph} from '.'
+import {HolographContract} from '.'
 
 /**
  * @group Contracts
@@ -17,14 +17,14 @@ import {Holograph} from '.'
  * Registry is a central on-chain location where all Holograph data is stored. Registry keeps a record of all currently supported standards. New standards can be introduced and enabled as well. Any properly deployed Holographed contracts are also stored as reference. This allows for a definitive way to identify whether a smart contract is secure and properly Holographed. Verifying entities will be able to identify a Holographed contract to ensure the highest level of security and standards.
  *
  */
-export class Registry extends HolographBaseContract {
+export class RegistryContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Registry.name})
+      logger = parentLogger.addContext({className: RegistryContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Registry.name})
+      logger = HolographLogger.createLogger({className: RegistryContract.name})
     }
 
     super(logger, HolographRegistryABI, 'HolographRegistry')
@@ -38,7 +38,7 @@ export class Registry extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getRegistry(chainId)) as Address
       this._addresses[chainId] = add
     }

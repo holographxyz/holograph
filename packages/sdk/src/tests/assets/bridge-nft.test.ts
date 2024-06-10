@@ -1,14 +1,14 @@
 import {Address} from 'viem'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
-import {HolographWallet} from '../../services'
-import {HolographAccount} from '../../utils/types'
-import {generateRandomSalt} from '../../utils/helpers'
-import {BridgeCollection} from '../../assets/bridge-collection'
-import {HolographLegacyCollection} from '../../assets/collection-legacy'
-import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
-import {NFT} from '../../assets/nft'
+import {BridgeContract} from '../../assets/bridge-contract'
 import {BridgeNFT} from '../../assets/bridge-nft'
+import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
+import {NFT} from '../../assets/nft'
+import {HolographWallet} from '../../services'
+import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
+import {generateRandomSalt} from '../../utils/helpers'
+import {HolographAccount} from '../../utils/types'
 
 /**
  * TODO:
@@ -21,7 +21,7 @@ describe('Asset class: BridgeNFT', () => {
     networks: testConfigObject.networks,
   })
 
-  let collection: HolographLegacyCollection
+  let contract: HolographERC721Contract
   let bridgeNFT: BridgeNFT
   let sourceChainId: number
   let destinationChainId: number
@@ -31,8 +31,8 @@ describe('Asset class: BridgeNFT', () => {
     sourceChainId = LOCALHOST_CHAIN_ID
     destinationChainId = LOCALHOST2_CHAIN_ID
 
-    collection = new HolographLegacyCollection({
-      collectionInfo: {
+    contract = new HolographERC721Contract({
+      contractInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
         symbol: 'HOLO',
@@ -41,13 +41,13 @@ describe('Asset class: BridgeNFT', () => {
       },
       primaryChainId: sourceChainId,
     })
-    collection.erc721ConfigHash
+    contract.erc721ConfigHash
 
-    const signatureData = await collection.signDeploy(wallet)
-    const {collectionAddress} = await collection.deploy(signatureData)
+    const signatureData = await contract.signDeploy(wallet)
+    const deploymentData = await contract.deploy(signatureData)
 
     const myNFT = new NFT({
-      collection,
+      contract,
       metadata: {
         name: 'My new NFT',
         description: 'Probably nothing.',
@@ -63,7 +63,7 @@ describe('Asset class: BridgeNFT', () => {
       chainId: sourceChainId,
     })
 
-    contractAddress = collectionAddress
+    contractAddress = deploymentData.contractAddress
 
     bridgeNFT = new BridgeNFT({
       sourceChainId,
@@ -75,7 +75,7 @@ describe('Asset class: BridgeNFT', () => {
   })
 
   it('should be able to get the BridgeNFT wrapper class', () => {
-    expect(BridgeCollection).toHaveProperty('createInitCode')
+    expect(BridgeContract).toHaveProperty('createInitCode')
 
     expect(bridgeNFT).toHaveProperty('getInitCode')
     expect(bridgeNFT).toHaveProperty('bridgeOut')

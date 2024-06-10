@@ -1,22 +1,22 @@
 import {beforeEach, describe, expect, it} from 'vitest'
 import {isAddress} from 'viem'
 
-import {HolographLegacyCollection} from '../../assets/collection-legacy'
+import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
 import {ContractRevertError} from '../../errors'
 import {HolographWallet} from '../../services'
 import {testConfigObject, localhostContractAddresses, LOCALHOST2_CHAIN_ID} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographAccount} from '../../utils/types'
 
-describe('Asset class: HolographLegacyCollection', () => {
+describe('Asset class: HolographERC721Contract', () => {
   const account: HolographAccount = testConfigObject.accounts?.default!
   const accountAddress = account?.address
-  let collection: HolographLegacyCollection
+  let contract: HolographERC721Contract
   const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
   beforeEach(() => {
-    collection = new HolographLegacyCollection({
-      collectionInfo: {
+    contract = new HolographERC721Contract({
+      contractInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
         symbol: 'HOLO',
@@ -27,40 +27,40 @@ describe('Asset class: HolographLegacyCollection', () => {
     })
   })
 
-  it('should be able to get the collection wrapper class', () => {
-    expect(collection).toHaveProperty('_getFactoryAddress')
-    expect(collection).toHaveProperty('_getRegistryAddress')
-    expect(collection).toHaveProperty('_getPredictedCollectionAddress')
-    expect(collection).toHaveProperty('_generateInitCode')
-    expect(collection).toHaveProperty('_getCollectionPayload')
-    expect(collection).toHaveProperty('_estimateGasForDeployingCollection')
-    expect(collection).toHaveProperty('getCollectionInfo')
-    expect(collection).toHaveProperty('signDeploy')
-    expect(collection).toHaveProperty('deploy')
-    expect(collection).toHaveProperty('deployBatch')
+  it('should be able to get the contract wrapper class', () => {
+    expect(contract).toHaveProperty('_getFactoryAddress')
+    expect(contract).toHaveProperty('_getRegistryAddress')
+    expect(contract).toHaveProperty('_getPredictedContractAddress')
+    expect(contract).toHaveProperty('_generateInitCode')
+    expect(contract).toHaveProperty('_getContractPayload')
+    expect(contract).toHaveProperty('_estimateGasForDeployingContract')
+    expect(contract).toHaveProperty('getContractInfo')
+    expect(contract).toHaveProperty('signDeploy')
+    expect(contract).toHaveProperty('deploy')
+    expect(contract).toHaveProperty('deployBatch')
   })
 
-  describe('getCollectionInfo()', () => {
-    it('should be able to get the collection info', () => {
-      const collectionInfo = collection.getCollectionInfo()
+  describe('getContractInfo()', () => {
+    it('should be able to get the contract info', () => {
+      const contractInfo = contract.getContractInfo()
 
-      expect(collectionInfo).toHaveProperty('name')
-      expect(collectionInfo).toHaveProperty('description')
-      expect(collectionInfo).toHaveProperty('symbol')
-      expect(collectionInfo).toHaveProperty('royaltiesBps')
-      expect(collectionInfo).toHaveProperty('tokenType')
-      expect(collectionInfo).toHaveProperty('salt')
-      expect(collectionInfo.name).toBe('NFTs Without Boundaries')
-      expect(collectionInfo.description).toBe('Probably nothing')
-      expect(collectionInfo.symbol).toBe('HOLO')
-      expect(collectionInfo.royaltiesBps).toBe(2000)
-      expect(collectionInfo.tokenType).toBe('ERC721')
+      expect(contractInfo).toHaveProperty('name')
+      expect(contractInfo).toHaveProperty('description')
+      expect(contractInfo).toHaveProperty('symbol')
+      expect(contractInfo).toHaveProperty('royaltiesBps')
+      expect(contractInfo).toHaveProperty('tokenType')
+      expect(contractInfo).toHaveProperty('salt')
+      expect(contractInfo.name).toBe('NFTs Without Boundaries')
+      expect(contractInfo.description).toBe('Probably nothing')
+      expect(contractInfo.symbol).toBe('HOLO')
+      expect(contractInfo.royaltiesBps).toBe(2000)
+      expect(contractInfo.tokenType).toBe('ERC721')
     })
   })
 
   describe('_getFactoryAddress()', () => {
     it('should be able to get the correct factory address', async () => {
-      const factoryAddress = await collection['_getFactoryAddress']()
+      const factoryAddress = await contract['_getFactoryAddress']()
 
       expect(factoryAddress).toBe(localhostContractAddresses.holographFactory)
     })
@@ -68,35 +68,35 @@ describe('Asset class: HolographLegacyCollection', () => {
 
   describe('_getRegistryAddress()', () => {
     it('should be able to get the correct registry address', async () => {
-      const registryAddress = await collection['_getRegistryAddress']()
+      const registryAddress = await contract['_getRegistryAddress']()
 
       expect(registryAddress).toBe(localhostContractAddresses.holographRegistry)
     })
   })
 
-  describe('_getPredictedCollectionAddress()', () => {
-    it('should be able to get the correct predicted collection address', async () => {
-      const collectionPayload = await collection['_getCollectionPayload'](accountAddress)
-      const predictedCollectionAddress = await collection['_getPredictedCollectionAddress'](
-        collectionPayload.config.erc721ConfigHash,
+  describe('_getPredictedContractAddress()', () => {
+    it('should be able to get the correct predicted contract address', async () => {
+      const contractPayload = await contract['_getContractPayload'](accountAddress)
+      const predictedContractAddress = await contract['_getPredictedContractAddress'](
+        contractPayload.config.erc721ConfigHash,
       )
 
-      expect(predictedCollectionAddress).toBe(collectionPayload.config.erc721FutureAddress)
+      expect(predictedContractAddress).toBe(contractPayload.config.erc721FutureAddress)
     })
   })
 
   describe('_generateInitCode()', () => {
     it('should be able to generate the correct init code', async () => {
-      const initCode = await collection['_generateInitCode'](accountAddress)
+      const initCode = await contract['_generateInitCode'](accountAddress)
 
       expect(typeof initCode).toBe('string')
       expect(initCode.startsWith('0x')).to.be.true
     })
   })
 
-  describe('_getCollectionPayload()', () => {
-    it('should be able to get the correct collection payload', async () => {
-      const collectionPayload = await collection['_getCollectionPayload'](accountAddress)
+  describe('_getContractPayload()', () => {
+    it('should be able to get the correct contract payload', async () => {
+      const contractPayload = await contract['_getContractPayload'](accountAddress)
       const {
         config: {
           erc721Config: {byteCode, chainType, contractType, initCode, salt},
@@ -104,16 +104,16 @@ describe('Asset class: HolographLegacyCollection', () => {
           erc721FutureAddress,
           erc721Hash,
         },
-      } = collectionPayload
+      } = contractPayload
       const properties = [byteCode, contractType, erc721Hash, erc721ConfigHash, erc721FutureAddress, initCode, salt]
 
-      expect(collectionPayload).toHaveProperty('config')
-      expect(collectionPayload).toHaveProperty('salt')
-      expect(collectionPayload.config).toHaveProperty('erc721Hash')
-      expect(collectionPayload.config).toHaveProperty('erc721Config')
-      expect(collectionPayload.config).toHaveProperty('erc721ConfigHash')
-      expect(collectionPayload.config).toHaveProperty('erc721ConfigHashBytes')
-      expect(collectionPayload.config).toHaveProperty('erc721FutureAddress')
+      expect(contractPayload).toHaveProperty('config')
+      expect(contractPayload).toHaveProperty('salt')
+      expect(contractPayload.config).toHaveProperty('erc721Hash')
+      expect(contractPayload.config).toHaveProperty('erc721Config')
+      expect(contractPayload.config).toHaveProperty('erc721ConfigHash')
+      expect(contractPayload.config).toHaveProperty('erc721ConfigHashBytes')
+      expect(contractPayload.config).toHaveProperty('erc721FutureAddress')
 
       properties.forEach(property => {
         expect(property).not.toBeUndefined()
@@ -126,11 +126,11 @@ describe('Asset class: HolographLegacyCollection', () => {
     })
   })
 
-  describe('_estimateGasForDeployingCollection()', () => {
-    it('should be able to estimate the gas for deploying the collection', async () => {
+  describe('_estimateGasForDeployingContract()', () => {
+    it('should be able to estimate the gas for deploying the contract', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const signatureData = await collection.signDeploy(wallet)
-      const gasEstimation = await collection['_estimateGasForDeployingCollection'](signatureData)
+      const signatureData = await contract.signDeploy(wallet)
+      const gasEstimation = await contract['_estimateGasForDeployingContract'](signatureData)
       const gasPrice = gasEstimation.gasPrice
       const gasLimit = gasEstimation.gasLimit
       const gas = gasEstimation.gas
@@ -144,8 +144,8 @@ describe('Asset class: HolographLegacyCollection', () => {
   })
 
   describe('signDeploy()', () => {
-    it('should be able to sign the collection deployment', async () => {
-      const signatureData = await collection.signDeploy(wallet)
+    it('should be able to sign the contract deployment', async () => {
+      const signatureData = await contract.signDeploy(wallet)
 
       expect(signatureData).toHaveProperty('account')
       expect(signatureData).toHaveProperty('config')
@@ -179,25 +179,25 @@ describe('Asset class: HolographLegacyCollection', () => {
   })
 
   describe('deploy()', () => {
-    it('should be able to deploy a collection', async () => {
+    it('should be able to deploy a contract', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const signatureData = await collection.signDeploy(wallet)
-      const {collectionAddress, txHash} = await collection.deploy(signatureData)
+      const signatureData = await contract.signDeploy(wallet)
+      const {contractAddress, txHash} = await contract.deploy(signatureData)
 
       expect(txHash).to.be.an('string')
       expect(txHash).to.have.length(66)
       expect(txHash.startsWith('0x')).to.be.true
-      expect(collectionAddress).to.be.an('string')
-      expect(collectionAddress).to.have.length(42)
-      expect(isAddress(collectionAddress)).to.be.true
+      expect(contractAddress).to.be.an('string')
+      expect(contractAddress).to.have.length(42)
+      expect(isAddress(contractAddress)).to.be.true
     })
 
-    it('should throw an error if the collection is already deployed', async () => {
-      const signatureData = await collection.signDeploy(wallet)
-      await collection.deploy(signatureData)
+    it('should throw an error if the contract is already deployed', async () => {
+      const signatureData = await contract.signDeploy(wallet)
+      await contract.deploy(signatureData)
 
       try {
-        await collection.deploy(signatureData)
+        await contract.deploy(signatureData)
       } catch (err: unknown) {
         const errorMessage = (err as ContractRevertError).message
 

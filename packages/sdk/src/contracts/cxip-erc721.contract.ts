@@ -13,24 +13,24 @@ const ABIs = [...CxipERC721ABI, ...HolographERC721ABI]
  *
  * @remarks
  *
- * CXIP ERC-721 Collection that is bridgeable via Holograph.
+ * CXIP ERC-721 Contract that is bridgeable via Holograph.
  * Used for minting and managing Holograph Bridgeable ERC721 NFTs.
  *
  */
-export class CxipERC721 extends HolographBaseContract {
-  private collectionAddress: Address
+export class CxipERC721Contract extends HolographBaseContract {
+  private contractAddress: Address
 
-  constructor(collectionAddress: Address, parentLogger?: HolographLogger) {
+  constructor(contractAddress: Address, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: CxipERC721.name})
+      logger = parentLogger.addContext({className: CxipERC721Contract.name})
     } else {
-      logger = HolographLogger.createLogger({className: CxipERC721.name})
+      logger = HolographLogger.createLogger({className: CxipERC721Contract.name})
     }
 
     super(logger, ABIs, 'CxipERC721')
-    this.collectionAddress = collectionAddress
+    this.contractAddress = contractAddress
   }
 
   private async _getContractFunction({
@@ -40,7 +40,7 @@ export class CxipERC721 extends HolographBaseContract {
     args,
     options,
   }: GetContractFunctionArgs<typeof ABIs>) {
-    return this._callContractFunction({address: this.collectionAddress, chainId, functionName, wallet, args, options})
+    return this._callContractFunction({address: this.contractAddress, chainId, functionName, wallet, args, options})
   }
 
   async estimateContractFunctionGas({
@@ -49,7 +49,7 @@ export class CxipERC721 extends HolographBaseContract {
     wallet,
     args,
   }: EstimateContractFunctionGasArgs<typeof ABIs>) {
-    return this._estimateContractGas({address: this.collectionAddress, chainId, functionName, wallet, args})
+    return this._estimateContractGas({address: this.contractAddress, chainId, functionName, wallet, args})
   }
 
   /**

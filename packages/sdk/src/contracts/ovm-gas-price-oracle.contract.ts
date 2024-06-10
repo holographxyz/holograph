@@ -23,14 +23,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * the deployed bytecode instead of running the initcode.
  *
  */
-export class OVMGasPriceOracle extends HolographBaseContract {
+export class OVMGasPriceOracleContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: OVMGasPriceOracle.name})
+      logger = parentLogger.addContext({className: OVMGasPriceOracleContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: OVMGasPriceOracle.name})
+      logger = HolographLogger.createLogger({className: OVMGasPriceOracleContract.name})
     }
 
     super(logger, OVM_GasPriceOracleABI, 'OVM_GasPriceOracle')

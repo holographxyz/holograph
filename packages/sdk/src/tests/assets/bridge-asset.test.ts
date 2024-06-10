@@ -2,14 +2,14 @@ import {getNetworkByChainId} from '@holographxyz/networks'
 import {Address, Hex} from 'viem'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
-import {HolographWallet} from '../../services'
-import {HolographAccount} from '../../utils/types'
 import {BridgeAsset} from '../../assets/bridge-asset'
-import {generateRandomSalt} from '../../utils/helpers'
-import {BridgeCollection} from '../../assets/bridge-collection'
-import {HolographLegacyCollection} from '../../assets/collection-legacy'
+import {BridgeContract} from '../../assets/bridge-contract'
+import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
+import {HolographWallet} from '../../services'
 import {testConfigObject, LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID} from '../setup'
 import {getTestGasLimit, MAX_GAS_VALUE} from '../../utils/gas'
+import {generateRandomSalt} from '../../utils/helpers'
+import {HolographAccount} from '../../utils/types'
 
 /**
  * TODO:
@@ -38,8 +38,8 @@ describe('Asset class: BridgeAsset', () => {
 
     holographChainId = getNetworkByChainId(destinationChainId).holographId
 
-    const collection = new HolographLegacyCollection({
-      collectionInfo: {
+    const contract = new HolographERC721Contract({
+      contractInfo: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing',
         symbol: 'HOLO',
@@ -49,13 +49,13 @@ describe('Asset class: BridgeAsset', () => {
       primaryChainId: sourceChainId,
     })
 
-    const signatureData = await collection.signDeploy(wallet)
-    const {collectionAddress} = await collection.deploy(signatureData)
-    holographableContract = collectionAddress
+    const signatureData = await contract.signDeploy(wallet)
+    const {contractAddress} = await contract.deploy(signatureData)
+    holographableContract = contractAddress
 
-    const erc721DeploymentConfig = await collection['createERC721DeploymentConfig'](accountAddress)
+    const erc721DeploymentConfig = await contract['createERC721DeploymentConfig'](accountAddress)
 
-    bridgeOutPayload = await BridgeCollection.createInitCode(sourceChainId, erc721DeploymentConfig, wallet)
+    bridgeOutPayload = await BridgeContract.createInitCode(sourceChainId, erc721DeploymentConfig, wallet)
 
     gasLimit = BigInt(450000)
     gasPrice = BigInt(0)

@@ -1,6 +1,6 @@
 import {Hex, Address} from 'viem'
 
-import {Holograph} from './index'
+import {HolographContract} from './index'
 import {HolographLogger} from '../services'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
@@ -17,14 +17,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * The contract stores a reference of all supported: chains, interfaces, functions, etc.
  *
  */
-export class Interfaces extends HolographBaseContract {
+export class HolographInterfacesContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Holograph.name})
+      logger = parentLogger.addContext({className: HolographInterfacesContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Holograph.name})
+      logger = HolographLogger.createLogger({className: HolographInterfacesContract.name})
     }
 
     super(logger, HolographInterfacesABI, 'HolographInterfaces')
@@ -38,7 +38,7 @@ export class Interfaces extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getInterfaces(chainId)) as Address
       this._addresses[chainId] = add
     }

@@ -1,21 +1,26 @@
-import {BridgeCollection} from './assets/bridge-collection'
+import {BridgeContract} from './assets/bridge-contract'
 import {BridgeNFT} from './assets/bridge-nft'
-import {HolographLegacyCollection} from './assets/collection-legacy'
-import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './assets/collection-moe'
+import {HolographERC721Contract} from './assets/holograph-erc721-contract'
+import {
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from './assets/holograph-open-edition-erc721-contract'
 import {NFT} from './assets/nft'
-import {MoeNFT} from './assets/nft-moe'
+import {OpenEditionNFT} from './assets/open-edition-nft'
 import {HolographAccountFactory, HolographWallet, Config, HolographProtocol} from './services'
-import {CollectionType, DeploymentConfig, ERC721Config, HolographConfig, Signature, SignDeploy} from './utils/types'
+import {ContractType, DeploymentConfig, ERC721Config, HolographConfig, Signature, SignDeploy} from './utils/types'
+
+export * from './contracts'
 
 export {
-  CollectionType,
-  HolographLegacyCollection,
-  HolographMoeERC721DropV1,
-  HolographMoeERC721DropV2,
+  ContractType,
+  HolographERC721Contract,
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
   NFT,
-  MoeNFT,
+  OpenEditionNFT,
   BridgeNFT,
-  BridgeCollection,
+  BridgeContract,
   HolographAccountFactory,
   HolographWallet,
   HolographProtocol,

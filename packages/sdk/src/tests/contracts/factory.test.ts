@@ -1,12 +1,11 @@
 import {beforeAll, describe, expect, it} from 'vitest'
-
-import {Factory} from '../../contracts'
-import {Providers} from '../../services'
-import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-
-import {ONLY_ADMIN_ERROR_MESSAGE, testConfigObject, localhostContractAddresses} from '../setup'
-import {Addresses} from '../../constants/addresses'
 import {Address} from 'viem'
+
+import {Addresses} from '../../constants/addresses'
+import {FactoryContract} from '../../contracts'
+import {Providers} from '../../services'
+import {ONLY_ADMIN_ERROR_MESSAGE, testConfigObject, localhostContractAddresses} from '../setup'
+import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -14,14 +13,14 @@ const expectedValues = {
   registryAddress: localhostContractAddresses.holographRegistry,
 }
 
-describe('Contract class: Factory', () => {
+describe('Contract class: FactoryContract', () => {
   let providersWrapper: Providers
-  let factory: Factory
+  let factory: FactoryContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    factory = new Factory()
+    factory = new FactoryContract()
   })
 
   it('should be able to get the correct providers', () => {

@@ -4,30 +4,30 @@ import {BridgeAsset} from './bridge-asset'
 import {HolographLogger, HolographWallet} from '../services'
 import {getERC721DeploymentConfigHash} from '../utils/encoders'
 import {destructSignature} from '../utils/helpers'
-import {BridgeCollectionInput, DeploymentConfig} from '../utils/types'
+import {BridgeContractInput, DeploymentConfig} from '../utils/types'
 
-export class BridgeCollection extends BridgeAsset {
+export class BridgeContract extends BridgeAsset {
   private _initCode: Hex | undefined
 
-  constructor(private readonly _bridgeCollectionInput: BridgeCollectionInput) {
-    const _logger = HolographLogger.createLogger({className: BridgeCollection.name})
-    super(_bridgeCollectionInput.gasSettings, _logger)
+  constructor(private readonly _bridgeContractInput: BridgeContractInput) {
+    const _logger = HolographLogger.createLogger({className: BridgeContract.name})
+    super(_bridgeContractInput.gasSettings, _logger)
   }
 
   get sourceChainId() {
-    return this._bridgeCollectionInput.sourceChainId
+    return this._bridgeContractInput.sourceChainId
   }
 
   get contractAddress() {
-    return this._bridgeCollectionInput.contractAddress
+    return this._bridgeContractInput.contractAddress
   }
 
   get erc721DeploymentConfig() {
-    return this._bridgeCollectionInput.erc721DeploymentConfig
+    return this._bridgeContractInput.erc721DeploymentConfig
   }
 
   get account() {
-    return this._bridgeCollectionInput.wallet.account
+    return this._bridgeContractInput.wallet.account
   }
 
   static async createInitCode(
@@ -68,10 +68,10 @@ export class BridgeCollection extends BridgeAsset {
     if (!this._initCode) {
       logger.debug(`Creating initCode for ${this.sourceChainId}, ${this.erc721DeploymentConfig} and ${this.account}...`)
 
-      this._initCode = await BridgeCollection.createInitCode(
+      this._initCode = await BridgeContract.createInitCode(
         this.sourceChainId,
         this.erc721DeploymentConfig,
-        this._bridgeCollectionInput.wallet,
+        this._bridgeContractInput.wallet,
       )
     }
     return this._initCode
@@ -97,7 +97,7 @@ export class BridgeCollection extends BridgeAsset {
       destinationChainId,
       this.contractAddress,
       bridgeOutPayload,
-      this._bridgeCollectionInput.wallet,
+      this._bridgeContractInput.wallet,
     )
   }
 }

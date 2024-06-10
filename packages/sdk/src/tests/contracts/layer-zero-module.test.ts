@@ -1,12 +1,11 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {LayerZeroModule} from '../../contracts'
+import {Addresses} from '../../constants/addresses'
+import {LayerZeroModuleContract} from '../../contracts'
 import {Providers} from '../../services'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
-
-import {testConfigObject, localhostContractAddresses} from '../setup'
-import {Addresses} from '../../constants/addresses'
 
 //TODO: localhost deploy needs to configure these values
 const expectedValues = {
@@ -21,14 +20,14 @@ const expectedValues = {
   },
 }
 
-describe('Contract class: LayerZeroModule', () => {
+describe('Contract class: LayerZeroModuleContract', () => {
   let providersWrapper: Providers
-  let layerZeroModule: LayerZeroModule
+  let layerZeroModule: LayerZeroModuleContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    layerZeroModule = new LayerZeroModule()
+    layerZeroModule = new LayerZeroModuleContract()
   })
 
   it('should be able to get the correct providers', () => {
@@ -37,7 +36,7 @@ describe('Contract class: LayerZeroModule', () => {
     expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
-  it('should be able to get the LayerZeroModule wrapper class', () => {
+  it('should be able to get the LayerZeroModuleContract wrapper class', () => {
     expect(layerZeroModule).toHaveProperty('getAddress')
     expect(layerZeroModule).toHaveProperty('getGasParametersByNetworks')
     expect(layerZeroModule).toHaveProperty('getOptimismGasPriceOracleByNetworks')

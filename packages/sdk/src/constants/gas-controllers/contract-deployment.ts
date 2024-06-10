@@ -2,7 +2,7 @@ import {networks} from '@holographxyz/networks'
 
 import {GasParams} from '.'
 
-export const MOE_COLLECTION_DEPLOY_GAS = {
+export const CONTRACT_DEPLOYMENT_GAS = {
   [networks.ethereum.chain]: {
     gasPrice: undefined,
     gasLimit: undefined,
@@ -106,7 +106,7 @@ export const MOE_COLLECTION_DEPLOY_GAS = {
     gasPriceMultiplier: 110,
   },
   [networks.zora.chain]: {
-    gasPrice: undefined,
+    gasPrice: BigInt(100000000),
     gasLimit: undefined,
     gasLimitMultiplier: 120,
     gasPriceMultiplier: 110,

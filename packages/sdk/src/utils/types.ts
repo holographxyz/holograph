@@ -238,7 +238,7 @@ export type EstimateBridgeOutResult = {
   unsignedTx: Hex
 }
 
-export type BridgeCollectionInput = {
+export type BridgeContractInput = {
   sourceChainId: number
   contractAddress: Address
   erc721DeploymentConfig: DeploymentConfig
@@ -311,7 +311,7 @@ export type SimulateContractOptions = Partial<
   Omit<SimulateContractParameters, 'abi' | 'address' | 'args' | 'functionName'>
 >
 
-export type GetDropInitCodeParams = {
+export type GetOpenEditionInitCodeParams = {
   account: Address
   registryAddress: Address
   metadataRendererAddress: Address
@@ -346,10 +346,10 @@ export type ViemPublicClient = PublicClient<Transport, Chain | undefined>
  */
 export type CheckTypeIntegrity<T, T2 extends T = any, T3 extends T2 = any> = never
 
-export enum CollectionType {
+export enum ContractType {
   CxipERC721 = 'CxipERC721',
-  HolographDropERC721 = 'HolographDropERC721',
-  HolographDropERC721V2 = 'HolographDropERC721V2',
+  HolographOpenEditionERC721 = 'HolographOpenEditionERC721',
+  HolographOpenEditionERC721V2 = 'HolographOpenEditionERC721V2',
   CustomERC721 = 'CustomERC721',
   CountdownERC721 = 'CountdownERC721',
 }
