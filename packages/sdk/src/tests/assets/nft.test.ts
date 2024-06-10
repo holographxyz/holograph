@@ -1,6 +1,6 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
 
-import {HolographLegacyCollection} from '../../assets/collection-legacy'
+import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
 import {NFT} from '../../assets/nft'
 import {NOT_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/not-minted-nft.error'
 import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
@@ -27,13 +27,13 @@ describe('Asset class: NFT', () => {
   const account: HolographAccount = testConfigObject.accounts?.default!
   const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
-  let collection: HolographLegacyCollection
+  let contract: HolographERC721Contract
   let nft: NFT
 
   beforeAll(async () => {
-    collection = new HolographLegacyCollection({
-      collectionInfo: {
-        name: 'My First Collection',
+    contract = new HolographERC721Contract({
+      contractInfo: {
+        name: 'My First Contract',
         description: 'Nothing',
         symbol: 'MFC',
         royaltiesBps: 2000,
@@ -42,13 +42,13 @@ describe('Asset class: NFT', () => {
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
     await sleep(1500) // Sleep to avoid nonce issues
-    const signatureData = await collection.signDeploy(wallet)
-    await collection.deploy(signatureData)
+    const signatureData = await contract.signDeploy(wallet)
+    await contract.deploy(signatureData)
   })
 
   beforeEach(() => {
     nft = new NFT({
-      collection,
+      contract,
       metadata: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',
@@ -83,7 +83,7 @@ describe('Asset class: NFT', () => {
     expect(nft).toHaveProperty('setCreator')
     expect(nft).toHaveProperty('setIpfsUrl')
     expect(nft).toHaveProperty('setIpfsImageCid')
-    expect(nft).toHaveProperty('_estimateGasForMintingNFT')
+    expect(nft).toHaveProperty('estimateGasForMintingNFT')
     expect(nft).toHaveProperty('mint')
     expect(nft).toHaveProperty('tokenIdExists')
   })
@@ -287,7 +287,7 @@ describe('Asset class: NFT', () => {
   describe('_estimateGasForMintingNFT()', () => {
     it('should be able to estimate gas for minting an NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const gasEstimation = await nft['_estimateGasForMintingNFT']({chainId: LOCALHOST2_CHAIN_ID})
+      const gasEstimation = await nft['estimateGasForMintingNFT']({chainId: LOCALHOST2_CHAIN_ID})
       const gasPrice = gasEstimation.gasPrice
       const gasLimit = gasEstimation.gasLimit
       const gas = gasEstimation.gas

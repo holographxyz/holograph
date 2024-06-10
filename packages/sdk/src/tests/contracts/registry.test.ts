@@ -2,11 +2,10 @@ import {Address} from 'abitype'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {Addresses} from '../../constants/addresses'
-import {Registry} from '../../contracts'
+import {RegistryContract} from '../../contracts'
 import {Providers} from '../../services'
-import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-
 import {testConfigObject, localhostContractAddresses} from '../setup'
+import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
 // TODO: localhost deployment needs to better configure this contract and create an example
 const expectedValues = {
@@ -24,14 +23,14 @@ const expectedValues = {
   contractTypeAddress: '0x14231223247689deCCf0e4Bd9a9491410B4d7C51',
 }
 
-describe('Contract class: Registry', () => {
+describe('Contract class: RegistryContract', () => {
   let providersWrapper: Providers
-  let registry: Registry
+  let registry: RegistryContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    registry = new Registry()
+    registry = new RegistryContract()
   })
 
   it('should be able to get the correct providers', () => {
@@ -41,7 +40,7 @@ describe('Contract class: Registry', () => {
     expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
-  it('should be able to get the Registry wrapper class', () => {
+  it('should be able to get the RegistryContract wrapper class', () => {
     expect(registry).toHaveProperty('getAddress')
     expect(registry).toHaveProperty('isHolographedContract')
     expect(registry).toHaveProperty('isHolographedHashDeployed')

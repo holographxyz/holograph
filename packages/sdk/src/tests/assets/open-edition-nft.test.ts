@@ -1,7 +1,7 @@
 import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
 
-import {HolographMoeERC721DropV2} from '../../assets/collection-moe'
-import {MoeNFT} from '../../assets/nft-moe'
+import {HolographOpenEditionERC721ContractV2} from '../../assets/holograph-open-edition-erc721-contract'
+import {OpenEditionNFT} from '../../assets/open-edition-nft'
 import {HolographWallet} from '../../services'
 import {LOCALHOST2_CHAIN_ID, testConfigObject} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
@@ -12,17 +12,17 @@ const expectedValues = {
   owner: testConfigObject.accounts?.default?.address!,
 }
 
-describe('Asset class: MoeNFT', () => {
+describe('Asset class: OpenEditionNFT', () => {
   const account: HolographAccount = testConfigObject.accounts?.default!
   const wallet = new HolographWallet({account, networks: testConfigObject.networks})
 
-  let collection: HolographMoeERC721DropV2
-  let nft: MoeNFT
+  let contract: HolographOpenEditionERC721ContractV2
+  let nft: OpenEditionNFT
 
   beforeAll(async () => {
-    collection = new HolographMoeERC721DropV2({
-      collectionInfo: {
-        name: 'My First Collection',
+    contract = new HolographOpenEditionERC721ContractV2({
+      contractInfo: {
+        name: 'My First Contract',
         description: 'Probably nothing.',
         symbol: 'MFC',
         royaltiesBps: 2000,
@@ -41,13 +41,13 @@ describe('Asset class: MoeNFT', () => {
       primaryChainId: LOCALHOST2_CHAIN_ID,
     })
     await sleep(500) // Sleep to avoid nonce issues
-    const signatureData = await collection.signDeploy(wallet)
-    await collection.deploy(signatureData)
+    const signatureData = await contract.signDeploy(wallet)
+    await contract.deploy(signatureData)
   })
 
   beforeEach(() => {
-    nft = new MoeNFT({
-      collection,
+    nft = new OpenEditionNFT({
+      contract,
       metadata: {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',
@@ -60,7 +60,7 @@ describe('Asset class: MoeNFT', () => {
     })
   })
 
-  it('should be able to get the MOE NFT wrapper class', () => {
+  it('should be able to get the OpenEditionNFT wrapper class', () => {
     expect(nft).toHaveProperty('metadata')
     expect(nft).toHaveProperty('name')
     expect(nft).toHaveProperty('description')
@@ -77,15 +77,15 @@ describe('Asset class: MoeNFT', () => {
     expect(nft).toHaveProperty('setCreator')
     expect(nft).toHaveProperty('setIpfsUrl')
     expect(nft).toHaveProperty('setIpfsImageCid')
-    expect(nft).toHaveProperty('_estimateGasForMintingNFT')
+    expect(nft).toHaveProperty('estimateGasForPurchasingNFT')
     expect(nft).toHaveProperty('mint')
     expect(nft).toHaveProperty('tokenIdExists')
   })
 
-  describe('_estimateGasForMintingNFT()', () => {
-    it('should be able to estimate gas for minting a MOE NFT', async () => {
+  describe('_estimateGasForPurchasingNFT()', () => {
+    it('should be able to estimate gas for purchasing an open edition NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
-      const gasEstimation = await nft['_estimateGasForMintingNFT']({
+      const gasEstimation = await nft['estimateGasForPurchasingNFT']({
         chainId: LOCALHOST2_CHAIN_ID,
       })
       const gasPrice = gasEstimation.gasPrice
@@ -101,7 +101,7 @@ describe('Asset class: MoeNFT', () => {
   })
 
   describe('mint()', () => {
-    it('should be able to purchase a MOE NFT', async () => {
+    it('should be able to purchase an open edition NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const {tokenId, txHash} = await nft.mint({
         chainId: LOCALHOST2_CHAIN_ID,
@@ -117,7 +117,7 @@ describe('Asset class: MoeNFT', () => {
   })
 
   describe('getOwner()', () => {
-    it('should be able to get the MOE NFT owner', async () => {
+    it('should be able to get the open edition NFT owner', async () => {
       const owner = await nft.getOwner(expectedValues.mintedNFTTokenId, LOCALHOST2_CHAIN_ID)
 
       expect(owner).toBe(expectedValues.owner)

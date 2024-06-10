@@ -1,8 +1,8 @@
 import {BRIDGE_NFT_GAS} from './bridge-nft'
-import {LEGACY_COLLECTION_DEPLOY_GAS} from './legacy-collection-deploy'
-import {MOE_COLLECTION_DEPLOY_GAS} from './moe-collection-deploy'
-import {MOE_NFT_MINT_GAS} from './moe-nft-mint'
+import {CONTRACT_DEPLOYMENT_GAS} from './contract-deployment'
 import {NFT_MINT_GAS} from './nft-mint'
+import {OPEN_EDITION_CONTRACT_DEPLOYMENT_GAS} from './open-edition-contract-deployment'
+import {OPEN_EDITION_NFT_MINT_GAS} from './open-edition-nft-mint'
 
 export type GasParams = {
   gasPrice?: bigint // in wei
@@ -12,17 +12,17 @@ export type GasParams = {
 }
 
 type GasController = {
-  legacyCollectionDeploy: Record<number, GasParams>
-  moeCollectionDeploy: Record<number, GasParams>
-  moeNftMint: Record<number, GasParams>
+  contractDeployment: Record<number, GasParams>
+  openEditionContractDeployment: Record<number, GasParams>
+  openEditionNftMint: Record<number, GasParams>
   nftMint: Record<number, GasParams>
   bridgeNft: Record<number, GasParams>
 }
 
 export const GAS_CONTROLLER = {
-  legacyCollectionDeploy: LEGACY_COLLECTION_DEPLOY_GAS,
-  moeCollectionDeploy: MOE_COLLECTION_DEPLOY_GAS,
-  moeNftMint: MOE_NFT_MINT_GAS,
+  contractDeployment: CONTRACT_DEPLOYMENT_GAS,
+  openEditionContractDeployment: OPEN_EDITION_CONTRACT_DEPLOYMENT_GAS,
+  openEditionNftMint: OPEN_EDITION_NFT_MINT_GAS,
   nftMint: NFT_MINT_GAS,
   bridgeNft: BRIDGE_NFT_GAS,
 } as GasController

@@ -1,9 +1,7 @@
 import {HolographError, HolographErrorCode} from '../holograph-error'
 
 export const HYDRATED_ASSET_PROPERTY_NOT_FOUND_ERROR_MESSAGE = (properties: any[]) =>
-  `HOLOGRAPH: The following properties are required to deploy a collection but were not found: ${properties.join(
-    ', ',
-  )}.`
+  `HOLOGRAPH: The following properties are required to deploy a contract but were not found: ${properties.join(', ')}.`
 
 export class HydratedAssetPropertyNotFound extends HolographError {
   constructor(properties: any[], triggerFunction?: string, cause?: Error) {

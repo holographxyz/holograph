@@ -3,7 +3,7 @@ import {Address, Hex} from 'viem'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
 import {HolographLogger, HolographWallet} from '../services'
 import {HolographBridgeABI} from '../constants/abi/develop'
-import {Holograph} from '.'
+import {HolographContract} from '.'
 import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, SimulateContractFunctionArgs} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
@@ -17,14 +17,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * The contract abstracts all the complexities of making bridge requests and uses a universal interface to bridge any type of holographable assets.
  *
  */
-export class Bridge extends HolographBaseContract {
+export class BridgeContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Bridge.name})
+      logger = parentLogger.addContext({className: BridgeContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Bridge.name})
+      logger = HolographLogger.createLogger({className: BridgeContract.name})
     }
 
     super(logger, HolographBridgeABI, 'HolographBridge')
@@ -38,7 +38,7 @@ export class Bridge extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getBridge(chainId)) as Address
       this._addresses[chainId] = add
     }

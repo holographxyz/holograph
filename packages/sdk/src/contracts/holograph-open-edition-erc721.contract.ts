@@ -15,26 +15,26 @@ const V2ABIs = [...HolographDropERC721V2ABI, ...HolographERC721ABI]
 
 /**
  * @group Contracts
- * HolographDropERC721
+ * HolographOpenEditionERC721
  *
  */
-export class HolographDropERC721 extends HolographBaseContract {
-  private collectionAddress: Address
+export class HolographOpenEditionERC721Contract extends HolographBaseContract {
+  private contractAddress: Address
   private abis: typeof ABIs | typeof V2ABIs
 
-  constructor(collectionAddress: Address, version = HolographVersion.V2, parentLogger?: HolographLogger) {
+  constructor(contractAddress: Address, version = HolographVersion.V2, parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: HolographDropERC721.name})
+      logger = parentLogger.addContext({className: HolographOpenEditionERC721Contract.name})
     } else {
-      logger = HolographLogger.createLogger({className: HolographDropERC721.name})
+      logger = HolographLogger.createLogger({className: HolographOpenEditionERC721Contract.name})
     }
 
     const isV2 = version === HolographVersion.V2
     const abis = isV2 ? V2ABIs : ABIs
     super(logger, abis, isV2 ? 'HolographDropERC721V2' : 'HolographDropERC721')
-    this.collectionAddress = collectionAddress
+    this.contractAddress = contractAddress
     this.abis = abis
   }
 
@@ -45,7 +45,7 @@ export class HolographDropERC721 extends HolographBaseContract {
     args,
     options,
   }: GetContractFunctionArgs<typeof this.abis>) {
-    return this._callContractFunction({address: this.collectionAddress, chainId, functionName, wallet, args, options})
+    return this._callContractFunction({address: this.contractAddress, chainId, functionName, wallet, args, options})
   }
 
   async estimateContractFunctionGas({
@@ -55,7 +55,7 @@ export class HolographDropERC721 extends HolographBaseContract {
     args,
     options,
   }: EstimateContractFunctionGasArgs<typeof this.abis>) {
-    return this._estimateContractGas({address: this.collectionAddress, chainId, functionName, wallet, args, options})
+    return this._estimateContractGas({address: this.contractAddress, chainId, functionName, wallet, args, options})
   }
 
   /**
@@ -108,7 +108,7 @@ export class HolographDropERC721 extends HolographBaseContract {
   }
 
   /**
-   * Mint a holographable MOE NFT.
+   * Purchase a holographable open edition NFT.
    * @param chainId  The chain id of the network to send the transaction.
    * @param quantity The quantity of NFTs to purchase.
    * @param wallet Holograph wallet instance, optional param.

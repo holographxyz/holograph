@@ -17,14 +17,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * This contract abstracts all of the LayerZero specific logic into an isolated module.
  *
  */
-export class LayerZeroModule extends HolographBaseContract {
+export class LayerZeroModuleContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: LayerZeroModule.name})
+      logger = parentLogger.addContext({className: LayerZeroModuleContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: LayerZeroModule.name})
+      logger = HolographLogger.createLogger({className: LayerZeroModuleContract.name})
     }
 
     super(logger, LayerZeroModuleABI, 'LayerZeroModule')

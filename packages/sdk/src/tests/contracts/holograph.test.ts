@@ -1,11 +1,10 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Holograph} from '../../contracts'
+import {HolographContract} from '../../contracts'
 import {Providers} from '../../services'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
-
-import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -20,14 +19,14 @@ const expectedValues = {
   holographChainId: {1338: '4294967294', 1339: '4294967293'},
 }
 
-describe('Contract class: Holograph', () => {
+describe('Contract class: HolographContract', () => {
   let providersWrapper: Providers
-  let holograph: Holograph
+  let holograph: HolographContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    holograph = new Holograph()
+    holograph = new HolographContract()
   })
 
   it('should be able to get the correct providers', () => {
@@ -36,7 +35,7 @@ describe('Contract class: Holograph', () => {
     expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
-  it('should be able to get the Holograph wrapper class', () => {
+  it('should be able to get the HolographContract wrapper class', () => {
     expect(holograph).toHaveProperty('getAddress')
     expect(holograph).toHaveProperty('getBridge')
     expect(holograph).toHaveProperty('getBridgeByNetworks')

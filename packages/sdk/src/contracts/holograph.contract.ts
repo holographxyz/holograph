@@ -20,14 +20,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  *  - frees developers from having to query and monitor the blockchain
  *
  */
-export class Holograph extends HolographBaseContract {
+export class HolographContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Holograph.name})
+      logger = parentLogger.addContext({className: HolographContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Holograph.name})
+      logger = HolographLogger.createLogger({className: HolographContract.name})
     }
 
     super(logger, HolographABI, 'Holograph')

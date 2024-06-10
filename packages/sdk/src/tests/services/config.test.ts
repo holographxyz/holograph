@@ -1,8 +1,9 @@
 import {beforeEach, describe, expect, it} from 'vitest'
-import {Config} from '../../services'
-import {InstanceAlreadyExists, MissingHolographConfig} from '../../errors'
-import {localhostRpc, testConfigObject} from '../setup'
 import {Environment} from '@holographxyz/environment'
+
+import {MissingHolographConfig} from '../../errors'
+import {Config} from '../../services'
+import {localhostRpc, testConfigObject} from '../setup'
 
 describe('Service: Config', () => {
   beforeEach(() => {

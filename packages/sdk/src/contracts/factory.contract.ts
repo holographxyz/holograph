@@ -1,7 +1,7 @@
 import {Address} from 'abitype'
 import {Hex} from 'viem'
 
-import {Holograph} from '.'
+import {HolographContract} from '.'
 import {HolographFactoryABI} from '../constants/abi/develop'
 import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
@@ -25,14 +25,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * The contract provides methods that allow for the creation of Holograph Protocol compliant smart contracts, that are capable of minting holographable assets.
  *
  */
-export class Factory extends HolographBaseContract {
+export class FactoryContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Factory.name})
+      logger = parentLogger.addContext({className: FactoryContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Factory.name})
+      logger = HolographLogger.createLogger({className: FactoryContract.name})
     }
 
     super(logger, HolographFactoryABI, 'HolographFactory')
@@ -46,7 +46,7 @@ export class Factory extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getFactory(chainId)) as Address
       this._addresses[chainId] = add
     }

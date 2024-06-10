@@ -35,7 +35,7 @@ const presaleMerkleRootSchema = z
 const nftIpfsUrlSchema = z.string().url()
 const nftIpfsImageCidSchema = z.string().length(46).startsWith('Qm')
 
-export const holographMoeSalesConfigSchema = z.object({
+export const openEditionSalesConfigSchema = z.object({
   publicSalePrice: publicSalePriceSchema,
   maxSalePurchasePerAddress: maxSalePurchasePerAddressSchema,
   publicSaleStart: publicSaleStartSchema,
@@ -45,7 +45,7 @@ export const holographMoeSalesConfigSchema = z.object({
   presaleMerkleRoot: presaleMerkleRootSchema,
 })
 
-export const collectionInfoSchema = z.object({
+export const contractInfoSchema = z.object({
   name: nameSchema,
   description: descriptionSchema,
   symbol: symbolSchema,
@@ -59,19 +59,19 @@ export const nftInfoSchema = z.object({
   ipfsImageCid: nftIpfsImageCidSchema,
 })
 
-export const createLegacyCollectionSchema = z.object({
-  collectionInfo: collectionInfoSchema,
+export const createHolographERC721ContractSchema = z.object({
+  contractInfo: contractInfoSchema,
   primaryChainId: primaryChainIdSchema,
 })
 
-export const createMoeCollectionSchema = z.object({
-  collectionInfo: collectionInfoSchema,
+export const createHolographOpenEditionERC721ContractSchema = z.object({
+  contractInfo: contractInfoSchema,
   nftInfo: nftInfoSchema,
   primaryChainId: primaryChainIdSchema,
-  salesConfig: holographMoeSalesConfigSchema,
+  salesConfig: openEditionSalesConfigSchema,
 })
 
-export const holographDropERC721InitCodeV2ParamsSchema = z.object({
+export const holographOpenEditionERC721InitCodeV2ParamsSchema = z.object({
   contractType: z.string(),
   registryAddress: getAddressTypeSchema('registry'),
   initialOwner: getAddressTypeSchema('Initial owner'),
@@ -83,7 +83,7 @@ export const holographDropERC721InitCodeV2ParamsSchema = z.object({
   metadataRendererInitCode: z.string(),
 })
 
-export const holographDropERC721InitCodeV1ParamsSchema = holographDropERC721InitCodeV2ParamsSchema.merge(
+export const holographOpenEditionERC721InitCodeV1ParamsSchema = holographOpenEditionERC721InitCodeV2ParamsSchema.merge(
   z.object({
     erc721TransferHelper: getAddressTypeSchema('ERC721 transfer helper'),
     marketFilterAddress: getAddressTypeSchema('Market filter'),
@@ -92,12 +92,12 @@ export const holographDropERC721InitCodeV1ParamsSchema = holographDropERC721Init
 )
 
 export const holographERC721InitCodeParamsSchema = z.object({
-  collectionName: nameSchema,
-  collectionSymbol: symbolSchema,
+  contractName: nameSchema,
+  contractSymbol: symbolSchema,
   royaltyBps: royaltiesBpsSchema,
   eventConfig: z.string().startsWith('0x'),
   skipInit: z.boolean().default(false),
-  holographDropERC721InitCode: z.string(),
+  holographOpenEditionERC721InitCode: z.string(),
 })
 
 export const validate = {
@@ -116,15 +116,15 @@ export const validate = {
   presaleMerkleRoot: presaleMerkleRootSchema,
   nftIpfsUrl: nftIpfsUrlSchema,
   nftIpfsImageCid: nftIpfsImageCidSchema,
-  collectionInfo: collectionInfoSchema,
+  contractInfo: contractInfoSchema,
   nftInfo: nftInfoSchema,
-  salesConfig: holographMoeSalesConfigSchema,
+  salesConfig: openEditionSalesConfigSchema,
   primaryChainId: primaryChainIdSchema,
 }
 
-export const moeCollectionInfo = collectionInfoSchema.merge(nftInfoSchema).merge(holographMoeSalesConfigSchema)
+export const openEditionContractInfo = contractInfoSchema.merge(nftInfoSchema).merge(openEditionSalesConfigSchema)
 
-export const DROP_INIT_CODE_ABI_PARAMETERS = {
+export const OPEN_EDITION_INIT_CODE_ABI_PARAMETERS = {
   [HolographVersion.V1]: [
     {
       type: 'tuple',
@@ -238,10 +238,10 @@ export const DROP_INIT_CODE_ABI_PARAMETERS = {
   ],
 }
 
-export type CreateLegacyCollectionSchema = z.input<typeof createLegacyCollectionSchema>
+export type CreateHolographERC721ContractSchema = z.input<typeof createHolographERC721ContractSchema>
 
-export type CreateLegacyCollection = {
-  collectionInfo: {
+export type CreateHolographERC721Contract = {
+  contractInfo: {
     symbol: string
     name: string
     description?: string
@@ -252,8 +252,8 @@ export type CreateLegacyCollection = {
   primaryChainId: number
 }
 
-export type HydrateLegacyCollection = {
-  collectionInfo: {
+export type HydrateHolographERC721Contract = {
+  contractInfo: {
     symbol: string
     name: string
     royaltiesBps?: number
@@ -264,24 +264,26 @@ export type HydrateLegacyCollection = {
   txHash?: Hex
 }
 
-type CheckCreateLegacyCollectionType = CheckTypeIntegrity<
-  CreateLegacyCollectionSchema,
-  CreateLegacyCollection,
-  CreateLegacyCollectionSchema
+type CheckCreateHolographERC721Contract = CheckTypeIntegrity<
+  CreateHolographERC721ContractSchema,
+  CreateHolographERC721Contract,
+  CreateHolographERC721ContractSchema
 >
 
-export type CollectionInfo = z.infer<typeof collectionInfoSchema>
+export type ContractInfo = z.infer<typeof contractInfoSchema>
 
-export type MoeCollectionInfo = z.input<typeof moeCollectionInfo>
+export type OpenEditionContractInfo = z.input<typeof openEditionContractInfo>
 
 export type NFTInfo = z.infer<typeof nftInfoSchema>
 
-export type HolographMoeSalesConfig = z.input<typeof holographMoeSalesConfigSchema>
+export type OpenEditionSalesConfig = z.input<typeof openEditionSalesConfigSchema>
 
-export type CreateMoeCollectionSchema = z.input<typeof createMoeCollectionSchema>
+export type CreateHolographOpenEditionERC721ContractSchema = z.input<
+  typeof createHolographOpenEditionERC721ContractSchema
+>
 
-export type CreateMoeCollection = {
-  collectionInfo: {
+export type CreateHolographOpenEditionERC721Contract = {
+  contractInfo: {
     symbol: string
     name: string
     description?: string
@@ -294,11 +296,11 @@ export type CreateMoeCollection = {
     ipfsImageCid: string
   }
   primaryChainId: number
-  salesConfig: HolographMoeSalesConfig
+  salesConfig: OpenEditionSalesConfig
 }
 
-export type HydrateMoeCollection = {
-  collectionInfo: {
+export type HydrateHolographOpenEditionERC721Contract = {
+  contractInfo: {
     symbol: string
     name: string
     royaltiesBps?: number
@@ -308,20 +310,24 @@ export type HydrateMoeCollection = {
     ipfsUrl: string
     ipfsImageCid: string
   }
-  salesConfig: HolographMoeSalesConfig
+  salesConfig: OpenEditionSalesConfig
   chainId: number
   address: Address
   txHash?: Hex
 }
 
-type CheckCreateMoeCollectionType = CheckTypeIntegrity<
-  CreateMoeCollectionSchema,
-  CreateMoeCollection,
-  CreateMoeCollectionSchema
+type CheckCreateHolographOpenEditionERC721Contract = CheckTypeIntegrity<
+  CreateHolographOpenEditionERC721ContractSchema,
+  CreateHolographOpenEditionERC721Contract,
+  CreateHolographOpenEditionERC721ContractSchema
 >
 
 export type HolographERC721InitCodeParams = z.infer<typeof holographERC721InitCodeParamsSchema>
 
-export type HolographDropERC721InitCodeV1Params = z.infer<typeof holographDropERC721InitCodeV1ParamsSchema>
+export type HolographOpenEditionERC721InitCodeV1Params = z.infer<
+  typeof holographOpenEditionERC721InitCodeV1ParamsSchema
+>
 
-export type HolographDropERC721InitCodeV2Params = z.infer<typeof holographDropERC721InitCodeV2ParamsSchema>
+export type HolographOpenEditionERC721InitCodeV2Params = z.infer<
+  typeof holographOpenEditionERC721InitCodeV2ParamsSchema
+>

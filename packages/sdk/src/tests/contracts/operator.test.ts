@@ -1,11 +1,10 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 import {Address} from 'abitype'
 
-import {Operator} from '../../contracts'
+import {OperatorContract} from '../../contracts'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
-
-import {testConfigObject, testConfig, localhostContractAddresses} from '../setup'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -17,12 +16,12 @@ const expectedValues = {
   minGasPrice: '1000000000',
 }
 
-describe('Contract class: Operator', () => {
-  let operator: Operator
+describe('Contract class: OperatorContract', () => {
+  let operator: OperatorContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
-    operator = new Operator()
+    operator = new OperatorContract()
   })
 
   it('should be able to get the operator wrapper class', () => {

@@ -1,6 +1,6 @@
 import {Address, Hex} from 'viem'
 
-import {Holograph} from './index'
+import {HolographContract} from './index'
 import {HolographOperatorABI} from '../constants/abi/develop'
 import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
@@ -16,14 +16,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * The Operator holds and manages the protocol operator.
  *
  */
-export class Operator extends HolographBaseContract {
+export class OperatorContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: Operator.name})
+      logger = parentLogger.addContext({className: OperatorContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: Operator.name})
+      logger = HolographLogger.createLogger({className: OperatorContract.name})
     }
 
     super(logger, HolographOperatorABI, 'HolographOperator')
@@ -37,7 +37,7 @@ export class Operator extends HolographBaseContract {
    */
   async getAddress(chainId: number): Promise<Address> {
     if (this._addresses[chainId] === undefined) {
-      const holograph = new Holograph()
+      const holograph = new HolographContract()
       const add = (await holograph.getOperator(chainId)) as Address
       this._addresses[chainId] = add
     }

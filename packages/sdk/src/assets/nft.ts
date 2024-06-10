@@ -1,9 +1,12 @@
 import {Address, Hex, numberToHex, pad, toHex} from 'viem'
 
-import {HolographLegacyCollection} from './collection-legacy'
-import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from './collection-moe'
+import {HolographERC721Contract} from './holograph-erc721-contract'
+import {
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from './holograph-open-edition-erc721-contract'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
-import {CxipERC721} from '../contracts'
+import {CxipERC721Contract} from '../contracts'
 import {NotMintedNFTError} from '../errors/assets/not-minted-nft.error'
 import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, NFTIpfsInfo, validate} from './nft.validation'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
@@ -11,7 +14,7 @@ import {IsNotMinted} from '../utils/decorators'
 import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 
 export class NFT {
-  public collection: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2
+  public contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
   public isMinted: boolean
   public metadata: HolographNFTMetadata
   public txHash?: string
@@ -19,14 +22,14 @@ export class NFT {
   protected ipfsInfo?: NFTIpfsInfo
   protected _tokenId?: string // Decimal tokenId string
 
-  private cxipERC721: CxipERC721
+  private cxipERC721: CxipERC721Contract
 
-  constructor({collection, ipfsInfo, metadata}: CreateNFT) {
+  constructor({contract, ipfsInfo, metadata}: CreateNFT) {
     this.metadata = validate.metadata.parse(metadata)
     this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
-    this.collection = validate.collection.parse(collection)
+    this.contract = validate.contract.parse(contract)
 
-    this.cxipERC721 = new CxipERC721(collection.collectionAddress!)
+    this.cxipERC721 = new CxipERC721Contract(contract.contractAddress!)
     this.isMinted = false
   }
 
@@ -132,7 +135,7 @@ export class NFT {
 
   public async mint({chainId, wallet}: MintConfig, options?: WriteContractOptions) {
     const client = await this.cxipERC721.getClientByChainId(chainId)
-    const {gasLimit, gasPrice} = await this._estimateGasForMintingNFT({chainId, wallet})
+    const {gasLimit, gasPrice} = await this.estimateGasForMintingNFT({chainId, wallet})
 
     const txHash = (await this.cxipERC721.cxipMint(chainId, 0, TokenUriType.IPFS, this.ipfsMetadataCid!, wallet, {
       ...options,
@@ -141,7 +144,7 @@ export class NFT {
     })) as Hex
 
     const receipt = await client.waitForTransactionReceipt({hash: txHash})
-    const tokenId = queryTokenIdFromReceipt(receipt, this.collection.collectionAddress!)
+    const tokenId = queryTokenIdFromReceipt(receipt, this.contract.contractAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
 
     this._tokenId = tokenIdBytesString
@@ -171,7 +174,7 @@ export class NFT {
     return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
 
-  protected async _estimateGasForMintingNFT({chainId, wallet}: MintConfig) {
+  public async estimateGasForMintingNFT({chainId, wallet}: MintConfig) {
     let gasPrice: bigint, gasLimit: bigint
     const gasController = GAS_CONTROLLER.nftMint[chainId]
 

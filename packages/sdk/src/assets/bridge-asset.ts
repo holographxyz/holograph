@@ -1,7 +1,7 @@
 import {getNetworkByChainId} from '@holographxyz/networks'
 import {Address, Hex, Transaction, encodeFunctionData} from 'viem'
 
-import {Bridge, Operator} from '../contracts'
+import {BridgeContract, OperatorContract} from '../contracts'
 import {HolographBridgeABI} from '../constants/abi/develop'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {HolographLogger, HolographWallet, Providers} from '../services'
@@ -11,15 +11,15 @@ import {initializeGasPricing, getGasEstimationAddress, getTestGasLimit, MAX_GAS_
 export class BridgeAsset {
   protected readonly _logger: HolographLogger
   private readonly _providers: Providers
-  private readonly _bridge: Bridge
-  private readonly _operator: Operator
+  private readonly _bridge: BridgeContract
+  private readonly _operator: OperatorContract
 
   constructor(private gasSettings?: GasSettings, _logger?: HolographLogger) {
     this._logger = _logger ?? HolographLogger.createLogger({className: BridgeAsset.name})
 
     this._providers = new Providers()
-    this._bridge = new Bridge()
-    this._operator = new Operator()
+    this._bridge = new BridgeContract()
+    this._operator = new OperatorContract()
   }
 
   static createUnsignedBridgeOutTx(

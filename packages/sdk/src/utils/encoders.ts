@@ -32,7 +32,10 @@ export function getERC721DeploymentConfigHash(erc721DeploymentConfig: Deployment
   )
 }
 
-export function getERC721DropDeploymentConfigHash(erc721DeploymentConfig: DeploymentConfig, signerAddress: Address) {
+export function getERC721OpenEditionDeploymentConfigHash(
+  erc721DeploymentConfig: DeploymentConfig,
+  signerAddress: Address,
+) {
   return keccak256(
     ('0x' +
       remove0x(erc721DeploymentConfig.contractType) +

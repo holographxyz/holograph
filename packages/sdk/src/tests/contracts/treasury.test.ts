@@ -1,11 +1,10 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {Treasury} from '../../contracts'
+import {TreasuryContract} from '../../contracts'
 import {Providers, Config} from '../../services'
+import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
-
-import {testConfigObject, localhostContractAddresses} from '../setup'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -16,18 +15,18 @@ const expectedValues = {
   operatorAddress: localhostContractAddresses.holographOperator,
 }
 
-describe('Contract class: Treasury', () => {
+describe('Contract class: TreasuryContract', () => {
   let config: Config
   let providersWrapper: Providers
-  let treasury: Treasury
+  let treasury: TreasuryContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    treasury = new Treasury()
+    treasury = new TreasuryContract()
   })
 
-  it('should be able to get the Treasury wrapper class', () => {
+  it('should be able to get the TreasuryContract wrapper class', () => {
     expect(treasury).toHaveProperty('getAddress')
     expect(treasury).toHaveProperty('getOperator')
     expect(treasury).toHaveProperty('getBridge')

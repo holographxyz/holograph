@@ -1,7 +1,10 @@
-import {HolographLegacyCollection} from '../assets/collection-legacy'
-import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from '../assets/collection-moe'
+import {HolographERC721Contract} from '../assets/holograph-erc721-contract'
+import {
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from '../assets/holograph-open-edition-erc721-contract'
 import {NFT} from '../assets/nft'
-import {HydratedAssetPropertyNotFound, UpdateDeployedCollection, UpdateMintedNFTError} from '../errors'
+import {HydratedAssetPropertyNotFound, UpdateDeployedContract, UpdateMintedNFTError} from '../errors'
 
 export function IsNotMinted() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -20,11 +23,11 @@ export function IsNotDeployed() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     descriptor.value = function (
-      this: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2,
+      this: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2,
       ...args: any[]
     ) {
       if (Number(this.chainIds?.length) > 0) {
-        throw new UpdateDeployedCollection(propertyKey)
+        throw new UpdateDeployedContract(propertyKey)
       } else {
         originalMethod.apply(this, args)
       }
@@ -36,7 +39,7 @@ export function EnforceHydrateCheck() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
     const originalMethod = descriptor.value
     descriptor.value = function (
-      this: HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2,
+      this: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2,
       ...args: any[]
     ) {
       if (this.isHydrated) {

@@ -1,118 +1,121 @@
 import {Address} from 'abitype'
+import {getContract, parseAbi} from 'viem'
 
-import {HOLOGRAPH_EVENTS} from '../constants/events'
-import {Config} from './config.service'
+import {HolographERC721Contract} from '../assets/holograph-erc721-contract'
 import {
-  Bridge,
-  CxipERC721,
-  Factory,
-  Holograph,
-  HolographDropERC721,
-  Interfaces,
-  LayerZeroModule,
-  Operator,
-  OVMGasPriceOracle,
-  Registry,
-  Treasury,
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from '../assets/holograph-open-edition-erc721-contract'
+import {Config} from './config.service'
+import {HOLOGRAPH_EVENTS} from '../constants/events'
+import {
+  BridgeContract,
+  CxipERC721Contract,
+  FactoryContract,
+  HolographContract,
+  HolographOpenEditionERC721Contract,
+  HolographInterfacesContract,
+  LayerZeroModuleContract,
+  OperatorContract,
+  OVMGasPriceOracleContract,
+  RegistryContract,
+  TreasuryContract,
 } from '../contracts'
 import {HolographLogger} from './logger.service'
-import {CollectionType, EventInfo} from '../utils/types'
-import {getContract, parseAbi} from 'viem'
 import {Providers} from './providers.service'
-import {HolographLegacyCollection} from '../assets/collection-legacy'
-import {HolographMoeERC721DropV1, HolographMoeERC721DropV2} from '../assets/collection-moe'
 import {parseTimestampSecondsToISODate} from '../utils/helpers'
+import {ContractType, EventInfo} from '../utils/types'
 
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
   private readonly logger: HolographLogger
   private readonly protocolConfig: Config
-  private holographContract!: Holograph
-  private registryContract!: Registry
-  private treasuryContract!: Treasury
-  private interfacesContract!: Interfaces
-  private operatorContract!: Operator
-  private layerZeroModuleContract!: LayerZeroModule
-  private factoryContract!: Factory
-  private ovmGasPriceOracleContract!: OVMGasPriceOracle
-  private bridgeContract!: Bridge
-  private cxipERC721Contract!: CxipERC721
-  private holographDropERC721Contract!: HolographDropERC721
+  private holographContract!: HolographContract
+  private registryContract!: RegistryContract
+  private treasuryContract!: TreasuryContract
+  private interfacesContract!: HolographInterfacesContract
+  private operatorContract!: OperatorContract
+  private layerZeroModuleContract!: LayerZeroModuleContract
+  private factoryContract!: FactoryContract
+  private ovmGasPriceOracleContract!: OVMGasPriceOracleContract
+  private bridgeContract!: BridgeContract
+  private cxipERC721Contract!: CxipERC721Contract
+  private holographOpenEditionERC721Contract!: HolographOpenEditionERC721Contract
 
   private readonly _providers: Providers
 
-  constructor(protocolConfig?: Config, private readonly collectionAddress?: Address) {
+  constructor(protocolConfig?: Config, private readonly contractAddress?: Address) {
     this.logger = HolographLogger.createLogger({serviceName: HolographProtocol.name})
 
     this.protocolConfig = protocolConfig ?? Config.getInstance()
 
-    this.holographContract = new Holograph()
-    this.registryContract = new Registry()
-    this.treasuryContract = new Treasury()
-    this.interfacesContract = new Interfaces()
-    this.operatorContract = new Operator()
-    this.layerZeroModuleContract = new LayerZeroModule()
-    this.factoryContract = new Factory()
-    this.ovmGasPriceOracleContract = new OVMGasPriceOracle()
-    this.bridgeContract = new Bridge()
+    this.holographContract = new HolographContract()
+    this.registryContract = new RegistryContract()
+    this.treasuryContract = new TreasuryContract()
+    this.interfacesContract = new HolographInterfacesContract()
+    this.operatorContract = new OperatorContract()
+    this.layerZeroModuleContract = new LayerZeroModuleContract()
+    this.factoryContract = new FactoryContract()
+    this.ovmGasPriceOracleContract = new OVMGasPriceOracleContract()
+    this.bridgeContract = new BridgeContract()
 
-    if (this.collectionAddress) {
-      this.cxipERC721Contract = new CxipERC721(this.collectionAddress)
-      this.holographDropERC721Contract = new HolographDropERC721(this.collectionAddress)
+    if (this.contractAddress) {
+      this.cxipERC721Contract = new CxipERC721Contract(this.contractAddress)
+      this.holographOpenEditionERC721Contract = new HolographOpenEditionERC721Contract(this.contractAddress)
     }
 
     this._providers = new Providers()
   }
 
-  get holograph(): Holograph {
+  get holograph(): HolographContract {
     return this.holographContract
   }
 
-  get registry(): Registry {
+  get registry(): RegistryContract {
     return this.registryContract
   }
 
-  get treasury(): Treasury {
+  get treasury(): TreasuryContract {
     return this.treasuryContract
   }
 
-  get interfaces(): Interfaces {
+  get interfaces(): HolographInterfacesContract {
     return this.interfacesContract
   }
 
-  get operator(): Operator {
+  get operator(): OperatorContract {
     return this.operatorContract
   }
 
-  get layerZeroModule(): LayerZeroModule {
+  get layerZeroModule(): LayerZeroModuleContract {
     return this.layerZeroModuleContract
   }
 
-  get factory(): Factory {
+  get factory(): FactoryContract {
     return this.factoryContract
   }
 
-  get ovmGasPriceOracle(): OVMGasPriceOracle {
+  get ovmGasPriceOracle(): OVMGasPriceOracleContract {
     return this.ovmGasPriceOracleContract
   }
 
-  get bridge(): Bridge {
+  get bridge(): BridgeContract {
     return this.bridgeContract
   }
 
-  get cxipERC721(): CxipERC721 {
+  get cxipERC721(): CxipERC721Contract {
     return this.cxipERC721Contract
   }
 
-  get holographDropERC721(): HolographDropERC721 {
-    return this.holographDropERC721Contract
+  get holographOpenEditionERC721(): HolographOpenEditionERC721Contract {
+    return this.holographOpenEditionERC721Contract
   }
 
   async hydrateContractFromAddress(hydrateContractInput: {
     chainId: number
     address: Address
-    type: CollectionType
-  }): Promise<HolographLegacyCollection | HolographMoeERC721DropV1 | HolographMoeERC721DropV2> {
+    type: ContractType
+  }): Promise<HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2> {
     const {chainId, address, type} = hydrateContractInput
 
     const abi = parseAbi([
@@ -131,8 +134,8 @@ export class HolographProtocol {
     const name = await contract.read.name()
     const symbol = await contract.read.symbol()
 
-    let collectionInput = {
-      collectionInfo: {
+    let contractInput = {
+      contractInfo: {
         symbol,
         name,
         // salt TODO: Once the new contract version is available, we should update this code to retrieve the salt property.
@@ -142,14 +145,14 @@ export class HolographProtocol {
     }
 
     switch (type) {
-      case CollectionType.CxipERC721: {
+      case ContractType.CxipERC721: {
         // const encodedRoyaltiesBps =  await client.public.getStorageAt({address, slot: '0x'}) // TODO: Awaiting protocol devs to calculate the slot
         // const royaltiesBps = decodeAbiParameters(parseAbiParameters('uint256'), encodedRoyaltiesBps)
 
-        return HolographLegacyCollection.hydrate(collectionInput)
+        return HolographERC721Contract.hydrate(contractInput)
       }
-      case CollectionType.HolographDropERC721:
-      case CollectionType.HolographDropERC721V2: {
+      case ContractType.HolographOpenEditionERC721:
+      case ContractType.HolographOpenEditionERC721V2: {
         const config = await contract.read.config()
         const salesConfig = await contract.read.salesConfig()
         const contractURI = await contract.read.contractURI()
@@ -167,10 +170,10 @@ export class HolographProtocol {
           metadata = await response.json()
         }
 
-        collectionInput.collectionInfo['royaltiesBps'] = config.royaltyBPS
+        contractInput.contractInfo['royaltiesBps'] = config.royaltyBPS
 
-        const moeInput = {
-          ...collectionInput,
+        const openEditionInput = {
+          ...contractInput,
           nftInfo: {
             ipfsUrl: metadata.image,
             ipfsImageCid: metadata.image.split('/')[2],
@@ -192,10 +195,10 @@ export class HolographProtocol {
           },
         }
 
-        if (type === CollectionType.HolographDropERC721) {
-          return HolographMoeERC721DropV1.hydrate(moeInput)
+        if (type === ContractType.HolographOpenEditionERC721) {
+          return HolographOpenEditionERC721ContractV1.hydrate(openEditionInput)
         }
-        return HolographMoeERC721DropV2.hydrate(moeInput)
+        return HolographOpenEditionERC721ContractV2.hydrate(openEditionInput)
       }
       default:
         throw new Error('This type of contract is not currently supported.')
