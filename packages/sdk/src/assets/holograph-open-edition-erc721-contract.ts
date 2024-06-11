@@ -24,7 +24,7 @@ import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 import {getERC721OpenEditionDeploymentConfigHash} from '../utils/encoders'
 import {
   destructSignature,
-  enableOpenEditionEvents,
+  enableOpenEditionEventsV1,
   enableOpenEditionEventsV2,
   generateRandomSalt,
   hexify,
@@ -327,11 +327,11 @@ export class HolographOpenEditionERC721ContractV1 {
   }
 
   protected _getOpenEditionContractType() {
-    return hexify('HolographOpenEditionERC721')
+    return hexify('HolographDropERC721')
   }
 
   protected _getEventConfig() {
-    return enableOpenEditionEvents()
+    return enableOpenEditionEventsV1()
   }
 
   protected _generateMetadataRendererInitCode(description: string, imageURI: string, animationURI = '') {
@@ -560,7 +560,7 @@ export class HolographOpenEditionERC721ContractV2 extends HolographOpenEditionER
   }
 
   protected _getOpenEditionContractType() {
-    return hexify('HolographOpenEditionERC721V2')
+    return hexify('HolographDropERC721V2')
   }
 
   protected _getEventConfig() {

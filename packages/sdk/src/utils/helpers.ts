@@ -46,7 +46,7 @@ export function allEventsEnabled(): string {
   return '0x' + 'ff'.repeat(32)
 }
 
-export function enableOpenEditionEvents(): Hex {
+export function enableOpenEditionEventsV1(): Hex {
   return '0x0000000000000000000000000000000000000000000000000000000000065000'
 }
 
