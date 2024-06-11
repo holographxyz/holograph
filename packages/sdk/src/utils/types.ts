@@ -348,7 +348,7 @@ export type CheckTypeIntegrity<T, T2 extends T = any, T3 extends T2 = any> = nev
 
 export enum ContractType {
   CxipERC721 = 'CxipERC721',
-  HolographOpenEditionERC721 = 'HolographOpenEditionERC721',
+  HolographOpenEditionERC721V1 = 'HolographOpenEditionERC721V1',
   HolographOpenEditionERC721V2 = 'HolographOpenEditionERC721V2',
   CustomERC721 = 'CustomERC721',
   CountdownERC721 = 'CountdownERC721',

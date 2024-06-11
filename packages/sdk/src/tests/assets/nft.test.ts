@@ -284,7 +284,7 @@ describe('Asset class: NFT', () => {
     })
   })
 
-  describe('_estimateGasForMintingNFT()', () => {
+  describe('estimateGasForMintingNFT()', () => {
     it('should be able to estimate gas for minting an NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const gasEstimation = await nft['estimateGasForMintingNFT']({chainId: LOCALHOST2_CHAIN_ID})

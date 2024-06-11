@@ -82,7 +82,7 @@ describe('Asset class: OpenEditionNFT', () => {
     expect(nft).toHaveProperty('tokenIdExists')
   })
 
-  describe('_estimateGasForPurchasingNFT()', () => {
+  describe('estimateGasForPurchasingNFT()', () => {
     it('should be able to estimate gas for purchasing an open edition NFT', async () => {
       await sleep(500) // Sleep to avoid nonce issues
       const gasEstimation = await nft['estimateGasForPurchasingNFT']({

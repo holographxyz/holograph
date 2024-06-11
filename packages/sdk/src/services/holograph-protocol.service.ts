@@ -151,7 +151,7 @@ export class HolographProtocol {
 
         return HolographERC721Contract.hydrate(contractInput)
       }
-      case ContractType.HolographOpenEditionERC721:
+      case ContractType.HolographOpenEditionERC721V1:
       case ContractType.HolographOpenEditionERC721V2: {
         const config = await contract.read.config()
         const salesConfig = await contract.read.salesConfig()
@@ -195,7 +195,7 @@ export class HolographProtocol {
           },
         }
 
-        if (type === ContractType.HolographOpenEditionERC721) {
+        if (type === ContractType.HolographOpenEditionERC721V1) {
           return HolographOpenEditionERC721ContractV1.hydrate(openEditionInput)
         }
         return HolographOpenEditionERC721ContractV2.hydrate(openEditionInput)
