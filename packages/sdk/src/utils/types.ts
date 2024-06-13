@@ -288,6 +288,17 @@ export type BridgeNFTInput = {
   gasSettings?: GasSettings
 }
 
+export type BridgeERC20Input = {
+  sourceChainId: number
+  destinationChainId: number
+  contractAddress: Address
+  amount: bigint
+  wallet: HolographWallet
+  from?: Address
+  to?: Address
+  gasSettings?: GasSettings
+}
+
 export type ReadContractArgs<TAbi extends Abi> = {
   chainId: number
   address: Address
