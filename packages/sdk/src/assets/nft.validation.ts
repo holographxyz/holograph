@@ -63,20 +63,13 @@ export const validate = {
 }
 
 export type CreateNFTSchema = z.infer<typeof createNFTSchema>
+export type NFTMetadata = z.infer<typeof metadataSchema>
+export type IpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export type CreateNFT = {
   contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
-  ipfsInfo?: {
-    ipfsImageCid: string
-    ipfsMetadataCid: string
-    ipfsUrl?: string
-  }
-  metadata: {
-    name: string
-    description: string
-    creator: string
-    attributes?: Record<string, string>
-  }
+  ipfsInfo?: IpfsInfo
+  metadata: NFTMetadata
   version?: HolographVersion
 }
 

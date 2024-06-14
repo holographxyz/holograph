@@ -25,6 +25,9 @@ import {HolographLogger} from './logger.service'
 import {Providers} from './providers.service'
 import {parseTimestampSecondsToISODate} from '../utils/helpers'
 import {ContractType, EventInfo} from '../utils/types'
+import {NFT} from '../assets/nft'
+import {IpfsInfo, NFTMetadata} from '../assets/nft.validation'
+import {OpenEditionNFT} from '../assets/open-edition-nft'
 
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
@@ -199,6 +202,82 @@ export class HolographProtocol {
           return HolographOpenEditionERC721ContractV1.hydrate(openEditionInput)
         }
         return HolographOpenEditionERC721ContractV2.hydrate(openEditionInput)
+      }
+      default:
+        throw new Error('This type of contract is not currently supported.')
+    }
+  }
+
+  async hydrateNFT(hydrateNftInput: {
+    chainId: number
+    address: Address
+    tokenId: string
+    type: ContractType
+  }): Promise<NFT | OpenEditionNFT> {
+    const {chainId, address, tokenId, type} = hydrateNftInput
+
+    const nftContract = await this.hydrateContractFromAddress({chainId, address, type})
+    //contract.tokenUri(tokenId)
+
+    const abi = parseAbi([
+      'function tokenURI(uint256 _tokenId) external view returns (string memory)',
+      'function ownerOf(uint256 tokenId) external view returns (address)',
+    ])
+
+    const client = {public: this._providers.byChainId(chainId)}
+    const contract = getContract({abi, address, client})
+
+    const tokenUri = await contract.read.tokenURI([BigInt(tokenId)])
+
+    let rawMetadata: {
+      name: string
+      description: string
+      image: string
+    }
+
+    let metadata: NFTMetadata
+    let ipfsInfo: IpfsInfo
+
+    if (tokenUri.includes('data:application/json;base64,')) {
+      rawMetadata = JSON.parse(atob(tokenUri.substring(29)))
+    } else if (tokenUri.startsWith('ipfs://')) {
+      const metadataUrl = `https://holograph.mypinata.cloud/ipfs/${tokenUri.replace('ipfs://', '')}`
+      const response = await fetch(metadataUrl)
+
+      if (!response.ok) {
+        throw new Error('It was not able to fetch the metadata')
+      }
+      rawMetadata = await response.json()
+    } else {
+      throw new Error('It was not able to fetch the metadata')
+    }
+
+    ipfsInfo = {
+      ipfsImageCid: rawMetadata.image.split('/')[2],
+      ipfsMetadataCid: tokenUri.split('/')[2],
+    }
+
+    metadata = {
+      name: rawMetadata.name,
+      description: rawMetadata.description,
+      creator: '',
+    }
+
+    switch (type) {
+      case ContractType.CxipERC721: {
+        return new NFT({
+          contract: nftContract,
+          metadata,
+          ipfsInfo,
+        })
+      }
+      case ContractType.HolographOpenEditionERC721V1:
+      case ContractType.HolographOpenEditionERC721V2: {
+        return new OpenEditionNFT({
+          contract: nftContract,
+          metadata,
+          ipfsInfo,
+        })
       }
       default:
         throw new Error('This type of contract is not currently supported.')
