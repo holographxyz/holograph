@@ -34,11 +34,29 @@ export interface CreateHolographLogger {
 
 export type HolographLoggerContext = AtLeastOne<CreateHolographLogger>
 
-export type BridgeInERC721Args = {
+export type BridgeInArgs = {
   readonly from: Address
   readonly to: Address
-  readonly tokenId: bigint
+  readonly amount_or_tokenId: bigint | Hex
   readonly data: Hex
+}
+
+export type BridgeInRequestArgs = {
+  nonce: bigint
+  fromChain: number
+  holographableContract: Address
+  hToken: Address
+  hTokenRecipient: Address
+  hTokenFeeValue: bigint
+  doNotRevert: boolean
+  bridgeInPayload: BridgeInArgs
+}
+
+export type DecodedExecuteJobInput = {
+  functionSelector: Hex
+  bridgeInRequestArgs: BridgeInRequestArgs
+  gasLimit: bigint
+  gasPrice: bigint
 }
 
 /**

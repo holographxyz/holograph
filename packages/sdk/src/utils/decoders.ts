@@ -12,7 +12,14 @@ import {
 
 import {HOLOGRAPH_EVENTS} from '../constants/events'
 import {lowerCaseAllStrings} from './transformers'
-import {BridgeInERC721Args, DecodedEvent, DeploymentConfigSettings, HolographEventName} from './types'
+import {
+  BridgeInArgs,
+  BridgeInRequestArgs,
+  DecodedEvent,
+  DecodedExecuteJobInput,
+  DeploymentConfigSettings,
+  HolographEventName,
+} from './types'
 
 export function decodeEvent(
   receipt: TransactionReceipt,
@@ -74,8 +81,8 @@ export function decodeLzPacketEvent(
   for (const event of events) {
     const packetPayload = event.values[0].toLowerCase()
 
-    if (packetPayload.indexOf(toFind) > 0) {
-      let index: number = packetPayload.indexOf(toFind)
+    let index: number = packetPayload.indexOf(toFind)
+    if (index > 0) {
       // address + bytes2 + address
       index += 40 + 4 + 40
       event.values[0] = ('0x' + packetPayload.slice(Math.max(0, index))).toLowerCase()
@@ -84,18 +91,56 @@ export function decodeLzPacketEvent(
   return events
 }
 
-export function decodeBridgeInERC721Args(input: Hex): BridgeInERC721Args {
-  const decoded = decodeAbiParameters(
-    parseAbiParameters('address from, address to, uint256 tokenId, bytes data'),
-    input,
+export function decodeBridgeInArgs(input: Hex, isErc721?: boolean): BridgeInArgs {
+  const decoded = decodeAbiParameters(parseAbiParameters('address from, address to, uint256, bytes data'), input)
+
+  let amount_or_tokenId: bigint | Hex
+  if (isErc721) {
+    amount_or_tokenId = numberToHex(decoded[2], {size: 32})
+  } else {
+    amount_or_tokenId = decoded[2]
+  }
+
+  return {
+    from: decoded[0].toLowerCase(),
+    to: decoded[1].toLowerCase(),
+    amount_or_tokenId,
+    data: decoded[3],
+  } as BridgeInArgs
+}
+
+export function decodeBridgeInRequestArgs(encodedBridgeInRequestArgs: Hex, isErc721?: boolean): BridgeInRequestArgs {
+  const decodedBridgeInRequest = decodeAbiParameters(
+    parseAbiParameters(
+      'uint256 nonce, uint32 fromChain, address holographableContract, address hToken, address hTokenRecipient, uint256 hTokenFeeValue, bool doNotRevert, bytes bridgeInPayload',
+    ),
+    encodedBridgeInRequestArgs,
   )
 
   return {
-    from: decoded[0],
-    to: decoded[1],
-    tokenId: decoded[2],
-    data: decoded[3],
-  } as BridgeInERC721Args
+    nonce: decodedBridgeInRequest[0],
+    fromChain: decodedBridgeInRequest[1],
+    holographableContract: decodedBridgeInRequest[2].toLowerCase(),
+    hToken: decodedBridgeInRequest[3].toLowerCase(),
+    hTokenRecipient: decodedBridgeInRequest[4].toLowerCase(),
+    hTokenFeeValue: decodedBridgeInRequest[5],
+    doNotRevert: decodedBridgeInRequest[6],
+    bridgeInPayload: decodeBridgeInArgs(decodedBridgeInRequest[7], isErc721),
+  } as BridgeInRequestArgs
+}
+
+export function decodeExecuteJobInput(bridgeInRequestPayload: Hex, isErc721?: boolean): DecodedExecuteJobInput {
+  const functionSelector = bridgeInRequestPayload.slice(0, 10)
+  const gasPrice = bridgeInRequestPayload.slice(-64)
+  const gasLimit = bridgeInRequestPayload.slice(-128, -64)
+  const encodedBridgeInRequestArgs = `0x${bridgeInRequestPayload.slice(11, -128)}` as Hex
+
+  return {
+    functionSelector,
+    bridgeInRequestArgs: decodeBridgeInRequestArgs(encodedBridgeInRequestArgs, isErc721),
+    gasLimit: decodeAbiParameters(parseAbiParameters('uint256'), `0x${gasLimit}`)[0],
+    gasPrice: decodeAbiParameters(parseAbiParameters('uint256'), `0x${gasPrice}`)[0],
+  } as DecodedExecuteJobInput
 }
 
 export function decodeDeploymentConfigInput(input: Hex): DeploymentConfigSettings {
