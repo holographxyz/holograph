@@ -210,13 +210,13 @@ export class HolographProtocol {
 
   async hydrateNFT(hydrateNftInput: {
     chainId: number
-    address: Address
+    contractAddress: Address
     tokenId: string
     type: ContractType
   }): Promise<NFT | OpenEditionNFT> {
-    const {chainId, address, tokenId, type} = hydrateNftInput
+    const {chainId, contractAddress, tokenId, type} = hydrateNftInput
 
-    const nftContract = await this.hydrateContractFromAddress({chainId, address, type})
+    const nftContract = await this.hydrateContractFromAddress({chainId, address: contractAddress, type})
     //contract.tokenUri(tokenId)
 
     const abi = parseAbi([
@@ -225,7 +225,7 @@ export class HolographProtocol {
     ])
 
     const client = {public: this._providers.byChainId(chainId)}
-    const contract = getContract({abi, address, client})
+    const contract = getContract({abi, address: contractAddress, client})
 
     const tokenUri = await contract.read.tokenURI([BigInt(tokenId)])
 
@@ -233,6 +233,7 @@ export class HolographProtocol {
       name: string
       description: string
       image: string
+      creator?: string
     }
 
     let metadata: NFTMetadata
@@ -260,27 +261,34 @@ export class HolographProtocol {
     metadata = {
       name: rawMetadata.name,
       description: rawMetadata.description,
-      creator: '',
+      creator: rawMetadata.creator,
     }
 
+    let nft: NFT | OpenEditionNFT
     switch (type) {
       case ContractType.CxipERC721: {
-        return new NFT({
+        nft = new NFT({
           contract: nftContract,
           metadata,
           ipfsInfo,
         })
+        break
       }
       case ContractType.HolographOpenEditionERC721V1:
       case ContractType.HolographOpenEditionERC721V2: {
-        return new OpenEditionNFT({
+        nft = new OpenEditionNFT({
           contract: nftContract,
           metadata,
           ipfsInfo,
         })
+        break
       }
       default:
         throw new Error('This type of contract is not currently supported.')
     }
+
+    nft.isMinted = true
+    nft['_tokenId'] = tokenId
+    return nft
   }
 }

@@ -35,7 +35,7 @@ const ipfsInfoSchema = z
 const metadataSchema = z.object({
   name: nameSchema,
   description: descriptionSchema,
-  creator: creatorSchema,
+  creator: creatorSchema.optional(),
   attributes: attributesSchema.optional(),
 })
 
@@ -68,8 +68,17 @@ export type IpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export type CreateNFT = {
   contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
-  ipfsInfo?: IpfsInfo
-  metadata: NFTMetadata
+  ipfsInfo?: {
+    ipfsImageCid: string
+    ipfsMetadataCid: string
+    ipfsUrl?: string
+  }
+  metadata: {
+    name: string
+    description: string
+    creator?: string
+    attributes?: Record<string, string>
+  }
   version?: HolographVersion
 }
 
