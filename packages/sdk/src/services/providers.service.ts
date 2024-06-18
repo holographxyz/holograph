@@ -1,4 +1,13 @@
-import {EIP1193Provider, PublicClient, createPublicClient, custom, http} from 'viem'
+import {
+  EIP1193Provider,
+  Hex,
+  PublicClient,
+  Transaction,
+  TransactionReceipt,
+  createPublicClient,
+  custom,
+  http,
+} from 'viem'
 import {Network} from '@holographxyz/networks'
 
 import {Config} from './config.service'
@@ -33,7 +42,7 @@ export class Providers {
     return this._providers
   }
 
-  getClientProviderByChaindId(chainId: number): PublicClient | undefined {
+  getClientProviderByChainId(chainId: number): PublicClient | undefined {
     return createPublicClient({
       chain: holographToViemChain(chainId),
       transport: custom(this._clientProvider as EIP1193Provider),
@@ -49,6 +58,18 @@ export class Providers {
 
     if (!provider && !clientProvider) throw new UnavailableNetworkError(chainId, this.byChainId.name)
 
-    return provider || this.getClientProviderByChaindId(chainId)
+    return provider || this.getClientProviderByChainId(chainId)
+  }
+
+  async getTransaction(chainId: number, hash: Hex): Promise<Transaction> {
+    return this.byChainId(chainId).getTransaction({hash})
+  }
+
+  async getTransactionReceipt(chainId: number, hash: Hex): Promise<TransactionReceipt> {
+    return this.byChainId(chainId).getTransactionReceipt({hash})
+  }
+
+  async getLatestBlockTimestamp(chainId: number): Promise<bigint> {
+    return (await this.byChainId(chainId).getBlock()).timestamp
   }
 }
