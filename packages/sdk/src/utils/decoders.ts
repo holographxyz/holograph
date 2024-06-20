@@ -117,6 +117,13 @@ export function decodeBridgeInRequestArgs(encodedBridgeInRequestArgs: Hex, isErc
     encodedBridgeInRequestArgs,
   )
 
+  let bridgeInPayload: BridgeInArgs | Hex
+  try {
+    bridgeInPayload = decodeBridgeInArgs(decodedBridgeInRequest[7], isErc721)
+  } catch (error) {
+    bridgeInPayload = decodedBridgeInRequest[7]
+  }
+
   return {
     nonce: decodedBridgeInRequest[0],
     fromChain: decodedBridgeInRequest[1],
@@ -125,7 +132,7 @@ export function decodeBridgeInRequestArgs(encodedBridgeInRequestArgs: Hex, isErc
     hTokenRecipient: decodedBridgeInRequest[4].toLowerCase(),
     hTokenFeeValue: decodedBridgeInRequest[5],
     doNotRevert: decodedBridgeInRequest[6],
-    bridgeInPayload: decodeBridgeInArgs(decodedBridgeInRequest[7], isErc721),
+    bridgeInPayload,
   } as BridgeInRequestArgs
 }
 

@@ -49,7 +49,7 @@ export type BridgeInRequestArgs = {
   hTokenRecipient: Address
   hTokenFeeValue: bigint
   doNotRevert: boolean
-  bridgeInPayload: BridgeInArgs
+  bridgeInPayload: BridgeInArgs | Hex
 }
 
 export type DecodedExecuteJobInput = {
@@ -223,6 +223,19 @@ export enum TokenUriType {
   IPFS = 1,
   HTTPS = 2,
   ARWEAVE = 3,
+}
+
+/**
+ * Type designed to mirror the equivalent Solidity type.
+ * Reference: https://github.com/holographxyz/holograph-protocol/blob/develop/src/struct/OperatorJob.sol
+ */
+export type OperatorJob = {
+  pod: number
+  blockTimes: number
+  operator: Address
+  startBlock: number
+  startTimestamp: bigint
+  fallbackOperators: [number, number, number, number, number]
 }
 
 export enum HolographVersion {
