@@ -4,20 +4,19 @@ import {HolographProtocol, HolographWallet} from '../../services'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
 import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
 import {ContractType, HolographAccount} from '../../utils/types'
-import {LOCALHOST2_CHAIN_ID, LOCALHOST_CHAIN_ID, testConfigObject} from '../setup'
+import {LOCALHOST_CHAIN_ID, testConfigObject} from '../setup'
 import {HolographOpenEditionERC721ContractV2} from '../../assets/holograph-open-edition-erc721-contract'
 import {NFT} from '../../assets/nft'
 import {OpenEditionNFT} from '../../assets/open-edition-nft'
 import {Address} from 'viem'
+import {TokenDoesNotExistError} from '../../errors'
 
 describe('Service: Holograph Protocol', () => {
   let holographProtocol: HolographProtocol
 
   let chainId: number
   let nft: NFT
-  let nftTokenId: string
   let openEditionNFT: OpenEditionNFT
-  let openEditionNFTtokenId: string
   let erc721Contract: HolographERC721Contract
   let erc721ContractAddress: Address
   let openEditionErc721Contract: HolographOpenEditionERC721ContractV2
@@ -71,12 +70,12 @@ describe('Service: Holograph Protocol', () => {
 
   describe('hydrateNFT', () => {
     it('should correctly hydrate an NFT using its contract address, token ID, and chain ID', async () => {
-      const hydratedNft = await holographProtocol.hydrateNFT({
+      const hydratedNft = (await holographProtocol.hydrateNFT({
         chainId,
         contractAddress: erc721ContractAddress,
-        tokenId: nftTokenId,
+        tokenId: nft.tokenId,
         type: ContractType.CxipERC721,
-      })
+      })) as NFT
 
       expect(hydratedNft).toBeInstanceOf(NFT)
       expect(hydratedNft.isMinted).toBe(true)
@@ -88,23 +87,31 @@ describe('Service: Holograph Protocol', () => {
     })
 
     it('should correctly hydrate an Open Edition NFT using its contract address, token ID, and chain ID', async () => {
-      const hydratedNft = await holographProtocol.hydrateNFT({
+      const hydratedNft = (await holographProtocol.hydrateNFT({
         chainId,
         contractAddress: openEditionErc721ContractAddress,
-        tokenId: openEditionNFTtokenId,
+        tokenId: openEditionNFT.tokenId!,
         type: ContractType.HolographOpenEditionERC721V2,
-      })
+      })) as OpenEditionNFT
 
       expect(hydratedNft).toBeInstanceOf(OpenEditionNFT)
       expect(hydratedNft.isMinted).toBe(true)
       expect(hydratedNft.name).toBe(openEditionNFT.name)
       expect(hydratedNft.description).toBe(openEditionNFT.description)
       expect(hydratedNft.ipfsImageCid).toBe(openEditionNFT.ipfsImageCid)
-      //expect(hydratedNft.ipfsMetadataCid).toBe(nft.ipfsMetadataCid)
       expect(hydratedNft.tokenId).toBe(openEditionNFT.tokenId)
     })
 
-    it('should throw an error when attempting to hydrate an NFT with a non-existent token ID', () => {})
+    it('should throw an error when attempting to hydrate an NFT with a non-existent token ID', async () => {
+      await expect(() =>
+        holographProtocol.hydrateNFT({
+          chainId,
+          contractAddress: erc721ContractAddress,
+          tokenId: '0x0000000000000000000000000000000000000000000000000000000000009999',
+          type: ContractType.CxipERC721,
+        }),
+      ).rejects.toThrow(TokenDoesNotExistError)
+    })
   })
 
   async function deployTestERC721Contract() {
@@ -135,13 +142,13 @@ describe('Service: Holograph Protocol', () => {
         salt: generateRandomSalt(),
       },
       nftInfo: {
-        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
+        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
         ipfsImageCid: 'QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93',
-        // TODO: why we don't have the ipfsMetadataCid ?
+        // TODO: add a check to validate if the ipfsImageCid is a substring on ipfsUrl
       },
       salesConfig: {
         maxSalePurchasePerAddress: 10,
-        publicSaleStart: '2025-01-01T00:00:00Z',
+        publicSaleStart: '2024-01-01T00:00:00Z',
         publicSaleEnd: '2025-01-02T00:00:00Z',
         publicSalePrice: 25,
       },
@@ -163,26 +170,20 @@ describe('Service: Holograph Protocol', () => {
       },
       ipfsInfo: {
         ipfsImageCid: 'QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93',
-        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
+        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
         ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
       },
     })
 
     await sleep(1500) // Sleep to avoid nonce issues
-    const mintData = await nft.mint({chainId})
-    nftTokenId = mintData.tokenId
+    nft.mint({chainId})
   }
 
   async function mintNFTFromOpenEditionERC721Contract() {
     openEditionNFT = new OpenEditionNFT({
       contract: openEditionErc721Contract,
-      metadata: {
-        name: 'My First NFT',
-        description: 'Nothing.',
-      },
     })
     await sleep(1500) // Sleep to avoid nonce issues
-    const mintData = await nft.mint({chainId})
-    openEditionNFTtokenId = mintData.tokenId
+    await openEditionNFT.purchase({chainId, quantity: 1})
   }
 })

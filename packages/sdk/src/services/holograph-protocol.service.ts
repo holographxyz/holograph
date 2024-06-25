@@ -26,8 +26,9 @@ import {Providers} from './providers.service'
 import {parseTimestampSecondsToISODate} from '../utils/helpers'
 import {ContractType, EventInfo} from '../utils/types'
 import {NFT} from '../assets/nft'
-import {IpfsInfo, NFTMetadata} from '../assets/nft.validation'
+import {HolographOpenEditionNFTMetadata, IpfsInfo, NFTMetadata} from '../assets/nft.validation'
 import {OpenEditionNFT} from '../assets/open-edition-nft'
+import {MetadataFetchError, TokenDoesNotExistError, UnsupportedContractTypeError} from '../errors'
 
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
@@ -204,7 +205,7 @@ export class HolographProtocol {
         return HolographOpenEditionERC721ContractV2.hydrate(openEditionInput)
       }
       default:
-        throw new Error('This type of contract is not currently supported.')
+        throw new UnsupportedContractTypeError(this.hydrateContractFromAddress.name)
     }
   }
 
@@ -227,6 +228,14 @@ export class HolographProtocol {
     const client = {public: this._providers.byChainId(chainId)}
     const contract = getContract({abi, address: contractAddress, client})
 
+    try {
+      await contract.read.ownerOf([BigInt(tokenId)])
+    } catch (error: any) {
+      if (error?.message.includes('ERC721: token does not exist')) {
+        throw new TokenDoesNotExistError(this.hydrateNFT.name)
+      }
+    }
+
     const tokenUri = await contract.read.tokenURI([BigInt(tokenId)])
 
     let rawMetadata: {
@@ -246,16 +255,16 @@ export class HolographProtocol {
       const response = await fetch(metadataUrl)
 
       if (!response.ok) {
-        throw new Error('It was not able to fetch the metadata')
+        throw new MetadataFetchError(this.hydrateNFT.name)
       }
       rawMetadata = await response.json()
     } else {
-      throw new Error('It was not able to fetch the metadata')
+      throw new MetadataFetchError(this.hydrateNFT.name)
     }
 
     ipfsInfo = {
       ipfsImageCid: rawMetadata.image.split('/')[2],
-      ipfsMetadataCid: tokenUri.split('/')[2],
+      ipfsMetadataCid: tokenUri.split('//')[1],
     }
 
     metadata = {
@@ -268,7 +277,7 @@ export class HolographProtocol {
     switch (type) {
       case ContractType.CxipERC721: {
         nft = new NFT({
-          contract: nftContract,
+          contract: nftContract as HolographERC721Contract,
           metadata,
           ipfsInfo,
         })
@@ -277,14 +286,13 @@ export class HolographProtocol {
       case ContractType.HolographOpenEditionERC721V1:
       case ContractType.HolographOpenEditionERC721V2: {
         nft = new OpenEditionNFT({
-          contract: nftContract,
-          metadata,
-          ipfsInfo,
+          contract: nftContract as HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2,
         })
+        nft['_metadata'] = rawMetadata as unknown as HolographOpenEditionNFTMetadata
         break
       }
       default:
-        throw new Error('This type of contract is not currently supported.')
+        throw new UnsupportedContractTypeError(this.hydrateNFT.name)
     }
 
     nft.isMinted = true

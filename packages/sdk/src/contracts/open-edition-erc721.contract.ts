@@ -83,6 +83,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @readonly
    * Check if the NFT exists through its token id.
    * @param chainId  The chain id of the network to get the result from.
+   * @param tokenId ID of token.
    * @returns A boolean indicating if the NFT exists.
    */
   async exists(chainId: number, tokenId: string) {
@@ -97,6 +98,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @readonly
    * Get the owner of the NFT.
    * @param chainId  The chain id of the network to get the result from.
+   * @param tokenId ID of token.
    * @returns The owner address of the NFT.
    */
   async ownerOf(chainId: number, tokenId: string) {
@@ -104,6 +106,21 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
       args: [tokenId],
       chainId,
       functionName: 'ownerOf',
+    })
+  }
+
+  /**
+   * @readonly
+   * Token URI Getter
+   * @param chainId  The chain id of the network to get the result from.
+   * @param tokenId ID of token to get URI for.
+   * @returns The token URI.
+   */
+  async tokenURI(chainId: number, tokenId: string) {
+    return this._getContractFunction({
+      args: [tokenId],
+      chainId,
+      functionName: 'tokenURI',
     })
   }
 

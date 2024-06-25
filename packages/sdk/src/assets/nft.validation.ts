@@ -8,10 +8,10 @@ import {
 } from './holograph-open-edition-erc721-contract'
 import {CheckTypeIntegrity, HolographVersion} from '../utils/types'
 
-const contractSchema = z
-  .instanceof(HolographERC721Contract)
-  .or(z.instanceof(HolographOpenEditionERC721ContractV1))
+const openEditionContractSchema = z
+  .instanceof(HolographOpenEditionERC721ContractV1)
   .or(z.instanceof(HolographOpenEditionERC721ContractV2))
+const contractSchema = z.instanceof(HolographERC721Contract)
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().min(1, {message: 'Description is required'})
 const creatorSchema = z.string().min(1, {message: 'Creator is required'})
@@ -22,7 +22,7 @@ const tokenIdSchema = z.string().refine(tokenId => !isNaN(Number(tokenId)), {mes
 const versionSchema = z.enum([HolographVersion.V1, HolographVersion.V2]).optional()
 const ipfsUrlSchema = z.string().url()
 const ipfsImageCidSchema = z.string().length(46).startsWith('Qm')
-const ipfsMetadataCidSchema = z.string().min(46).startsWith('Qm')
+const ipfsMetadataCidSchema = z.string().min(46).startsWith('Qm').endsWith('/metadata.json')
 
 const ipfsInfoSchema = z
   .object({
@@ -48,6 +48,7 @@ export const createNFTSchema = z.object({
 
 export const validate = {
   contract: contractSchema,
+  openEditionContract: openEditionContractSchema,
   name: nameSchema,
   description: descriptionSchema,
   creator: creatorSchema,
@@ -67,7 +68,7 @@ export type NFTMetadata = z.infer<typeof metadataSchema>
 export type IpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export type CreateNFT = {
-  contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
+  contract: HolographERC721Contract
   ipfsInfo?: {
     ipfsImageCid: string
     ipfsMetadataCid: string
@@ -82,9 +83,26 @@ export type CreateNFT = {
   version?: HolographVersion
 }
 
+export type CreateOpenEditionNFT = {
+  contract: HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
+  version?: HolographVersion
+}
+
 type CheckCreateNFT = CheckTypeIntegrity<CreateNFTSchema, CreateNFT, CreateNFTSchema>
 
 export type HolographNFTMetadata = z.infer<typeof metadataSchema>
+
+export type HolographOpenEditionNFTMetadata = {
+  name: string
+  description: string
+  image?: string
+  animation_url?: string
+  properties: {
+    number: number
+    name: string
+  }
+}
+
 
 export type NFTIpfsInfo = z.infer<typeof ipfsInfoSchema>
 

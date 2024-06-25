@@ -4,7 +4,8 @@ import {
   HolographOpenEditionERC721ContractV2,
 } from '../assets/holograph-open-edition-erc721-contract'
 import {NFT} from '../assets/nft'
-import {HydratedAssetPropertyNotFound, UpdateDeployedContract, UpdateMintedNFTError} from '../errors'
+import {OpenEditionNFT} from '../assets/open-edition-nft'
+import {HydratedAssetPropertyNotFound, NotMintedNFTError, UpdateDeployedContract, UpdateMintedNFTError} from '../errors'
 
 export function IsNotMinted() {
   return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -46,6 +47,18 @@ export function EnforceHydrateCheck() {
         if (this.salt === '0x0' || !this.royaltiesBps) {
           throw new HydratedAssetPropertyNotFound(['salt', 'royaltiesBps'], propertyKey)
         }
+      }
+      return originalMethod.apply(this, args)
+    }
+  }
+}
+
+export function RequireMintedToken() {
+  return function (target: any, propertyKey: string, descriptor: PropertyDescriptor) {
+    const originalMethod = descriptor[descriptor.get ? 'get' : 'value']
+    descriptor[descriptor.get ? 'get' : 'value'] = function (this: OpenEditionNFT, ...args: any[]) {
+      if (!this.isMinted) {
+        throw new NotMintedNFTError(propertyKey)
       }
       return originalMethod.apply(this, args)
     }

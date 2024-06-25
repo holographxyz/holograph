@@ -12,6 +12,7 @@ import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, NFTIpfsInfo, validat
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
 import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
+import {getParsedTokenId} from '../utils/transformers'
 
 export class NFT {
   public contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
@@ -34,20 +35,20 @@ export class NFT {
   }
 
   get name() {
-    return this.metadata.name
+    return this.metadata?.name
   }
 
   get description() {
-    return this.metadata.description
+    return this.metadata?.description
   }
 
   get creator() {
-    return this.metadata.creator
+    return this.metadata?.creator
   }
 
   // AKA the NFT traits
   get attributes() {
-    return this.metadata.attributes
+    return this.metadata?.attributes
   }
 
   get ipfsImageCid() {
@@ -71,18 +72,7 @@ export class NFT {
   public getParsedTokenId() {
     if (!this._tokenId) throw new NotMintedNFTError(this.getParsedTokenId.name)
 
-    const tokenIdHex = numberToHex(BigInt(this._tokenId), {size: 32})
-    const chainIdHex = tokenIdHex.slice(0, 10)
-    const tokenNumberHex = tokenIdHex.slice(10)
-
-    return {
-      decimal: this._tokenId,
-      hex: tokenIdHex,
-      part: {
-        chainId: parseInt(chainIdHex, 16).toString(),
-        tokenNumber: parseInt(tokenNumberHex, 16).toString(),
-      },
-    }
+    return getParsedTokenId(this._tokenId!)
   }
 
   @IsNotMinted()
