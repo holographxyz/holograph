@@ -38,9 +38,8 @@ export {
   HolographProtocol,
   Config,
   Providers,
-}
 
-export type {
+  // Types
   DeploymentConfig,
   ERC721Config,
   HolographConfig,

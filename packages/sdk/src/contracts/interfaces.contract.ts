@@ -17,14 +17,14 @@ import {HolographBaseContract} from './holograph-base.contract'
  * The contract stores a reference of all supported: chains, interfaces, functions, etc.
  *
  */
-export class HolographInterfacesContract extends HolographBaseContract {
+export class InterfacesContract extends HolographBaseContract {
   constructor(parentLogger?: HolographLogger) {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: HolographInterfacesContract.name})
+      logger = parentLogger.addContext({className: InterfacesContract.name})
     } else {
-      logger = HolographLogger.createLogger({className: HolographInterfacesContract.name})
+      logger = HolographLogger.createLogger({className: InterfacesContract.name})
     }
 
     super(logger, HolographInterfacesABI, 'HolographInterfaces')

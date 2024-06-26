@@ -1,20 +1,20 @@
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {HolographOpenEditionERC721Contract} from '../../contracts'
+import {OpenEditionERC721Contract} from '../../contracts'
 import {Providers} from '../../services'
 import {testConfigObject} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 
 const FAKE_CONTRACT_ADDRESS = '0x9876543210987654321098765432109876543210'
 
-describe('Contract class: HolographOpenEditionERC721Contract', () => {
+describe('Contract class: OpenEditionERC721Contract', () => {
   let providersWrapper: Providers
-  let holographOpenEditionERC721: HolographOpenEditionERC721Contract
+  let holographOpenEditionERC721: OpenEditionERC721Contract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    holographOpenEditionERC721 = new HolographOpenEditionERC721Contract(FAKE_CONTRACT_ADDRESS)
+    holographOpenEditionERC721 = new OpenEditionERC721Contract(FAKE_CONTRACT_ADDRESS)
   })
 
   it('should be able to get the correct providers', () => {
@@ -23,7 +23,7 @@ describe('Contract class: HolographOpenEditionERC721Contract', () => {
     expect(multiProviders).toHaveProperty(String(chainIds[1]))
   })
 
-  it('should be able to get the HolographOpenEditionERC721Contract wrapper class', () => {
+  it('should be able to get the OpenEditionERC721Contract wrapper class', () => {
     expect(holographOpenEditionERC721).toHaveProperty('estimateContractFunctionGas')
     expect(holographOpenEditionERC721).toHaveProperty('exists')
     expect(holographOpenEditionERC721).toHaveProperty('getHolographFeeWei')

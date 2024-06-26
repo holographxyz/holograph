@@ -14,6 +14,7 @@ import {Config} from './config.service'
 import {UnavailableNetworkError} from '../errors/general/unavailable-network.error'
 import {HolographLogger} from './logger.service'
 import {holographToViemChain} from '../utils/transformers'
+import {TransportType} from '../utils/types'
 
 export class Providers {
   private readonly logger: HolographLogger
@@ -42,14 +43,14 @@ export class Providers {
     return this._providers
   }
 
-  getClientProviderByChainId(chainId: number): PublicClient | undefined {
+  getClientProviderByChainId(chainId: number, transportType: TransportType = 'custom'): PublicClient | undefined {
     return createPublicClient({
       chain: holographToViemChain(chainId),
-      transport: custom(this._clientProvider as EIP1193Provider),
+      transport: transportType === 'custom' ? custom(this._clientProvider as EIP1193Provider) : http(),
     })
   }
 
-  byChainId(chainId: number): PublicClient {
+  byChainId(chainId: number, transportType: TransportType = 'custom'): PublicClient {
     const logger = this.logger.addContext({functionName: this.byChainId.name})
     logger.info(`provider accessing chainId = ${chainId}`)
 
@@ -58,7 +59,7 @@ export class Providers {
 
     if (!provider && !clientProvider) throw new UnavailableNetworkError(chainId, this.byChainId.name)
 
-    return provider || this.getClientProviderByChainId(chainId)
+    return provider || this.getClientProviderByChainId(chainId, transportType)
   }
 
   async getTransaction(chainId: number, hash: Hex): Promise<Transaction> {

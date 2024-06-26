@@ -16,7 +16,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.ethereumTestnetSepolia.chain]: {
-    gasPrice: BigInt(1000000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -40,7 +40,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.binanceSmartChainTestnet.chain]: {
-    gasPrice: BigInt(3000000000),
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -52,7 +52,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.avalancheTestnet.chain]: {
-    gasPrice: BigInt(30000000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -70,7 +70,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.optimismTestnetSepolia.chain]: {
-    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -88,7 +88,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.arbitrumTestnetSepolia.chain]: {
-    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -100,7 +100,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.mantleTestnet.chain]: {
-    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -118,7 +118,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.zoraTestnetSepolia.chain]: {
-    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,
@@ -136,7 +136,7 @@ export const BRIDGE_NFT_GAS = {
     gasPriceMultiplier: 150,
   },
   [networks.baseTestnetSepolia.chain]: {
-    gasPrice: BigInt(100000005), // NOTE: add 5 wei to prove value is used.
+    gasPrice: undefined,
     gasLimit: undefined,
     gasLimitMultiplier: 125,
     gasPriceMultiplier: 150,

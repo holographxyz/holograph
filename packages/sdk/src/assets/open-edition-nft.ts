@@ -1,19 +1,19 @@
 import {Hex, pad, toHex} from 'viem'
 
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
-import {HolographOpenEditionERC721Contract} from '../contracts'
+import {OpenEditionERC721Contract} from '../contracts'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {HolographVersion, MintConfig, WriteContractOptions} from '../utils/types'
 import {NFT} from './nft'
 import {CreateNFT} from './nft.validation'
 
 export class OpenEditionNFT extends NFT {
-  private holographOpenEditionERC721: HolographOpenEditionERC721Contract
+  private holographOpenEditionERC721: OpenEditionERC721Contract
 
   constructor({contract, metadata, version = HolographVersion.V2}: CreateNFT) {
     super({contract, metadata, version})
 
-    const holographOpenEditionERC721 = new HolographOpenEditionERC721Contract(contract.contractAddress!, version)
+    const holographOpenEditionERC721 = new OpenEditionERC721Contract(contract.contractAddress!, version)
     this.holographOpenEditionERC721 = holographOpenEditionERC721
   }
 

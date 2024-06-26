@@ -13,8 +13,8 @@ import {
   CxipERC721Contract,
   FactoryContract,
   HolographContract,
-  HolographOpenEditionERC721Contract,
-  HolographInterfacesContract,
+  OpenEditionERC721Contract,
+  InterfacesContract,
   LayerZeroModuleContract,
   OperatorContract,
   OVMGasPriceOracleContract,
@@ -33,14 +33,14 @@ export class HolographProtocol {
   private holographContract!: HolographContract
   private registryContract!: RegistryContract
   private treasuryContract!: TreasuryContract
-  private interfacesContract!: HolographInterfacesContract
+  private interfacesContract!: InterfacesContract
   private operatorContract!: OperatorContract
   private layerZeroModuleContract!: LayerZeroModuleContract
   private factoryContract!: FactoryContract
   private ovmGasPriceOracleContract!: OVMGasPriceOracleContract
   private bridgeContract!: BridgeContract
   private cxipERC721Contract!: CxipERC721Contract
-  private holographOpenEditionERC721Contract!: HolographOpenEditionERC721Contract
+  private openEditionERC721Contract!: OpenEditionERC721Contract
 
   private readonly _providers: Providers
 
@@ -52,7 +52,7 @@ export class HolographProtocol {
     this.holographContract = new HolographContract()
     this.registryContract = new RegistryContract()
     this.treasuryContract = new TreasuryContract()
-    this.interfacesContract = new HolographInterfacesContract()
+    this.interfacesContract = new InterfacesContract()
     this.operatorContract = new OperatorContract()
     this.layerZeroModuleContract = new LayerZeroModuleContract()
     this.factoryContract = new FactoryContract()
@@ -61,7 +61,7 @@ export class HolographProtocol {
 
     if (this.contractAddress) {
       this.cxipERC721Contract = new CxipERC721Contract(this.contractAddress)
-      this.holographOpenEditionERC721Contract = new HolographOpenEditionERC721Contract(this.contractAddress)
+      this.openEditionERC721Contract = new OpenEditionERC721Contract(this.contractAddress)
     }
 
     this._providers = new Providers()
@@ -79,7 +79,7 @@ export class HolographProtocol {
     return this.treasuryContract
   }
 
-  get interfaces(): HolographInterfacesContract {
+  get interfaces(): InterfacesContract {
     return this.interfacesContract
   }
 
@@ -107,8 +107,8 @@ export class HolographProtocol {
     return this.cxipERC721Contract
   }
 
-  get holographOpenEditionERC721(): HolographOpenEditionERC721Contract {
-    return this.holographOpenEditionERC721Contract
+  get openEditionERC721(): OpenEditionERC721Contract {
+    return this.openEditionERC721Contract
   }
 
   async hydrateContractFromAddress(hydrateContractInput: {
