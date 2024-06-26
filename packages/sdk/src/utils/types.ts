@@ -307,6 +307,7 @@ export type EstimateContractGasArgs<TAbi extends Abi> = ReadContractArgs<TAbi> &
 
 export type SimulateContractArgs<TAbi extends Abi> = ReadContractArgs<TAbi> & {
   options?: SimulateContractOptions
+  transportType?: TransportType
 }
 
 export type GetContractFunctionArgs<TAbi extends Abi> = {
@@ -328,6 +329,7 @@ export type EstimateContractFunctionGasArgs<TAbi extends Abi> = GetContractFunct
 
 export type SimulateContractFunctionArgs<TAbi extends Abi> = Omit<GetContractFunctionArgs<TAbi>, 'wallet'> & {
   options?: SimulateContractOptions
+  transportType?: TransportType
 }
 
 export type EstimateContractGasOptions = Partial<
@@ -384,3 +386,5 @@ export enum ContractType {
   CustomERC721 = 'CustomERC721',
   CountdownERC721 = 'CountdownERC721',
 }
+
+export type TransportType = 'custom' | 'http'

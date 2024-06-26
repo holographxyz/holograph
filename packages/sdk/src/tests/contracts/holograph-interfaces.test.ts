@@ -1,7 +1,7 @@
 import {Address} from 'abitype'
 import {beforeAll, describe, expect, it} from 'vitest'
 
-import {HolographInterfacesContract} from '../../contracts'
+import {InterfacesContract} from '../../contracts'
 import {Providers} from '../../services'
 import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
@@ -32,17 +32,17 @@ const supportedPrepends: {type: number; prepend: string}[] = [
 
 const EIP165_ID = '0x01ffc9a7'
 
-describe('Contract class: HolographInterfacesContract', () => {
+describe('Contract class: InterfacesContract', () => {
   let providersWrapper: Providers
-  let interfaces: HolographInterfacesContract
+  let interfaces: InterfacesContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
   beforeAll(() => {
     providersWrapper = new Providers()
-    interfaces = new HolographInterfacesContract()
+    interfaces = new InterfacesContract()
   })
 
-  it('should be able to get the HolographInterfacesContract wrapper class', () => {
+  it('should be able to get the InterfacesContract wrapper class', () => {
     expect(interfaces).toHaveProperty('getAddress')
     expect(interfaces).toHaveProperty('contractURI')
     expect(interfaces).toHaveProperty('getUriPrepend')

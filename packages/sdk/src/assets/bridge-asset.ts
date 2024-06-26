@@ -118,7 +118,7 @@ export class BridgeAsset {
      * fees[1]: msgFee the amount (in wei) of native gas token that will cost for sending message to destination chain
      * fees[2]: dstGasPrice the amount (in wei) that destination message maximum gas price will be
      */
-    const [hTokenFee, lzFee, _] = fees
+    const [hTokenFee, lzFee] = fees
 
     // fees consist of two parts: HToken fee and lz fee
     const feeValue: bigint = hTokenFee + lzFee
@@ -149,7 +149,7 @@ export class BridgeAsset {
 
     let destinationGasPrice: bigint
     let destinationGasLimit: bigint
-    const gasController = GAS_CONTROLLER.bridgeNft[chainId]
+    const gasController = GAS_CONTROLLER.bridgeNft[destinationChainId]
 
     if (gasController?.gasLimit) {
       destinationGasLimit = gasController.gasLimit
@@ -176,9 +176,10 @@ export class BridgeAsset {
        */
       const consumedGas: bigint = (
         await this._operator.simulateContractFunction({
-          chainId,
+          chainId: destinationChainId,
           functionName: 'jobEstimator',
           args: [bridgeRequestPayloadStub],
+          transportType: 'http',
           // @ts-ignore: TS2322 - For some reason, the type inference is indicating that the account can only be 'account?: undefined'.
           options: {gas: gasLimitStub, account: gasEstimationHelperAddress},
         })
@@ -195,7 +196,7 @@ export class BridgeAsset {
       destinationGasPrice = gasController.gasPrice
     } else {
       // we extract the most recent and most accurate gas prices for destination network
-      const provider = this._providers.byChainId(chainId)
+      const provider = this._providers.byChainId(destinationChainId, 'http')
       const gasPricing: GasPricing = await initializeGasPricing(provider)
 
       // get gas price based on eip-1559 support

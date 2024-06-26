@@ -76,12 +76,13 @@ export class HolographBaseContract {
     functionName,
     args,
     options,
+    transportType = 'custom',
   }: SimulateContractArgs<TAbi>) {
     const logger = this._logger.addContext({functionName})
 
     let result: any
     try {
-      const provider = this._providers.byChainId(chainId)
+      const provider = this._providers.byChainId(chainId, transportType)
 
       let client = {public: provider}
       const contract: GetContractReturnType<Abi, typeof client> = getContract({address, abi: this._abi, client})

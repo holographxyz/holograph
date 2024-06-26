@@ -39,6 +39,11 @@ export function getGasEstimationAddress(chainId: number): Address {
       destinationFrom = '0x4200000000000000000000000000000000000006'
       break
 
+    case networks.mantle.chain:
+    case networks.mantleTestnet.chain:
+      destinationFrom = '0x4200000000000000000000000000000000000011'
+      break
+
     case networks.arbitrumOne.chain:
       destinationFrom = '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1'
       break
@@ -69,13 +74,6 @@ export function adjustBaseBlockFee(chainId: number, baseBlockFee: bigint): bigin
     baseBlockFee < BigInt(25000000000)
   ) {
     return BigInt(25000000000)
-  }
-
-  if (
-    (network === networks.binanceSmartChain.key || network === networks.binanceSmartChainTestnet.key) &&
-    baseBlockFee < BigInt(3000000000)
-  ) {
-    return BigInt(3000000000)
   }
 
   return baseBlockFee

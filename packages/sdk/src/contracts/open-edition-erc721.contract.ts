@@ -15,10 +15,10 @@ const V2ABIs = [...HolographDropERC721V2ABI, ...HolographERC721ABI]
 
 /**
  * @group Contracts
- * HolographOpenEditionERC721
+ * OpenEditionERC721
  *
  */
-export class HolographOpenEditionERC721Contract extends HolographBaseContract {
+export class OpenEditionERC721Contract extends HolographBaseContract {
   private contractAddress: Address
   private abis: typeof ABIs | typeof V2ABIs
 
@@ -26,9 +26,9 @@ export class HolographOpenEditionERC721Contract extends HolographBaseContract {
     let logger: HolographLogger
 
     if (parentLogger) {
-      logger = parentLogger.addContext({className: HolographOpenEditionERC721Contract.name})
+      logger = parentLogger.addContext({className: OpenEditionERC721Contract.name})
     } else {
-      logger = HolographLogger.createLogger({className: HolographOpenEditionERC721Contract.name})
+      logger = HolographLogger.createLogger({className: OpenEditionERC721Contract.name})
     }
 
     const isV2 = version === HolographVersion.V2

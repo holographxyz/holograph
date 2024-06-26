@@ -82,13 +82,14 @@ export class HolographWallet {
   private _provider?: unknown
 
   constructor({account, networks, provider}: HolographWalletArgs) {
+    const configProvider = Config.getInstance()?.provider
     this._logger = HolographLogger.createLogger({serviceName: HolographWallet.name})
     this._account = account
-    this._provider = provider
+    this._provider = provider ?? configProvider
     let networksConfig = networks ? networks : getEnvRpcConfig({shouldThrow: false})
     this._networks = networksConfig
 
-    if (!networksConfig && !provider) throw new MissingNetworkInformationError(HolographWallet.name)
+    if (!networksConfig && !provider && !configProvider) throw new MissingNetworkInformationError(HolographWallet.name)
 
     for (const [networkKey, rpc] of Object.entries(networksConfig || {})) {
       const chainId = holographNetworks[networkKey].chain

@@ -71,9 +71,10 @@ export class OperatorContract extends HolographBaseContract {
     functionName,
     args,
     options,
+    transportType,
   }: SimulateContractFunctionArgs<typeof HolographOperatorABI>) {
     const address = await this.getAddress(chainId)
-    return this._simulateContract({chainId, address, functionName, args, options})
+    return this._simulateContract({chainId, address, functionName, args, options, transportType})
   }
 
   /**
