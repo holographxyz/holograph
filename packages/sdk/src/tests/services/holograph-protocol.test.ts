@@ -47,7 +47,7 @@ describe('Service: Holograph Protocol', () => {
     expect(holographProtocol).toHaveProperty('ovmGasPriceOracle')
     expect(holographProtocol).toHaveProperty('bridge')
     expect(holographProtocol).toHaveProperty('cxipERC721')
-    expect(holographProtocol).toHaveProperty('holographOpenEditionERC721')
+    expect(holographProtocol).toHaveProperty('openEditionERC721')
     expect(holographProtocol).toHaveProperty('hydrateContractFromAddress')
     expect(holographProtocol).toHaveProperty('hydrateNFT')
   })
