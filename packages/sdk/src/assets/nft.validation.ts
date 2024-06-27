@@ -21,27 +21,29 @@ const fileSchema = z.string().url({message: 'Invalid file URL'})
 const tokenIdSchema = z.string().refine(tokenId => !isNaN(Number(tokenId)), {message: 'Invalid token id'})
 const versionSchema = z.enum([HolographVersion.V1, HolographVersion.V2]).optional()
 const ipfsUrlSchema = z.string().url()
-const ipfsImageCidSchema = z.string().length(46).startsWith('Qm')
-const ipfsMetadataCidSchema = z.string().min(46).startsWith('Qm').endsWith('/metadata.json')
-
-const ipfsInfoSchema = z
-  .object({
-    ipfsImageCid: ipfsImageCidSchema,
-    ipfsMetadataCid: ipfsMetadataCidSchema,
-    ipfsUrl: ipfsUrlSchema.optional(),
+const cidSchema = z
+  .string()
+  .min(46)
+  .refine(cid => cid.startsWith('Qm') || cid.startsWith('bafy'), {message: 'Invalid CID'})
+const ipfsImageCidSchema = cidSchema
+const ipfsMetadataCidSchema = z
+  .string()
+  .refine(value => (value.includes('Qm') || value.includes('bafy')) && value.endsWith('/metadata.json'), {
+    message: 'Invalid metadata',
   })
-  .optional()
+const imageMetadataSchema = ipfsUrlSchema.or(ipfsImageCidSchema)
 
 const metadataSchema = z.object({
   name: nameSchema,
   description: descriptionSchema,
+  image: imageMetadataSchema.optional(),
   creator: creatorSchema.optional(),
   attributes: attributesSchema.optional(),
 })
 
 export const createNFTSchema = z.object({
   contract: contractSchema,
-  ipfsInfo: ipfsInfoSchema,
+  ipfsMetadataCid: ipfsMetadataCidSchema,
   metadata: metadataSchema,
   version: versionSchema,
 })
@@ -53,6 +55,7 @@ export const validate = {
   description: descriptionSchema,
   creator: creatorSchema,
   attributes: attributesSchema,
+  image: imageMetadataSchema,
   metadata: metadataSchema,
   owner: ownerSchema,
   file: fileSchema,
@@ -60,23 +63,18 @@ export const validate = {
   ipfsMetadataCid: ipfsMetadataCidSchema,
   ipfsUrl: ipfsUrlSchema,
   ipfsImageCid: ipfsImageCidSchema,
-  ipfsInfo: ipfsInfoSchema,
 }
 
 export type CreateNFTSchema = z.infer<typeof createNFTSchema>
 export type NFTMetadata = z.infer<typeof metadataSchema>
-export type IpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export type CreateNFT = {
   contract: HolographERC721Contract
-  ipfsInfo?: {
-    ipfsImageCid: string
-    ipfsMetadataCid: string
-    ipfsUrl?: string
-  }
+  ipfsMetadataCid: string
   metadata: {
     name: string
     description: string
+    image?: string
     creator?: string
     attributes?: Record<string, string>
   }
@@ -102,8 +100,5 @@ export type HolographOpenEditionNFTMetadata = {
     name: string
   }
 }
-
-
-export type NFTIpfsInfo = z.infer<typeof ipfsInfoSchema>
 
 export const DEFAULT_TOKEN_URI = 'QmT5NvUtoM5nWFfrQdVrFtvGfKFmG7AHE8P34isapyhCxX/metadata.json'

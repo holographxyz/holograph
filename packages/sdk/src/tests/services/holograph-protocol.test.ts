@@ -81,8 +81,7 @@ describe('Service: Holograph Protocol', () => {
       expect(hydratedNft.isMinted).toBe(true)
       expect(hydratedNft.name).toBe(nft.name)
       expect(hydratedNft.description).toBe(nft.description)
-      expect(hydratedNft.ipfsImageCid).toBe(nft.ipfsImageCid)
-      expect(hydratedNft.ipfsMetadataCid).toBe(nft.ipfsMetadataCid)
+      expect(hydratedNft.ipfsMetadataCid).toBe(`ipfs://${nft.ipfsMetadataCid}`)
       expect(hydratedNft.tokenId).toBe(nft.tokenId)
     })
 
@@ -168,11 +167,7 @@ describe('Service: Holograph Protocol', () => {
         name: 'My First NFT',
         description: 'Nothing.',
       },
-      ipfsInfo: {
-        ipfsImageCid: 'QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93',
-        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
-        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
-      },
+      ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
 
     await sleep(1500) // Sleep to avoid nonce issues

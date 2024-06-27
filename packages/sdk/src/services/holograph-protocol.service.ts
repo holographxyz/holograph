@@ -26,7 +26,7 @@ import {Providers} from './providers.service'
 import {parseTimestampSecondsToISODate} from '../utils/helpers'
 import {ContractType, EventInfo} from '../utils/types'
 import {NFT} from '../assets/nft'
-import {HolographOpenEditionNFTMetadata, IpfsInfo, NFTMetadata} from '../assets/nft.validation'
+import {HolographOpenEditionNFTMetadata, NFTMetadata} from '../assets/nft.validation'
 import {OpenEditionNFT} from '../assets/open-edition-nft'
 import {MetadataFetchError, TokenDoesNotExistError, UnsupportedContractTypeError} from '../errors'
 
@@ -218,7 +218,6 @@ export class HolographProtocol {
     const {chainId, contractAddress, tokenId, type} = hydrateNftInput
 
     const nftContract = await this.hydrateContractFromAddress({chainId, address: contractAddress, type})
-    //contract.tokenUri(tokenId)
 
     const abi = parseAbi([
       'function tokenURI(uint256 _tokenId) external view returns (string memory)',
@@ -238,16 +237,7 @@ export class HolographProtocol {
 
     const tokenUri = await contract.read.tokenURI([BigInt(tokenId)])
 
-    let rawMetadata: {
-      name: string
-      description: string
-      image: string
-      creator?: string
-    }
-
-    let metadata: NFTMetadata
-    let ipfsInfo: IpfsInfo
-
+    let rawMetadata
     if (tokenUri.includes('data:application/json;base64,')) {
       rawMetadata = JSON.parse(atob(tokenUri.substring(29)))
     } else if (tokenUri.startsWith('ipfs://')) {
@@ -262,15 +252,11 @@ export class HolographProtocol {
       throw new MetadataFetchError(this.hydrateNFT.name)
     }
 
-    ipfsInfo = {
-      ipfsImageCid: rawMetadata.image.split('/')[2],
-      ipfsMetadataCid: tokenUri.split('//')[1],
-    }
-
-    metadata = {
+    let metadata: NFTMetadata = {
       name: rawMetadata.name,
       description: rawMetadata.description,
       creator: rawMetadata.creator,
+      image: rawMetadata.image,
     }
 
     let nft: NFT | OpenEditionNFT
@@ -279,7 +265,7 @@ export class HolographProtocol {
         nft = new NFT({
           contract: nftContract as HolographERC721Contract,
           metadata,
-          ipfsInfo,
+          ipfsMetadataCid: tokenUri,
         })
         break
       }

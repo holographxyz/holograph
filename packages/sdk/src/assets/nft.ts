@@ -8,7 +8,7 @@ import {
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {CxipERC721Contract} from '../contracts'
 import {NotMintedNFTError} from '../errors/assets/not-minted-nft.error'
-import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, NFTIpfsInfo, validate} from './nft.validation'
+import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, validate} from './nft.validation'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
 import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
@@ -20,14 +20,14 @@ export class NFT {
   public metadata: HolographNFTMetadata
   public txHash?: string
 
-  protected ipfsInfo?: NFTIpfsInfo
-  protected _tokenId?: string // Decimal tokenId string
+  public ipfsMetadataCid?: string
+  private _tokenId?: string // Decimal tokenId string
 
   private cxipERC721: CxipERC721Contract
 
-  constructor({contract, ipfsInfo, metadata}: CreateNFT) {
+  constructor({contract, ipfsMetadataCid, metadata}: CreateNFT) {
     this.metadata = validate.metadata.parse(metadata)
-    this.ipfsInfo = validate.ipfsInfo.parse(ipfsInfo)
+    this.ipfsMetadataCid = validate.ipfsMetadataCid.parse(ipfsMetadataCid)
     this.contract = validate.contract.parse(contract)
 
     this.cxipERC721 = new CxipERC721Contract(contract.contractAddress!)
@@ -46,21 +46,13 @@ export class NFT {
     return this.metadata?.creator
   }
 
+  get image() {
+    return this.metadata?.image
+  }
+
   // AKA the NFT traits
   get attributes() {
     return this.metadata?.attributes
-  }
-
-  get ipfsImageCid() {
-    return this.ipfsInfo?.ipfsImageCid!
-  }
-
-  get ipfsMetadataCid() {
-    return this.ipfsInfo?.ipfsMetadataCid!
-  }
-
-  get ipfsUrl() {
-    return this.ipfsInfo?.ipfsUrl!
   }
 
   get tokenId() {
@@ -106,21 +98,15 @@ export class NFT {
   }
 
   @IsNotMinted()
-  public setIpfsImageCid(ipfsImageCid: string) {
-    validate.ipfsImageCid.parse(ipfsImageCid)
-    this.ipfsInfo!.ipfsImageCid = ipfsImageCid
+  public setImage(image: string) {
+    validate.image.parse(image)
+    this.metadata.image = image
   }
 
   @IsNotMinted()
   public setIpfsMetadataCid(ipfsMetadataCid: string) {
     validate.ipfsMetadataCid.parse(ipfsMetadataCid)
-    this.ipfsInfo!.ipfsMetadataCid = ipfsMetadataCid
-  }
-
-  @IsNotMinted()
-  public setIpfsUrl(ipfsUrl: string) {
-    validate.ipfsUrl.parse(ipfsUrl)
-    this.ipfsInfo!.ipfsUrl = ipfsUrl
+    this.ipfsMetadataCid = ipfsMetadataCid
   }
 
   public async mint({chainId, wallet}: MintConfig, options?: WriteContractOptions) {

@@ -1,6 +1,6 @@
 import {HolographError, HolographErrorCode} from '../holograph-error'
 
-export const TOKEN_ID_DOES_NOT_EXIST_ERROR_MESSAGE = 'ERC721: token ID does not exist'
+export const TOKEN_ID_DOES_NOT_EXIST_ERROR_MESSAGE = 'HOLOGRAPH: token ID does not exist'
 
 export class TokenDoesNotExistError extends HolographError {
   constructor(triggerFunction?: string, cause?: Error) {
