@@ -1,20 +1,71 @@
-import {Hex, pad, toHex} from 'viem'
+import {Address, Hex, pad, toHex} from 'viem'
 
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {OpenEditionERC721Contract} from '../contracts'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {HolographVersion, MintConfig, WriteContractOptions} from '../utils/types'
-import {NFT} from './nft'
-import {CreateNFT} from './nft.validation'
+import {CreateOpenEditionNFT, HolographOpenEditionNFTMetadata, validate} from './nft.validation'
+import {RequireMintedToken} from '../utils/decorators'
+import {getParsedTokenId} from '../utils/transformers'
+import {
+  HolographOpenEditionERC721ContractV1,
+  HolographOpenEditionERC721ContractV2,
+} from './holograph-open-edition-erc721-contract'
+import {NotMintedNFTError} from '../errors'
 
-export class OpenEditionNFT extends NFT {
+export class OpenEditionNFT {
+  public contract: HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
+  public isMinted: boolean
+  public txHash?: string
+  protected _tokenId?: string // Decimal tokenId string
+  private _metadata!: HolographOpenEditionNFTMetadata
   private holographOpenEditionERC721: OpenEditionERC721Contract
 
-  constructor({contract, metadata, version = HolographVersion.V2}: CreateNFT) {
-    super({contract, metadata, version})
+  constructor({contract, version = HolographVersion.V2}: CreateOpenEditionNFT) {
+    this.contract = validate.openEditionContract.parse(contract)
 
-    const holographOpenEditionERC721 = new OpenEditionERC721Contract(contract.contractAddress!, version)
-    this.holographOpenEditionERC721 = holographOpenEditionERC721
+    this.holographOpenEditionERC721 = new OpenEditionERC721Contract(contract.contractAddress!, version)
+    this.isMinted = false
+  }
+
+  @RequireMintedToken()
+  get metadata() {
+    return this._metadata
+  }
+
+  @RequireMintedToken()
+  get name() {
+    return this._metadata?.name
+  }
+
+  @RequireMintedToken()
+  get description() {
+    return this._metadata?.description
+  }
+
+  @RequireMintedToken()
+  get properties() {
+    return this._metadata?.properties
+  }
+
+  @RequireMintedToken()
+  get ipfsImageCid() {
+    return this._metadata.image
+  }
+
+  @RequireMintedToken()
+  get animationUrl() {
+    return this._metadata.animation_url
+  }
+
+  @RequireMintedToken()
+  get tokenId() {
+    return this._tokenId
+  }
+
+  @RequireMintedToken()
+  public getParsedTokenId() {
+    return getParsedTokenId(this._tokenId!)
   }
 
   public async purchase({chainId, quantity = 1, wallet}: MintConfig, options?: WriteContractOptions) {
@@ -41,6 +92,10 @@ export class OpenEditionNFT extends NFT {
     const receipt = await client.waitForTransactionReceipt({hash: txHash})
     const tokenId = queryTokenIdFromReceipt(receipt, this.contract.contractAddress!)
     const tokenIdBytesString = pad(toHex(BigInt(tokenId!)), {size: 32})
+
+    const tokenUri = (await this.holographOpenEditionERC721.tokenURI(chainId, tokenIdBytesString)) as string
+    this._metadata = JSON.parse(atob(tokenUri.substring(29))) // remove data:application/json;base64,
+
     this.txHash = txHash
     this._tokenId = tokenIdBytesString
     this.isMinted = true
@@ -109,5 +164,22 @@ export class OpenEditionNFT extends NFT {
 
   public async estimateGasForMintingNFT(...args: Parameters<OpenEditionNFT['estimateGasForPurchasingNFT']>) {
     return this.estimateGasForPurchasingNFT(...args)
+  }
+
+  public async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
+    const exists = await this.holographOpenEditionERC721.exists(chainId, tokenId)
+    return exists === 'true'
+  }
+
+  public async getOwner(tokenId: string, chainId: number) {
+    const tokenId_ = tokenId || this._tokenId!
+    if (!tokenId) throw new NotMintedNFTError(this.getOwner.name)
+    const owner = (await this.holographOpenEditionERC721.ownerOf(chainId, tokenId_)) as Address
+    return owner
+  }
+
+  public async isOwner(account: Address, tokenId: string, chainId: number): Promise<boolean> {
+    const owner = await this.holographOpenEditionERC721.ownerOf(chainId, tokenId)
+    return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
 }

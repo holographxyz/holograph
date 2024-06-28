@@ -58,11 +58,7 @@ describe('Asset class: NFT', () => {
           anotherKey: 'anotherValue',
         },
       },
-      ipfsInfo: {
-        ipfsImageCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
-        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
-        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
-      },
+      ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
   })
 
@@ -71,9 +67,9 @@ describe('Asset class: NFT', () => {
     expect(nft).toHaveProperty('name')
     expect(nft).toHaveProperty('description')
     expect(nft).toHaveProperty('creator')
+    expect(nft).toHaveProperty('image')
     expect(nft).toHaveProperty('attributes')
-    expect(nft).toHaveProperty('ipfsUrl')
-    expect(nft).toHaveProperty('ipfsImageCid')
+    expect(nft).toHaveProperty('ipfsMetadataCid')
     expect(nft).toHaveProperty('getOwner')
     expect(nft).toHaveProperty('getParsedTokenId')
     expect(nft).toHaveProperty('setMetadata')
@@ -81,8 +77,6 @@ describe('Asset class: NFT', () => {
     expect(nft).toHaveProperty('setDescription')
     expect(nft).toHaveProperty('setAttributes')
     expect(nft).toHaveProperty('setCreator')
-    expect(nft).toHaveProperty('setIpfsUrl')
-    expect(nft).toHaveProperty('setIpfsImageCid')
     expect(nft).toHaveProperty('estimateGasForMintingNFT')
     expect(nft).toHaveProperty('mint')
     expect(nft).toHaveProperty('tokenIdExists')
@@ -132,20 +126,6 @@ describe('Asset class: NFT', () => {
     expect(attributes?.anotherKey).toBe('anotherValue')
   })
 
-  it('should be able to get the NFT IPFS file URL', () => {
-    const ipfsUrl = nft.ipfsUrl
-
-    expect(ipfsUrl).toBe(
-      'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
-    )
-  })
-
-  it('should be able to get the NFT IPFS image cid', () => {
-    const ipfsImageCid = nft.ipfsImageCid
-
-    expect(ipfsImageCid).toBe('QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32')
-  })
-
   it('should be able to get the NFT IPFS metadata cid', () => {
     const ipfsMetadataCid = nft.ipfsMetadataCid
 
@@ -192,6 +172,7 @@ describe('Asset class: NFT', () => {
         name: 'New NFT Name',
         description: 'New NFT Description',
         creator: 'New Creator',
+        image: 'ipfs://QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
         attributes: {newKey: 'newValue'},
       })
       const newMetadata = nft.metadata
@@ -199,6 +180,7 @@ describe('Asset class: NFT', () => {
       expect(newMetadata.name).toBe('New NFT Name')
       expect(newMetadata.description).toBe('New NFT Description')
       expect(newMetadata.creator).toBe('New Creator')
+      expect(newMetadata.image).toBe('ipfs://QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg')
       expect(newMetadata.attributes).toHaveProperty('newKey')
       expect(newMetadata.attributes?.newKey).toBe('newValue')
     })
@@ -262,25 +244,6 @@ describe('Asset class: NFT', () => {
 
       expect(attributes).toHaveProperty('newKey')
       expect(attributes?.newKey).toBe('newValue')
-    })
-  })
-
-  describe('setIpfsUrl()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-
-      expect(() =>
-        nft.setIpfsUrl('https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo95/nft.jpeg'),
-      ).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT IPFS file URL', () => {
-      nft.setIpfsUrl('https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo95/nft.jpeg')
-      const ipfsUrl = nft.ipfsUrl
-
-      expect(ipfsUrl).toBe(
-        'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo95/nft.jpeg',
-      )
     })
   })
 

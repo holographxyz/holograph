@@ -81,6 +81,20 @@ export class CxipERC721Contract extends HolographBaseContract {
   }
 
   /**
+   * @readonly
+   * Get's the URI of the token.
+   * @param chainId  The chain id of the network to get the result from.
+   * @returns The URI.
+   */
+  async tokenURI(chainId: number, tokenId: string) {
+    return this._getContractFunction({
+      args: [tokenId],
+      chainId,
+      functionName: 'tokenURI',
+    })
+  }
+
+  /**
    * Mint a holographable NFT.
    * @param chainId  The chain id of the network to send the transaction.
    * @param tokenId The token id of the NFT.

@@ -25,8 +25,8 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
         salt: generateRandomSalt(),
       },
       nftInfo: {
-        ipfsUrl: 'ipfs://fileurl.com/file://',
-        ipfsImageCid: 'QmQJNvXvNqfDAV4srQ8dRr8s4FYBKB67RnWhvWLvE72osu',
+        ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
+        ipfsImageCid: 'QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93',
       },
       salesConfig: {
         maxSalePurchasePerAddress: 10,
@@ -76,8 +76,10 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
       expect(info.symbol).toBe('HOLO')
       expect(info.royaltiesBps).toBe(2000)
       expect(info.tokenType).toBe('ERC721')
-      expect(info.ipfsUrl).toBe('ipfs://fileurl.com/file://')
-      expect(info.ipfsImageCid).toBe('QmQJNvXvNqfDAV4srQ8dRr8s4FYBKB67RnWhvWLvE72osu')
+      expect(info.ipfsUrl).toBe(
+        'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
+      )
+      expect(info.ipfsImageCid).toBe('QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93')
       expect(info.maxSalePurchasePerAddress).toBe(10)
       expect(info.publicSaleStart).toBe('2025-01-01T00:00:00Z')
       expect(info.publicSaleEnd).toBe('2025-01-02T00:00:00Z')

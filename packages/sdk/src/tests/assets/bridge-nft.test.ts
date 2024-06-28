@@ -53,10 +53,7 @@ describe('Asset class: BridgeNFT', () => {
         description: 'Probably nothing.',
         creator: 'Holograph Protocol',
       },
-      ipfsInfo: {
-        ipfsImageCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32',
-        ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
-      },
+      ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
 
     const {tokenId, txHash} = await myNFT.mint({

@@ -1,4 +1,4 @@
-import {Chain, Hex, defineChain, keccak256} from 'viem'
+import {Chain, Hex, defineChain, keccak256, numberToHex} from 'viem'
 import {getNetworkByChainId, getNetworkByHolographId} from '@holographxyz/networks'
 
 export const REGEX = {
@@ -84,4 +84,19 @@ export function holographToViemChain(chainId: number): Chain {
     },
   })
   return chain
+}
+
+export function getParsedTokenId(tokenId: string) {
+  const tokenIdHex = numberToHex(BigInt(tokenId), {size: 32})
+  const chainIdHex = tokenIdHex.slice(0, 10)
+  const tokenNumberHex = tokenIdHex.slice(10)
+
+  return {
+    decimal: tokenId,
+    hex: tokenIdHex,
+    part: {
+      chainId: parseInt(chainIdHex, 16).toString(),
+      tokenNumber: parseInt(tokenNumberHex, 16).toString(),
+    },
+  }
 }

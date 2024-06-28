@@ -52,9 +52,13 @@ export class HolographOpenEditionERC721ContractV1 {
 
   constructor({contractInfo, nftInfo, primaryChainId, salesConfig}: CreateHolographOpenEditionERC721Contract) {
     this._contractInfo = validate.contractInfo.parse(contractInfo)
-    this.nftInfo = validate.nftInfo.parse(nftInfo)
     this.salesConfig = validate.salesConfig.parse(salesConfig)
     this.primaryChainId = validate.primaryChainId.parse(primaryChainId)
+    this.nftInfo = validate.nftInfo
+      .refine(nftInfo => nftInfo.ipfsUrl.includes(nftInfo.ipfsImageCid), {
+        message: 'The IPFS URL must reference the same image CID',
+      })
+      .parse(nftInfo)
 
     this.factory = new FactoryContract()
     this.registry = new RegistryContract()
