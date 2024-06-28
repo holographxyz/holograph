@@ -9,7 +9,12 @@ import {HolographOpenEditionERC721ContractV2} from '../../assets/holograph-open-
 import {NFT} from '../../assets/nft'
 import {OpenEditionNFT} from '../../assets/open-edition-nft'
 import {Address} from 'viem'
-import {TokenDoesNotExistError} from '../../errors'
+import {
+  ContractNotFoundError,
+  NotHolographedContractError,
+  TokenDoesNotExistError,
+  UnavailableNetworkError,
+} from '../../errors'
 
 describe('Service: Holograph Protocol', () => {
   let holographProtocol: HolographProtocol
@@ -53,19 +58,76 @@ describe('Service: Holograph Protocol', () => {
   })
 
   describe('hydrateContractFromAddress', () => {
-    it('should correctly hydrate an ERC721 contract using its address and chain ID', () => {})
+    it('should correctly hydrate an ERC721 contract using its address and chain ID', async () => {
+      const collection = await holographProtocol.hydrateContractFromAddress({
+        chainId,
+        address: erc721Contract.contractAddress!,
+        type: ContractType.CxipERC721,
+      })
 
-    it('should correctly hydrate an Open Edition ERC721 contract using its address and chain ID', () => {})
+      expect(collection.isHydrated).toBe(true)
+      expect(collection).toBeInstanceOf(HolographERC721Contract)
+      expect(collection.chainIds).toContain(chainId)
+      expect(collection.name).toBe(erc721Contract.name)
+      expect(collection.symbol).toBe(erc721Contract.symbol)
+    })
 
-    it('should throw an error when attempting to hydrate a non-existent contract on the specified chain ID', () => {})
+    it('should correctly hydrate an Open Edition ERC721 contract using its address and chain ID', async () => {
+      const moe = (await holographProtocol.hydrateContractFromAddress({
+        chainId,
+        address: openEditionErc721Contract.contractAddress!,
+        type: ContractType.HolographOpenEditionERC721V2,
+      })) as HolographOpenEditionERC721ContractV2
 
-    it('should throw an error when attempting to hydrate a contract with an invalid address', () => {})
+      expect(moe.isHydrated).toBe(true)
+      expect(moe).toBeInstanceOf(HolographOpenEditionERC721ContractV2)
+      expect(moe.chainIds).toContain(chainId)
+      expect(moe.name).toBe(openEditionErc721Contract.name)
+      expect(moe.symbol).toBe(openEditionErc721Contract.symbol)
+      expect(moe.royaltiesBps).toBe(openEditionErc721Contract.royaltiesBps)
+      expect(moe.nftIpfsImageCid).toBe(openEditionErc721Contract.nftIpfsImageCid)
+    })
 
-    it('should throw an error when attempting to hydrate a contract from an unsupported chain ID', () => {})
+    it.skip('should throw an error when attempting to hydrate a non-existent contract on the specified chain ID', async () => {
+      // NOTE: To test this case, ensure that a holographable address does not exist on the specified chain ID.
+      await expect(() =>
+        holographProtocol.hydrateContractFromAddress({
+          chainId,
+          address: '0x0533A3bfB526Af481FEA67BDC6dF1E09e91084ab',
+          type: ContractType.HolographOpenEditionERC721V2,
+        }),
+      ).rejects.toThrow(ContractNotFoundError)
+    })
 
-    it('should throw an error when attempting to hydrate a contract from a chain ID without an associated provider', () => {})
+    it('should throw an error when attempting to hydrate a contract with an invalid address', async () => {
+      await expect(() =>
+        holographProtocol.hydrateContractFromAddress({
+          chainId,
+          address: '0x00009',
+          type: ContractType.HolographOpenEditionERC721V2,
+        }),
+      ).rejects.toThrow('Invalid address')
+    })
 
-    it('should throw an error when attempting to hydrate a non-holographable contract', () => {})
+    it('should throw an error when attempting to hydrate a contract from an unsupported chain ID', async () => {
+      await expect(() =>
+        holographProtocol.hydrateContractFromAddress({
+          chainId: 1,
+          address: openEditionErc721Contract.contractAddress!,
+          type: ContractType.HolographOpenEditionERC721V2,
+        }),
+      ).rejects.toThrow(UnavailableNetworkError)
+    })
+
+    it('should throw an error when attempting to hydrate a non-holographable contract', async () => {
+      await expect(() =>
+        holographProtocol.hydrateContractFromAddress({
+          chainId,
+          address: '0xB94053201514E26133770eA1351959AffF0DE684',
+          type: ContractType.HolographOpenEditionERC721V2,
+        }),
+      ).rejects.toThrow(NotHolographedContractError)
+    })
   })
 
   describe('hydrateNFT', () => {
@@ -143,7 +205,6 @@ describe('Service: Holograph Protocol', () => {
       nftInfo: {
         ipfsUrl: 'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
         ipfsImageCid: 'QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93',
-        // TODO: add a check to validate if the ipfsImageCid is a substring on ipfsUrl
       },
       salesConfig: {
         maxSalePurchasePerAddress: 10,

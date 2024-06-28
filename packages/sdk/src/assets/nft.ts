@@ -15,7 +15,7 @@ import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 import {getParsedTokenId} from '../utils/transformers'
 
 export class NFT {
-  public contract: HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2
+  public contract: HolographERC721Contract
   public isMinted: boolean
   public metadata: HolographNFTMetadata
   public txHash?: string

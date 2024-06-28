@@ -23,12 +23,18 @@ import {
 } from '../contracts'
 import {HolographLogger} from './logger.service'
 import {Providers} from './providers.service'
-import {parseTimestampSecondsToISODate} from '../utils/helpers'
+import {getAddressTypeSchema, parseTimestampSecondsToISODate} from '../utils/helpers'
 import {ContractType, EventInfo} from '../utils/types'
 import {NFT} from '../assets/nft'
 import {HolographOpenEditionNFTMetadata, NFTMetadata} from '../assets/nft.validation'
 import {OpenEditionNFT} from '../assets/open-edition-nft'
-import {MetadataFetchError, TokenDoesNotExistError, UnsupportedContractTypeError} from '../errors'
+import {
+  ContractNotFoundError,
+  MetadataFetchError,
+  NotHolographedContractError,
+  TokenDoesNotExistError,
+  UnsupportedContractTypeError,
+} from '../errors'
 
 export class HolographProtocol {
   public static readonly targetEvents: Record<string, EventInfo> = HOLOGRAPH_EVENTS
@@ -122,6 +128,15 @@ export class HolographProtocol {
   }): Promise<HolographERC721Contract | HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2> {
     const {chainId, address, type} = hydrateContractInput
 
+    getAddressTypeSchema('address', true, 'Required Field', 'Invalid address').parse(address)
+
+    const client = {public: this._providers.byChainId(chainId)}
+
+    const isHolographed = await this.registry.isHolographedContract(chainId, address)
+    if (isHolographed === 'false') {
+      throw new NotHolographedContractError(this.hydrateContractFromAddress.name)
+    }
+
     const abi = parseAbi([
       'function name() external view returns (string memory)',
       'function symbol() external view returns (string memory)',
@@ -132,10 +147,17 @@ export class HolographProtocol {
       'struct SalesConfiguration { uint104 publicSalePrice; uint32 maxSalePurchasePerAddress; uint64 publicSaleStart; uint64 publicSaleEnd; uint64 presaleStart; uint64 presaleEnd; bytes32 presaleMerkleRoot; }',
     ])
 
-    const client = {public: this._providers.byChainId(chainId)}
     const contract = getContract({abi, address, client})
 
-    const name = await contract.read.name()
+    let name!: string
+    try {
+      name = await contract.read.name()
+    } catch (error: any) {
+      if (error?.message.includes('The contract function "name" returned no data ("0x").')) {
+        throw new ContractNotFoundError(this.hydrateContractFromAddress.name)
+      }
+    }
+
     const symbol = await contract.read.symbol()
 
     let contractInput = {
