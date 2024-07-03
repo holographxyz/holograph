@@ -1,4 +1,5 @@
 import {BridgeContract} from './assets/bridge-contract'
+import {BridgeERC20} from './assets/bridge-erc20'
 import {BridgeNFT} from './assets/bridge-nft'
 import {HolographERC721Contract} from './assets/holograph-erc721-contract'
 import {
@@ -31,8 +32,9 @@ export {
   HolographOpenEditionERC721ContractV2,
   NFT,
   OpenEditionNFT,
-  BridgeNFT,
   BridgeContract,
+  BridgeERC20,
+  BridgeNFT,
   HolographAccountFactory,
   HolographWallet,
   HolographProtocol,

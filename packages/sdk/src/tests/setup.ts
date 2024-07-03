@@ -9,7 +9,7 @@ console.log('Setting up tests...')
 
 export const ONLY_ADMIN_ERROR_MESSAGE = 'HOLOGRAPH: admin only function'
 
-export const localhostContractAddresses = {
+export const localhostContractAddresses: {[key: string]: Address} = {
   holograph: '0x17253175f447ca4B560a87a3F39591DFC7A021e3',
   holographBridge: '0x53D2B46b341385bC7e022667Eb1860505073D43a',
   holographFactory: '0xcE2cDFDF0b9D45F8Bd2D3CCa4033527301903FDe',
@@ -24,6 +24,7 @@ export const localhostContractAddresses = {
   messageModule: '0x350856f758d9A1b8c24540d8E10cd6AB45B1466d',
   ovmGasPriceOracle: '0xca971c5F8B071E0921913d4d167B9Bfaaa9Fd029',
   layerZeroModule: '0x306Fc3a660437598Cf231ecA7F3679468d3eF361',
+  hlg: '0x56BA455232a82784F17C33c577124EF208D931ED',
 }
 
 const accounts: {[name: string]: {address: Address; privateKey: Hex}} = {
