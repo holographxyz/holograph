@@ -133,7 +133,7 @@ export class HolographProtocol {
     const client = {public: this._providers.byChainId(chainId)}
 
     const isHolographed = await this.registry.isHolographedContract(chainId, address)
-    if (isHolographed === 'false') {
+    if (!isHolographed) {
       throw new NotHolographedContractError(this.hydrateContractFromAddress.name)
     }
 

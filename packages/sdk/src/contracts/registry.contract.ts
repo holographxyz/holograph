@@ -4,7 +4,7 @@ import {Address} from 'abitype'
 import {HolographRegistryABI} from '../constants/abi/develop'
 import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs} from '../utils/types'
+import {GetContractFunctionArgs, WriteContractOptions} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 import {HolographContract} from '.'
 
@@ -63,7 +63,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractAddress The contract address.
    * @returns true if it's holographed, and false otherwise.
    */
-  async isHolographedContract(chainId: number, contractAddress: Address) {
+  async isHolographedContract(chainId: number, contractAddress: Address): Promise<boolean> {
     return this._getContractFunction({chainId, functionName: 'isHolographedContract', args: [contractAddress]})
   }
 
@@ -82,11 +82,7 @@ export class RegistryContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'isHolographedContract',
-        args: [contractAddress],
-      })
+      results[network.chain] = await this.isHolographedContract(network.chain, contractAddress)
     }
 
     return results
@@ -100,7 +96,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @returns true if it's deployed, and false otherwise.
    */
-  async isHolographedHashDeployed(chainId: number, hash: Address) {
+  async isHolographedHashDeployed(chainId: number, hash: Address): Promise<boolean> {
     return this._getContractFunction({chainId, functionName: 'isHolographedHashDeployed', args: [hash]})
   }
 
@@ -112,16 +108,12 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns true if it's deployed, and false otherwise per network.
    */
-  async isHolographedHashDeployedByNetworks(hash: Address, chainIds?: number[]) {
+  async isHolographedHashDeployedByNetworks(hash: Address, chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'isHolographedHashDeployed',
-        args: [hash],
-      })
+      results[network.chain] = await this.isHolographedHashDeployed(network.chain, hash)
     }
 
     return results
@@ -135,7 +127,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractType The contract type bytes32.
    * @returns the contract address for the provided contract type.
    */
-  async getContractTypeAddress(chainId: number, contractType: Hex) {
+  async getContractTypeAddress(chainId: number, contractType: Hex): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getContractTypeAddress', args: [contractType]})
   }
 
@@ -146,16 +138,12 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the contract address for the provided contract type per network.
    */
-  async getContractTypeAddressByNetworks(contractType: Hex, chainIds?: number[]) {
+  async getContractTypeAddressByNetworks(contractType: Hex, chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getContractTypeAddress',
-        args: [contractType],
-      })
+      results[network.chain] = await this.getContractTypeAddress(network.chain, contractType)
     }
 
     return results
@@ -167,19 +155,21 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chainId of the network to send the transaction to.
    * @param contractType The contract type bytes32.
    * @param contractAddress The contract address for the provided contract type.
-   * @returns A transaction
+   * @returns A transaction hash
    */
   async setContractTypeAddress(
     chainId: number,
     contractType: Hex,
     contractAddress: Address,
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'setContractTypeAddress',
       args: [contractType, contractAddress],
       wallet,
+      options,
     })
   }
 
@@ -190,7 +180,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns the holograph contract address.
    */
-  async getHolograph(chainId: number) {
+  async getHolograph(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getHolograph'})
   }
 
@@ -201,12 +191,12 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the holograph contract address per network.
    */
-  async getHolographByNetworks(chainIds?: number[]) {
+  async getHolographByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getHolograph'})
+      results[network.chain] = await this.getHolograph(network.chain)
     }
 
     return results
@@ -217,38 +207,41 @@ export class RegistryContract extends HolographBaseContract {
    * Sets the Holograph module contract address.
    * @param chainId The chainId of the network to send the transaction to.
    * @param address The Holograph module contract address.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setHolograph(chainId: number, address: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [address], wallet})
+  async setHolograph(
+    chainId: number,
+    address: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [address], wallet, options})
   }
 
   /**
    * @readonly
    * Returns the hToken address for a given chain id.
    * @param chainId The chain id of the network to get the result from.
-   * @returns the hToken contract address.
+   * @param hTokenChainId The mapped chain id to get the htoken address
+   * @returns The hToken address for a given chain id
    */
-  async getHToken(chainId: number) {
-    return this._getContractFunction({chainId, functionName: 'getHToken', args: [chainId]})
+  async getHToken(chainId: number, hTokenChainId: number): Promise<Address> {
+    return this._getContractFunction({chainId, functionName: 'getHToken', args: [hTokenChainId]})
   }
 
   /**
    * @readonly
    * Get the HToken address per network.
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param hTokenChainId The mapped chain id to get the htoken address
    * @returns the hToken contract address per network.
    */
-  async getHTokenByNetworks(chainIds?: number[]) {
+  async getHTokenByNetworks(chainIds: number[], hTokenChainId: number): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getHToken',
-        args: [network.chain],
-      })
+      results[network.chain] = await this.getHToken(network.chain, hTokenChainId)
     }
 
     return results
@@ -260,15 +253,22 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hTokenChainId the hToken address chain id.
    * @param hToken The hToken contract address.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async setHToken(
     chainId: number,
     hTokenChainId: number,
     hToken: Address,
     wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
   ) {
-    return this._getContractFunction({chainId, functionName: 'setHToken', args: [hTokenChainId, hToken], wallet})
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setHToken',
+      args: [hTokenChainId, hToken],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -278,7 +278,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns the Holograph Utility Token contract address.
    */
-  async getUtilityToken(chainId: number) {
+  async getUtilityToken(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getUtilityToken'})
   }
 
@@ -289,15 +289,12 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the Holograph Utility Token contract address per network.
    */
-  async getUtilityTokenByNetworks(chainIds?: number[]) {
+  async getUtilityTokenByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getUtilityToken',
-      })
+      results[network.chain] = await this.getUtilityToken(network.chain)
     }
 
     return results
@@ -308,10 +305,15 @@ export class RegistryContract extends HolographBaseContract {
    * Update the Holograph Utility Token address
    * @param chainId The chainId of the network to send the transaction to.
    * @param utilityToken The address of the Holograph Utility Token smart contract to use
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setUtilityToken(chainId: number, utilityToken: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setUtilityToken', args: [utilityToken], wallet})
+  async setUtilityToken(
+    chainId: number,
+    utilityToken: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setUtilityToken', args: [utilityToken], wallet, options})
   }
 
   /**
@@ -322,7 +324,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param length The length of returned results
    * @returns contracts address[] Returns a set length array of holographable contracts deployed in the chainId
    */
-  async getHolographableContracts(chainId: number, index: bigint, length: bigint) {
+  async getHolographableContracts(chainId: number, index: bigint, length: bigint): Promise<Address[]> {
     return this._getContractFunction({chainId, functionName: 'getHolographableContracts', args: [index, length]})
   }
 
@@ -334,16 +336,16 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default is the networks defined in the config
    * @returns contracts address[] Returns a set length array of holographable contracts deployed per chainId
    */
-  async getHolographableContractsByNetworks(index: bigint, length: bigint, chainIds?: number[]) {
+  async getHolographableContractsByNetworks(
+    index: bigint,
+    length: bigint,
+    chainIds?: number[],
+  ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getHolographableContracts',
-        args: [index, length],
-      })
+      results[network.chain] = await this.getHolographableContracts(network.chain, index, length)
     }
 
     return results
@@ -357,7 +359,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @returns a contract address for the provided hash.
    */
-  async getHolographedHashAddress(chainId: number, hash: Address) {
+  async getHolographedHashAddress(chainId: number, hash: Address): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getHolographedHashAddress', args: [hash]})
   }
 
@@ -368,16 +370,15 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the contract address for the provided hash per network.
    */
-  async getHolographedHashAddressContractsByNetworks(hash: Address, chainIds?: number[]) {
+  async getHolographedHashAddressContractsByNetworks(
+    hash: Address,
+    chainIds?: number[],
+  ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getHolographedHashAddress',
-        args: [hash],
-      })
+      results[network.chain] = await this.getHolographedHashAddress(network.chain, hash)
     }
 
     return results
@@ -389,19 +390,21 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hash The hash obtained by hashing all the necessary configuration parameters and converting them into a salt variable.
    * @param contractAddress the contract address for the provided hash.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async setHolographedHashAddress(
     chainId: number,
     hash: Hex,
     contractAddress: Address,
     wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
   ) {
     return this._getContractFunction({
       chainId,
       functionName: 'setHolographedHashAddress',
       args: [hash, contractAddress],
       wallet,
+      options,
     })
   }
 
@@ -411,7 +414,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns the number of deployed holographable contracts.
    */
-  async getHolographableContractsLength(chainId: number) {
+  async getHolographableContractsLength(chainId: number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getHolographableContractsLength'})
   }
 
@@ -421,15 +424,12 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
    * @returns the number of deployed holographable contracts per network.
    */
-  async getHolographableContractsLengthByNetworks(chainIds?: number[]) {
+  async getHolographableContractsLengthByNetworks(chainIds?: number[]): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getHolographableContractsLength',
-      })
+      results[network.chain] = await this.getHolographableContractsLength(network.chain)
     }
 
     return results
@@ -442,7 +442,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractAddress the contract address.
    * @returns the bytes32 contract type.
    */
-  async referenceContractTypeAddress(chainId: number, contractAddress: Address) {
+  async referenceContractTypeAddress(chainId: number, contractAddress: Address): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'referenceContractTypeAddress',
@@ -457,16 +457,15 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractAddress the contract address.
    * @returns the bytes32 contract type per network.
    */
-  async referenceContractTypeAddressByNetworks(contractAddress: Address, chainIds?: number[]) {
+  async referenceContractTypeAddressByNetworks(
+    contractAddress: Address,
+    chainIds?: number[],
+  ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'referenceContractTypeAddress',
-        args: [contractAddress],
-      })
+      results[network.chain] = await this.referenceContractTypeAddress(network.chain, contractAddress)
     }
 
     return results
@@ -479,7 +478,7 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractType The bytes32 for the contract type.
    * @returns the reserved contract address.
    */
-  async getReservedContractTypeAddress(chainId: number, contractType: Hex) {
+  async getReservedContractTypeAddress(chainId: number, contractType: Hex): Promise<Address> {
     return this._getContractFunction({
       chainId,
       functionName: 'getReservedContractTypeAddress',
@@ -494,16 +493,15 @@ export class RegistryContract extends HolographBaseContract {
    * @param contractType The bytes32 for the contract type.
    * @returns the reserved contract address per network.
    */
-  async getReservedContractTypeAddressByNetworks(contractType: Hex, chainIds?: number[]) {
+  async getReservedContractTypeAddressByNetworks(
+    contractType: Hex,
+    chainIds?: number[],
+  ): Promise<HolographByNetworksResponse> {
     const results: HolographByNetworksResponse = {}
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getReservedContractTypeAddress',
-        args: [contractType],
-      })
+      results[network.chain] = await this.getReservedContractTypeAddress(network.chain, contractType)
     }
 
     return results
@@ -515,19 +513,21 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hashes The bytes32 for the contract typeS.
    * @param reserved A boolean.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async setReservedContractTypeAddress(
     chainId: number,
     hash: Hex,
     reserved: boolean,
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'setReservedContractTypeAddress',
       args: [hash, reserved],
       wallet,
+      options,
     })
   }
 
@@ -537,19 +537,21 @@ export class RegistryContract extends HolographBaseContract {
    * @param chainId The chainId of the network to send the transaction to.
    * @param hashes A bytes32 array for the contract typeS.
    * @param reserved A boolean array.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async setReservedContractTypeAddresses(
     chainId: number,
     hashes: Hex[],
     reserved: boolean[],
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'setReservedContractTypeAddresses',
       args: [hashes, reserved],
       wallet,
+      options,
     })
   }
 }

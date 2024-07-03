@@ -4,6 +4,7 @@ import {CxipERC721ABI, HolographERC721ABI} from '../constants/abi/develop'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, WriteContractOptions} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
+import {Hex} from 'viem'
 
 const ABIs = [...CxipERC721ABI, ...HolographERC721ABI]
 
@@ -58,7 +59,7 @@ export class CxipERC721Contract extends HolographBaseContract {
    * @param chainId  The chain id of the network to get the result from.
    * @returns A boolean indicating if the NFT exists.
    */
-  async exists(chainId: number, tokenId: string) {
+  async exists(chainId: number, tokenId: string): Promise<boolean> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -72,7 +73,7 @@ export class CxipERC721Contract extends HolographBaseContract {
    * @param chainId  The chain id of the network to get the result from.
    * @returns The owner address of the NFT.
    */
-  async ownerOf(chainId: number, tokenId: string) {
+  async ownerOf(chainId: number, tokenId: string): Promise<Address> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -86,7 +87,7 @@ export class CxipERC721Contract extends HolographBaseContract {
    * @param chainId  The chain id of the network to get the result from.
    * @returns The URI.
    */
-  async tokenURI(chainId: number, tokenId: string) {
+  async tokenURI(chainId: number, tokenId: string): Promise<string> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -102,7 +103,7 @@ export class CxipERC721Contract extends HolographBaseContract {
    * @param tokenUri The URI of the token.
    * @param wallet Holograph wallet instance, optional param.
    * @param options The override options for the transaction.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async cxipMint(
     chainId: number,
@@ -111,7 +112,7 @@ export class CxipERC721Contract extends HolographBaseContract {
     tokenUri: string,
     wallet?: {account: string | HolographWallet},
     options?: WriteContractOptions,
-  ) {
+  ): Promise<Hex> {
     return this._getContractFunction({
       args: [tokenId, uriType, tokenUri],
       chainId,

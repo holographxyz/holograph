@@ -60,7 +60,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographBridge contract address in the provided network.
    */
-  async getBridge(chainId: number) {
+  async getBridge(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getBridge'})
   }
 
@@ -76,7 +76,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getBridge'})
+      results[network.chain] = await this.getBridge(network.chain)
     }
 
     return results
@@ -90,7 +90,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The chainId in the provided network.
    */
-  async getChainId(chainId: number) {
+  async getChainId(chainId: number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getChainId'})
   }
 
@@ -107,7 +107,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getChainId'})
+      results[network.chain] = await this.getChainId(network.chain)
     }
 
     return results
@@ -120,7 +120,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographFactory contract address in the provided network.
    */
-  async getFactory(chainId: number) {
+  async getFactory(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getFactory'})
   }
 
@@ -136,7 +136,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getFactory'})
+      results[network.chain] = await this.getFactory(network.chain)
     }
 
     return results
@@ -149,7 +149,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The Holograph chainID in the provided network.
    */
-  async getHolographChainId(chainId: number) {
+  async getHolographChainId(chainId: number): Promise<number> {
     return this._getContractFunction({chainId, functionName: 'getHolographChainId'})
   }
 
@@ -165,10 +165,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getHolographChainId',
-      })
+      results[network.chain] = await this.getHolographChainId(network.chain)
     }
 
     return results
@@ -181,7 +178,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographInterfaces contract address in the provided network.
    */
-  async getInterfaces(chainId: number) {
+  async getInterfaces(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getInterfaces'})
   }
 
@@ -197,7 +194,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getInterfaces'})
+      results[network.chain] = await this.getInterfaces(network.chain)
     }
 
     return results
@@ -210,7 +207,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographOperator contract address in the provided network.
    */
-  async getOperator(chainId: number) {
+  async getOperator(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getOperator'})
   }
 
@@ -226,7 +223,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getOperator'})
+      results[network.chain] = await this.getOperator(network.chain)
     }
 
     return results
@@ -239,7 +236,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographRegistry contract address in the provided network.
    */
-  async getRegistry(chainId: number) {
+  async getRegistry(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getRegistry'})
   }
 
@@ -255,7 +252,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getRegistry'})
+      results[network.chain] = await this.getRegistry(network.chain)
     }
 
     return results
@@ -268,7 +265,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HolographTreasury contract address in the provided network.
    */
-  async getTreasury(chainId: number) {
+  async getTreasury(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getTreasury'})
   }
 
@@ -284,7 +281,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getTreasury'})
+      results[network.chain] = await this.getTreasury(network.chain)
     }
 
     return results
@@ -297,7 +294,7 @@ export class HolographContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The HToken contract address in the provided network.
    */
-  async getUtilityToken(chainId: number) {
+  async getUtilityToken(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getUtilityToken'})
   }
 
@@ -313,10 +310,7 @@ export class HolographContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getUtilityToken',
-      })
+      results[network.chain] = await this.getUtilityToken(network.chain)
     }
 
     return results

@@ -16,7 +16,7 @@ const expectedValues = {
   treasuryAddress: localhostContractAddresses.holographTreasury,
   operatorAddress: localhostContractAddresses.holographOperator,
   interfacesAddress: localhostContractAddresses.holographInterfaces,
-  holographChainId: {1338: '4294967294', 1339: '4294967293'},
+  holographChainId: {1338: 4294967294, 1339: 4294967293},
 }
 
 describe('Contract class: HolographContract', () => {
@@ -67,14 +67,13 @@ describe('Contract class: HolographContract', () => {
     const chainId = chainIds[0]
     const holographChainId = await holograph.getChainId(Number(chainId))
 
-    expect(holographChainId).toBe(String(chainId))
+    expect(holographChainId).toBe(BigInt(chainId))
   })
 
-  // TODO: for some reason the blockchain call is returning the same chainId for both networks
-  it.skip('getChainIdByNetworks(): should be able to get the correct chainId per network', async () => {
+  it('getChainIdByNetworks(): should be able to get the correct chainId per network', async () => {
     const holographChainIdByNetworks = await holograph.getChainIdByNetworks()
     expect(Object.keys(holographChainIdByNetworks)).toEqual(chainIds.map(String))
-    expect(Object.values(holographChainIdByNetworks)).toEqual(chainIds.map(String))
+    expect(Object.values(holographChainIdByNetworks)).toEqual(chainIds.map(BigInt))
   })
 
   it('getHolographChainId(): should be able to get the correct holographChainId', async () => {
@@ -84,8 +83,7 @@ describe('Contract class: HolographContract', () => {
     expect(holographChainId).toBe(expectedValues.holographChainId[chainId])
   })
 
-  // TODO: for some reason the blockchain call is returning the same chainId for both networks
-  it.skip('getHolographChainIdByNetworks(): should be able to get the correct holographChainId per network', async () => {
+  it('getHolographChainIdByNetworks(): should be able to get the correct holographChainId per network', async () => {
     const holographChainIdByNetworks = await holograph.getHolographChainIdByNetworks()
     expect(Object.keys(holographChainIdByNetworks)).toEqual(chainIds.map(String))
     expect(Object.values(holographChainIdByNetworks)).toEqual(Object.values(expectedValues.holographChainId))

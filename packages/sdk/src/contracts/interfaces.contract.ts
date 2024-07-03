@@ -1,10 +1,10 @@
 import {Hex, Address} from 'viem'
 
 import {HolographContract} from './index'
-import {HolographLogger} from '../services'
+import {HolographLogger, HolographWallet} from '../services'
 import {HolographInterfacesABI} from '../constants/abi/develop'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {ChainIdType, GetContractFunctionArgs, InterfaceType, TokenUriType} from '../utils/types'
+import {ChainIdType, GetContractFunctionArgs, InterfaceType, TokenUriType, WriteContractOptions} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
 /**
@@ -75,7 +75,7 @@ export class InterfacesContract extends HolographBaseContract {
     externalLink: string,
     bps: number,
     contractAddress: Address,
-  ) {
+  ): Promise<string> {
     return this._getContractFunction({
       chainId,
       functionName: 'contractURI',
@@ -107,11 +107,7 @@ export class InterfacesContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'contractURI',
-        args: [name, imageURL, externalLink, bps, contractAddress],
-      })
+      results[network.chain] = await this.contractURI(network.chain, name, imageURL, externalLink, bps, contractAddress)
     }
 
     return results
@@ -133,7 +129,7 @@ export class InterfacesContract extends HolographBaseContract {
    * // expected value: The prepend string for IPFS token URIs is ipfs://
    * ```
    */
-  async getUriPrepend(chainId: number, uriType: TokenUriType) {
+  async getUriPrepend(chainId: number, uriType: TokenUriType): Promise<string> {
     return this._getContractFunction({chainId, functionName: 'getUriPrepend', args: [uriType]})
   }
 
@@ -150,11 +146,7 @@ export class InterfacesContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getUriPrepend',
-        args: [uriType],
-      })
+      results[network.chain] = await this.getUriPrepend(network.chain, uriType)
     }
 
     return results
@@ -166,10 +158,23 @@ export class InterfacesContract extends HolographBaseContract {
    * @param chainId The chain id of the network to send the transaction.
    * @param uriType The TokenUriType to set for.
    * @param prepend The prepend string.
-   * @returns A transaction.
+   * @param wallet A
+   * @returns A transaction hash.
    */
-  async updateUriPrepend(chainId: number, uriType: TokenUriType, prepend: string) {
-    return this._getContractFunction({chainId, functionName: 'updateUriPrepend', args: [uriType, prepend]})
+  async updateUriPrepend(
+    chainId: number,
+    uriType: TokenUriType,
+    prepend: string,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'updateUriPrepend',
+      args: [uriType, prepend],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -178,10 +183,22 @@ export class InterfacesContract extends HolographBaseContract {
    * @param chainId The chain id of the network to send the transaction.
    * @param uriType Array of TokenUriType to set for.
    * @param prepend Array of prepends.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async updateUriPrepends(chainId: number, uriTypes: TokenUriType[], prepends: string[]) {
-    return this._getContractFunction({chainId, functionName: 'updateUriPrepends', args: [uriTypes, prepends]})
+  async updateUriPrepends(
+    chainId: number,
+    uriTypes: TokenUriType[],
+    prepends: string[],
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'updateUriPrepends',
+      args: [uriTypes, prepends],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -193,7 +210,12 @@ export class InterfacesContract extends HolographBaseContract {
    * @param toChainType The chain type of the desired network.
    * @returns The Holograph chainId in the provided network.
    */
-  async getChainId(chainId: number, fromChainType: ChainIdType, fromChainId: bigint, toChainType: ChainIdType) {
+  async getChainId(
+    chainId: number,
+    fromChainType: ChainIdType,
+    fromChainId: bigint,
+    toChainType: ChainIdType,
+  ): Promise<bigint> {
     return this._getContractFunction({
       chainId,
       functionName: 'getChainId',
@@ -220,11 +242,7 @@ export class InterfacesContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getChainId',
-        args: [fromChainType, fromChainId, toChainType],
-      })
+      results[network.chain] = await this.getChainId(network.chain, fromChainType, fromChainId, toChainType)
     }
 
     return results
@@ -238,7 +256,7 @@ export class InterfacesContract extends HolographBaseContract {
    * @param fromChainId The actual chain ID value of the source network.
    * @param toChainType The chain type of the destine network.
    * @param toChainId The actual chain ID value of the destine network.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async updateChainIdMap(
     chainId: number,
@@ -246,11 +264,15 @@ export class InterfacesContract extends HolographBaseContract {
     fromChainId: bigint,
     toChainType: ChainIdType,
     toChainId: bigint,
-  ) {
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'updateChainIdMap',
       args: [fromChainType, fromChainId, toChainType, toChainId],
+      wallet,
+      options,
     })
   }
 
@@ -262,7 +284,7 @@ export class InterfacesContract extends HolographBaseContract {
    * @param fromChainIds The actual chain ID values of the source networks.
    * @param toChainTypes The chain type of the destine networks.
    * @param toChainIds The actual chain ID values of the destine networks.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async updateChainIdMaps(
     chainId: number,
@@ -270,11 +292,15 @@ export class InterfacesContract extends HolographBaseContract {
     fromChainIds: bigint[],
     toChainTypes: ChainIdType[],
     toChainIds: bigint[],
-  ) {
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'updateChainIdMaps',
       args: [fromChainTypes, fromChainIds, toChainTypes, toChainIds],
+      wallet,
+      options,
     })
   }
 
@@ -286,7 +312,7 @@ export class InterfacesContract extends HolographBaseContract {
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @returns `true` if the contract implements `interfaceID` and `interfaceID` is not 0xffffffff, `false` otherwise.
    */
-  async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex) {
+  async supportsInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex): Promise<boolean> {
     return this._getContractFunction({chainId, functionName: 'supportsInterface', args: [interfaceType, interfaceId]})
   }
 
@@ -307,11 +333,7 @@ export class InterfacesContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'supportsInterface',
-        args: [interfaceType, interfaceId],
-      })
+      results[network.chain] = await this.supportsInterface(network.chain, interfaceType, interfaceId)
     }
 
     return results
@@ -324,13 +346,22 @@ export class InterfacesContract extends HolographBaseContract {
    * @param interfaceType The InterfaceType.
    * @param interfaceId The interface identifier, as specified in ERC-165.
    * @param supported `true` if it's supported, `false` otherwise.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async updateInterface(chainId: number, interfaceType: InterfaceType, interfaceId: Hex, supported: boolean) {
+  async updateInterface(
+    chainId: number,
+    interfaceType: InterfaceType,
+    interfaceId: Hex,
+    supported: boolean,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'updateInterface',
       args: [interfaceType, interfaceId, supported],
+      wallet,
+      options,
     })
   }
 
@@ -341,13 +372,22 @@ export class InterfacesContract extends HolographBaseContract {
    * @param interfaceType The InterfaceType.
    * @param interfaceIds An array of interface identifiers, as specified in ERC-165.
    * @param supported `true` if it's supported, `false` otherwise.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async updateInterfaces(chainId: number, interfaceType: InterfaceType, interfaceIds: Hex[], supported: boolean) {
+  async updateInterfaces(
+    chainId: number,
+    interfaceType: InterfaceType,
+    interfaceIds: Hex[],
+    supported: boolean,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'updateInterfaces',
       args: [interfaceType, interfaceIds, supported],
+      wallet,
+      options,
     })
   }
 }

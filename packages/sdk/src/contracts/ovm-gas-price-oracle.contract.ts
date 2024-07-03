@@ -4,7 +4,7 @@ import {Addresses} from '../constants/addresses'
 import {OVM_GasPriceOracleABI} from '../constants/abi/develop'
 import {HolographLogger, Config, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {GetContractFunctionArgs} from '../utils/types'
+import {GetContractFunctionArgs, WriteContractOptions} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
 /**
@@ -63,7 +63,7 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * @param data Unsigned RLP encoded tx, 6 elements.
    * @returns The L1 fee that should be paid for the tx.
    */
-  async getL1Fee(chainId: number, data: Hex) {
+  async getL1Fee(chainId: number, data: Hex): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getL1Fee', args: [data]})
   }
 
@@ -79,11 +79,7 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getL1Fee',
-        args: [data],
-      })
+      results[network.chain] = await this.getL1Fee(network.chain, data)
     }
 
     return results
@@ -111,7 +107,7 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * @param data Unsigned RLP encoded tx, 6 elements
    * @returns The amount of L1 gas used for a transaction.
    */
-  async getL1GasUsed(chainId: number, data: Hex) {
+  async getL1GasUsed(chainId: number, data: Hex): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getL1GasUsed', args: [data]})
   }
 
@@ -127,11 +123,7 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({
-        chainId: network.chain,
-        functionName: 'getL1GasUsed',
-        args: [data],
-      })
+      results[network.chain] = await this.getL1GasUsed(network.chain, data)
     }
 
     return results
@@ -142,10 +134,15 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * Allows the owner to modify the L2 gas price.
    * @param chainId The chain id of the network to send the transaction.
    * @param gasPrice The new L2 gas price.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setGasPrice(chainId: number, gasPrice: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setGasPrice', args: [gasPrice], wallet})
+  async setGasPrice(
+    chainId: number,
+    gasPrice: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setGasPrice', args: [gasPrice], wallet, options})
   }
 
   /**
@@ -153,10 +150,15 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * Allows the owner to modify the L1 base fee.
    * @param chainId The chain id of the network to send the transaction.
    * @param baseFee The new L1 base fee.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setL1BaseFee(chainId: number, baseFee: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setL1BaseFee', args: [baseFee], wallet})
+  async setL1BaseFee(
+    chainId: number,
+    baseFee: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setL1BaseFee', args: [baseFee], wallet, options})
   }
 
   /**
@@ -164,10 +166,15 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * Allows the owner to modify the overhead.
    * @param chainId The chain id of the network to send the transaction.
    * @param overhead The new overhead.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setOverhead(chainId: number, overhead: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setOverhead', args: [overhead], wallet})
+  async setOverhead(
+    chainId: number,
+    overhead: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setOverhead', args: [overhead], wallet, options})
   }
 
   /**
@@ -175,10 +182,15 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * Allows the owner to modify the scalar.
    * @param chainId The chain id of the network to send the transaction.
    * @param scalar The new scalar.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setScalar(chainId: number, scalar: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setScalar', args: [scalar], wallet})
+  async setScalar(
+    chainId: number,
+    scalar: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setScalar', args: [scalar], wallet, options})
   }
 
   /**
@@ -186,9 +198,14 @@ export class OVMGasPriceOracleContract extends HolographBaseContract {
    * Allows the owner to modify the decimals.
    * @param chainId The chain id of the network to send the transaction.
    * @param decimals The new decimals.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setDecimals(chainId: number, decimals: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setDecimals', args: [decimals], wallet})
+  async setDecimals(
+    chainId: number,
+    decimals: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setDecimals', args: [decimals], wallet, options})
   }
 }

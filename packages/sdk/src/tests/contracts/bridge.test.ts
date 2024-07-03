@@ -5,6 +5,8 @@ import {Providers} from '../../services'
 import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
+import {MAX_GAS_VALUE} from '../../utils/gas'
+import {getNetworkByChainId} from '@holographxyz/networks'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -138,9 +140,19 @@ describe('Contract class: BridgeContract', () => {
     })
   })
 
-  // TODO: Finish the following tests
+  // TODO: This reverts
   it.skip('getMessageFee(): should be able to get the correct message fee', async () => {
     const chainId = chainIds[0]
+    const toChainId = chainIds[1]
+
+    const fees = await bridge.getMessageFee(
+      chainId,
+      getNetworkByChainId(toChainId).holographId,
+      MAX_GAS_VALUE,
+      MAX_GAS_VALUE,
+      '0x',
+    )
+    console.log(fees)
   })
 
   it.skip('getBridgeOutRequestPayload(): should be able to get the correct bridge out request payload', async () => {

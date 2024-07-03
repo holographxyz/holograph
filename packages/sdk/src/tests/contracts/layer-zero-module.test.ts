@@ -6,6 +6,7 @@ import {Providers} from '../../services'
 import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
+import {getNetworkByChainId} from '@holographxyz/networks'
 
 //TODO: localhost deploy needs to configure these values
 const expectedValues = {
@@ -58,8 +59,24 @@ describe('Contract class: LayerZeroModuleContract', () => {
     expect(layerZeroModule.getAddress()).toBe(expectedValues.layerZeroModuleAddress.toLowerCase())
   })
 
+  it('getGasParameters(): should be able to get the gas parameter configuration', async () => {
+    const chainId = chainIds[0]
+    const holographId = getNetworkByChainId(chainId).holographId
+    const gasParameters = await layerZeroModule.getGasParameters(chainId, holographId)
+
+    expect(gasParameters).toBeInstanceOf(Object)
+    expect(gasParameters).toHaveProperty('msgBaseGas')
+    expect(gasParameters).toHaveProperty('msgGasPerByte')
+    expect(gasParameters).toHaveProperty('jobBaseGas')
+    expect(gasParameters).toHaveProperty('jobGasPerByte')
+    expect(gasParameters).toHaveProperty('minGasPrice')
+    expect(gasParameters).toHaveProperty('maxGasLimit')
+  })
+
   it('getGasParametersByNetworks(): should be able to get the correct gas parameters per network', async () => {
-    const gasParametersByNetworks = await layerZeroModule.getGasParametersByNetworks()
+    const holographId = getNetworkByChainId(chainIds[0]).holographId
+
+    const gasParametersByNetworks = await layerZeroModule.getGasParametersByNetworks(undefined, holographId)
     expect(Object.keys(gasParametersByNetworks)).toEqual(chainIds.map(String))
 
     Object.values(gasParametersByNetworks).forEach(gasParameters => {

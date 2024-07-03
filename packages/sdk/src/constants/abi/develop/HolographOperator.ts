@@ -108,6 +108,44 @@ export default narrow([
   {
     inputs: [
       {
+        internalType: 'bytes32',
+        name: 'jobHash',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+    name: 'operatorJobExists',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+  },
+  {
+    inputs: [
+      {
+        internalType: 'bytes32',
+        name: 'jobHash',
+        type: 'bytes32',
+      },
+    ],
+    stateMutability: 'view',
+    type: 'function',
+    name: 'failedJobExists',
+    outputs: [
+      {
+        internalType: 'bool',
+        name: '',
+        type: 'bool',
+      },
+    ],
+  },
+  {
+    inputs: [
+      {
         internalType: 'address',
         name: 'operator',
         type: 'address',

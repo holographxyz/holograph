@@ -9,6 +9,7 @@ import {
   HolographVersion,
   WriteContractOptions,
 } from '../utils/types'
+import {Hex} from 'viem'
 
 const ABIs = [...HolographDropERC721ABI, ...HolographERC721ABI]
 const V2ABIs = [...HolographDropERC721V2ABI, ...HolographERC721ABI]
@@ -64,7 +65,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param chainId  The chain id of the network to get the result from.
    * @returns The native price of the NFT.
    */
-  async getNativePrice(chainId: number) {
+  async getNativePrice(chainId: number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getNativePrice'})
   }
 
@@ -75,7 +76,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param quantity The quantity of NFTs to purchase.
    * @returns The holograph fee in wei.
    */
-  async getHolographFeeWei(chainId: number, quantity: number) {
+  async getHolographFeeWei(chainId: number, quantity: number): Promise<bigint> {
     return this._getContractFunction({args: [BigInt(quantity)], chainId, functionName: 'getHolographFeeWei'})
   }
 
@@ -86,7 +87,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param tokenId ID of token.
    * @returns A boolean indicating if the NFT exists.
    */
-  async exists(chainId: number, tokenId: string) {
+  async exists(chainId: number, tokenId: string): Promise<boolean> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -101,7 +102,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param tokenId ID of token.
    * @returns The owner address of the NFT.
    */
-  async ownerOf(chainId: number, tokenId: string) {
+  async ownerOf(chainId: number, tokenId: string): Promise<Address> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -116,7 +117,7 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param tokenId ID of token to get URI for.
    * @returns The token URI.
    */
-  async tokenURI(chainId: number, tokenId: string) {
+  async tokenURI(chainId: number, tokenId: string): Promise<string> {
     return this._getContractFunction({
       args: [tokenId],
       chainId,
@@ -130,14 +131,14 @@ export class OpenEditionERC721Contract extends HolographBaseContract {
    * @param quantity The quantity of NFTs to purchase.
    * @param wallet Holograph wallet instance, optional param.
    * @param options The override options for the transaction.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async purchase(
     chainId: number,
     quantity: number,
     wallet?: {account: string | HolographWallet},
     options?: WriteContractOptions,
-  ) {
+  ): Promise<Hex> {
     return this._getContractFunction({
       args: [quantity],
       chainId,

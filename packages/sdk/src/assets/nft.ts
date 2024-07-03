@@ -134,8 +134,7 @@ export class NFT {
   }
 
   public async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
-    const exists = await this.cxipERC721.exists(chainId, tokenId)
-    return exists === 'true'
+    return this.cxipERC721.exists(chainId, tokenId)
   }
 
   public async getOwner(tokenId: string, chainId: number) {
