@@ -1,4 +1,5 @@
 import {beforeAll, describe, expect, it} from 'vitest'
+import {getNetworkByChainId} from '@holographxyz/networks'
 
 import {BridgeContract} from '../../contracts'
 import {Providers} from '../../services'
@@ -6,7 +7,6 @@ import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
 import {REGEX} from '../../utils/transformers'
 import {MAX_GAS_VALUE} from '../../utils/gas'
-import {getNetworkByChainId} from '@holographxyz/networks'
 
 const expectedValues = {
   holographAddress: localhostContractAddresses.holograph,
@@ -152,7 +152,6 @@ describe('Contract class: BridgeContract', () => {
       MAX_GAS_VALUE,
       '0x',
     )
-    console.log(fees)
   })
 
   it.skip('getBridgeOutRequestPayload(): should be able to get the correct bridge out request payload', async () => {

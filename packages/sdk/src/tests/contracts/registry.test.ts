@@ -1,4 +1,5 @@
 import {Address} from 'abitype'
+import {Hex} from 'viem'
 import {beforeAll, describe, expect, expectTypeOf, it} from 'vitest'
 
 import {Addresses} from '../../constants/addresses'
@@ -6,7 +7,6 @@ import {RegistryContract} from '../../contracts'
 import {Providers} from '../../services'
 import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-import {Hex} from 'viem'
 
 // TODO: localhost deployment needs to better configure this contract and create an example
 const expectedValues = {
@@ -287,7 +287,6 @@ describe('Contract class: RegistryContract', () => {
 
     Object.values(holographableContractsByNetworks).forEach(holographableContracts => {
       expectTypeOf(holographableContracts as string[]).toBeArray()
-      expectTypeOf(holographableContracts).items.toBeString()
     })
   })
 

@@ -20,6 +20,7 @@ import {
   BridgeInArgs,
   BridgeInRequestArgs,
   DecodedExecuteJobInput,
+  HolographVersion,
 } from './utils/types'
 
 export * from './utils/decoders'
@@ -52,4 +53,5 @@ export {
   BridgeInArgs,
   BridgeInRequestArgs,
   DecodedExecuteJobInput,
+  HolographVersion,
 }

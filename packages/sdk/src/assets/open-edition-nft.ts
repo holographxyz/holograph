@@ -167,8 +167,7 @@ export class OpenEditionNFT {
   }
 
   public async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
-    const exists = await this.holographOpenEditionERC721.exists(chainId, tokenId)
-    return exists === 'true'
+    return this.holographOpenEditionERC721.exists(chainId, tokenId)
   }
 
   public async getOwner(tokenId: string, chainId: number) {

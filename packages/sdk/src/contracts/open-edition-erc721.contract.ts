@@ -1,4 +1,5 @@
 import {Address} from 'abitype'
+import {Hex} from 'viem'
 
 import {HolographDropERC721ABI, HolographDropERC721V2ABI, HolographERC721ABI} from '../constants/abi/develop'
 import {HolographBaseContract} from './holograph-base.contract'
@@ -9,7 +10,6 @@ import {
   HolographVersion,
   WriteContractOptions,
 } from '../utils/types'
-import {Hex} from 'viem'
 
 const ABIs = [...HolographDropERC721ABI, ...HolographERC721ABI]
 const V2ABIs = [...HolographDropERC721V2ABI, ...HolographERC721ABI]
