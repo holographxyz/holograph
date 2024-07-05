@@ -4,7 +4,13 @@ import {HolographContract} from './index'
 import {HolographOperatorABI} from '../constants/abi/develop'
 import {HolographLogger, HolographWallet} from '../services'
 import {HolographByNetworksResponse, getSelectedNetworks} from '../utils/contracts'
-import {EstimateContractFunctionGasArgs, GetContractFunctionArgs, SimulateContractFunctionArgs} from '../utils/types'
+import {
+  EstimateContractFunctionGasArgs,
+  GetContractFunctionArgs,
+  OperatorJob,
+  SimulateContractFunctionArgs,
+  WriteContractOptions,
+} from '../utils/types'
 import {HolographBaseContract} from './holograph-base.contract'
 
 /**
@@ -82,9 +88,67 @@ export class OperatorContract extends HolographBaseContract {
    * Get the details for an available operator job.
    * @param chainId The chain id of the network to get the result from.
    * @param jobHash keccak256 hash of the job.
+   * @returns true if the job exists, false otherwise.
+   */
+  async operatorJobExists(chainId: number, jobHash: Hex): Promise<boolean> {
+    return this._getContractFunction({chainId, functionName: 'operatorJobExists', args: [jobHash]})
+  }
+
+  /**
+   * @readonly
+   * Get the details for an available operator job per network.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param jobHash keccak256 hash of the job.
+   * @returns true if the job exists, and false otherwise per network.
+   */
+  async operatorJobExistsByNetworks(chainIds: number[], jobHash: Hex): Promise<HolographByNetworksResponse> {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+
+    for (const network of networks) {
+      results[network.chain] = await this.operatorJobExists(network.chain, jobHash)
+    }
+
+    return results
+  }
+
+  /**
+   * @readonly
+   * Checks if a failed job exists.
+   * @param chainId The chain id of the network to get the result from.
+   * @param jobHash keccak256 hash of the job.
+   * @returns true if the job exists, false otherwise.
+   */
+  async failedJobExists(chainId: number, jobHash: Hex): Promise<boolean> {
+    return this._getContractFunction({chainId, functionName: 'failedJobExists', args: [jobHash]})
+  }
+
+  /**
+   * @readonly
+   * Checks if a failed job exists per network.
+   * @param chainIds The list of network chainIds to get the results from, if nothing is provided the default are the networks defined in the config.
+   * @param jobHash keccak256 hash of the job.
+   * @returns true if the job exists, and false otherwise per network.
+   */
+  async failedJobExistsByNetworks(chainIds: number[], jobHash: Hex): Promise<HolographByNetworksResponse> {
+    const results: HolographByNetworksResponse = {}
+    let networks = getSelectedNetworks(this.networks, chainIds)
+
+    for (const network of networks) {
+      results[network.chain] = await this.failedJobExists(network.chain, jobHash)
+    }
+
+    return results
+  }
+
+  /**
+   * @readonly
+   * Get the details for an available operator job.
+   * @param chainId The chain id of the network to get the result from.
+   * @param jobHash keccak256 hash of the job.
    * @returns an OperatorJob struct with details about a specific job.
    */
-  async getJobDetails(chainId: number, jobHash: Address) {
+  async getJobDetails(chainId: number, jobHash: Address): Promise<OperatorJob> {
     return this._getContractFunction({chainId, functionName: 'getJobDetails', args: [jobHash]})
   }
 
@@ -94,7 +158,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns number of pods that have been opened via bonding.
    */
-  async getTotalPods(chainId: number) {
+  async getTotalPods(chainId: number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getTotalPods'})
   }
 
@@ -105,7 +169,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param pod the pod to query.
    * @returns total operators in a pod.
    */
-  async getPodOperatorsLength(chainId: number, pod: bigint | number) {
+  async getPodOperatorsLength(chainId: number, pod: bigint | number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getPodOperatorsLength', args: [pod]})
   }
 
@@ -116,7 +180,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param pod the pod to query.
    * @returns operators array list of operators in a pod.
    */
-  async getPodOperators(chainId: number, pod: bigint | number) {
+  async getPodOperators(chainId: number, pod: bigint | number): Promise<Address[]> {
     return this._getContractFunction({chainId, functionName: 'getPodOperators', args: [pod]})
   }
 
@@ -129,7 +193,12 @@ export class OperatorContract extends HolographBaseContract {
    * @param length the length of result set to be (will be shorter if reached end of array).
    * @returns operators a paginated array of operators.
    */
-  async getPaginatedPodOperators(chainId: number, pod: bigint | number, index: number, length: number) {
+  async getPaginatedPodOperators(
+    chainId: number,
+    pod: bigint | number,
+    index: number,
+    length: number,
+  ): Promise<Address[]> {
     return this._getContractFunction({chainId, functionName: 'getPodOperators', args: [pod, index, length]})
   }
 
@@ -141,7 +210,7 @@ export class OperatorContract extends HolographBaseContract {
    * @returns base the base bond amount required for a pod.
    * @returns current the current bond amount required for a pod.
    */
-  async getPodBondAmounts(chainId: number, pod: bigint | number) {
+  async getPodBondAmounts(chainId: number, pod: bigint | number): Promise<[bigint, bigint]> {
     return this._getContractFunction({chainId, functionName: 'getPodBondAmounts', args: [pod]})
   }
 
@@ -152,7 +221,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param operator address of operator to check.
    * @returns amount total number of utility token bonded.
    */
-  async getBondedAmount(chainId: number, operator: Address) {
+  async getBondedAmount(chainId: number, operator: Address): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getBondedAmount', args: [operator]})
   }
 
@@ -163,7 +232,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param operator address of operator to check.
    * @returns pod number that operator is bonded on, returns zero if not bonded or selected for job.
    */
-  async getBondedPod(chainId: number, operator: Address) {
+  async getBondedPod(chainId: number, operator: Address): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getBondedPod', args: [operator]})
   }
 
@@ -174,7 +243,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param operator address of operator to check.
    * @returns index currently bonded pod's operator index, returns zero if not in pod or moved out for active job.
    */
-  async getBondedPodIndex(chainId: number, operator: Address) {
+  async getBondedPodIndex(chainId: number, operator: Address): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getBondedPodIndex', args: [operator]})
   }
 
@@ -184,7 +253,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The minimum value required to execute a job without it being marked as under priced.
    */
-  async getMinGasPrice(chainId: number) {
+  async getMinGasPrice(chainId: number): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'getMinGasPrice'})
   }
 
@@ -307,7 +376,13 @@ export class OperatorContract extends HolographBaseContract {
    * msgFee: The amount (in wei) of native gas token that will cost for sending message to destination chain.
    * dstGasPrice: The amount (in wei) that destination message maximum gas price will be.
    */
-  async getMessageFee(chainId: number, toChain: number, gasLimit: bigint, gasPrice: bigint, crossChainPayload: Hex) {
+  async getMessageFee(
+    chainId: number,
+    toChain: number,
+    gasLimit: bigint,
+    gasPrice: bigint,
+    crossChainPayload: Hex,
+  ): Promise<[bigint, bigint, bigint]> {
     return this._getContractFunction({
       chainId,
       functionName: 'getMessageFee',
@@ -325,7 +400,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param nonce The incremented number used to ensure job hashes are unique.
    * @param holographableContract The address of the contract for which the bridge request is being made.
    * @param bridgeOutPayload The bytes made up of the bridgeOutRequest payload.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async send(
     chainId: number,
@@ -336,12 +411,14 @@ export class OperatorContract extends HolographBaseContract {
     holographableContract: Address,
     bridgeOutPayload: Hex,
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'send',
       args: [gasLimit, gasPrice, toChain, nonce, holographableContract, bridgeOutPayload],
       wallet,
+      options,
     })
   }
 
@@ -349,10 +426,21 @@ export class OperatorContract extends HolographBaseContract {
    * Recovers a failed job. If a job fails, it can be manually recovered.
    * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The entire cross chain message payload.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async recoverJob(chainId: number, bridgeInRequestPayload: Hex, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'recoverJob', args: [bridgeInRequestPayload], wallet})
+  async recoverJob(
+    chainId: number,
+    bridgeInRequestPayload: Hex,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'recoverJob',
+      args: [bridgeInRequestPayload],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -360,10 +448,21 @@ export class OperatorContract extends HolographBaseContract {
    * When making this call, if operating criteria is not met, the call will revert.
    * @param chainId The chain id of the network to send the transaction.
    * @param bridgeInRequestPayload The entire cross chain message payload.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async executeJob(chainId: number, bridgeInRequestPayload: Hex, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'executeJob', args: [bridgeInRequestPayload], wallet})
+  async executeJob(
+    chainId: number,
+    bridgeInRequestPayload: Hex,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'executeJob',
+      args: [bridgeInRequestPayload],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -371,19 +470,21 @@ export class OperatorContract extends HolographBaseContract {
    * @param chainId The chain id of the network to send the transaction.
    * @param msgSender The address of who is sending the message.
    * @param payload The entire cross chain message payload.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async nonRevertingBridgeCall(
     chainId: number,
     msgSender: Address,
     payload: Hex,
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'nonRevertingBridgeCall',
       args: [msgSender, payload],
       wallet,
+      options,
     })
   }
 
@@ -394,12 +495,18 @@ export class OperatorContract extends HolographBaseContract {
    * @param bridgeInRequestPayload The entire cross chain message payload.
    * @returns A transaction.
    */
-  async crossChainMessage(chainId: number, bridgeInRequestPayload: Hex, wallet?: {account: string | HolographWallet}) {
+  async crossChainMessage(
+    chainId: number,
+    bridgeInRequestPayload: Hex,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       functionName: 'crossChainMessage',
       args: [bridgeInRequestPayload],
       wallet,
+      options,
     })
   }
 
@@ -411,7 +518,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param bridgeInRequestPayload The abi encoded bytes making up the bridgeInRequest payload.
    * @returns The gas amount remaining after the static call is returned.
    */
-  async jobEstimator(chainId: number, bridgeInRequestPayload: Hex) {
+  async jobEstimator(chainId: number, bridgeInRequestPayload: Hex): Promise<bigint> {
     return this._getContractFunction({chainId, functionName: 'jobEstimator', args: [bridgeInRequestPayload]})
   }
 
@@ -422,15 +529,22 @@ export class OperatorContract extends HolographBaseContract {
    * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of operator to topup.
    * @param amount The utility token amount to add.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async topupUtilityToken(
     chainId: number,
     operator: Address,
     amount: bigint,
     wallet?: {account: string | HolographWallet},
-  ) {
-    return this._getContractFunction({chainId, functionName: 'topupUtilityToken', args: [operator, amount], wallet})
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'topupUtilityToken',
+      args: [operator, amount],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -440,7 +554,7 @@ export class OperatorContract extends HolographBaseContract {
    * @param operator The address of operator to bond (can be an ownable smart contract).
    * @param amount The utility token amount to bond (can be greater than minimum).
    * @param pod The number of pod to bond to (can be for one that does not exist yet).
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async bondUtilityToken(
     chainId: number,
@@ -448,8 +562,15 @@ export class OperatorContract extends HolographBaseContract {
     amount: bigint,
     pod: bigint,
     wallet?: {account: string | HolographWallet},
-  ) {
-    return this._getContractFunction({chainId, functionName: 'bondUtilityToken', args: [operator, amount, pod], wallet})
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'bondUtilityToken',
+      args: [operator, amount, pod],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -458,15 +579,22 @@ export class OperatorContract extends HolographBaseContract {
    * @param chainId The chain id of the network to send the transaction.
    * @param operator The address of operator to unbond.
    * @param recipient The address where to send the bonded tokens.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async unbondUtilityToken(
     chainId: number,
     operator: Address,
     recipient: Address,
     wallet?: {account: string | HolographWallet},
-  ) {
-    return this._getContractFunction({chainId, functionName: 'unbondUtilityToken', args: [operator, recipient]})
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'unbondUtilityToken',
+      args: [operator, recipient],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -474,10 +602,15 @@ export class OperatorContract extends HolographBaseContract {
    * Updates the Holograph Bridge module address.
    * @param chainId The chain id of the network to send the transaction.
    * @param bridge The address of the Holograph Bridge smart contract to use.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setBridge(chainId: number, bridge: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setBridge', args: [bridge], wallet})
+  async setBridge(
+    chainId: number,
+    bridge: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setBridge', args: [bridge], wallet, options})
   }
 
   /**
@@ -487,8 +620,13 @@ export class OperatorContract extends HolographBaseContract {
    * @param holograph The address of the Holograph Protocol smart contract to use.
    * @returns A transaction.
    */
-  async setHolograph(chainId: number, holograph: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [holograph], wallet})
+  async setHolograph(
+    chainId: number,
+    holograph: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setHolograph', args: [holograph], wallet, options})
   }
 
   /**
@@ -498,8 +636,13 @@ export class OperatorContract extends HolographBaseContract {
    * @param interfaces The address of the Holograph Interfaces smart contract to use.
    * @returns A transaction.
    */
-  async setInterfaces(chainId: number, interfaces: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setInterfaces', args: [interfaces], wallet})
+  async setInterfaces(
+    chainId: number,
+    interfaces: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setInterfaces', args: [interfaces], wallet, options})
   }
 
   /**
@@ -509,8 +652,19 @@ export class OperatorContract extends HolographBaseContract {
    * @param messagingModule The address of the LayerZero Endpoint to use.
    * @returns A transaction.
    */
-  async setMessagingModule(chainId: number, messagingModule: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setMessagingModule', args: [messagingModule], wallet})
+  async setMessagingModule(
+    chainId: number,
+    messagingModule: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({
+      chainId,
+      functionName: 'setMessagingModule',
+      args: [messagingModule],
+      wallet,
+      options,
+    })
   }
 
   /**
@@ -520,8 +674,13 @@ export class OperatorContract extends HolographBaseContract {
    * @param registry The address of the Holograph Registry smart contract to use.
    * @returns A transaction.
    */
-  async setRegistry(chainId: number, registry: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setRegistry', args: [registry], wallet})
+  async setRegistry(
+    chainId: number,
+    registry: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setRegistry', args: [registry], wallet, options})
   }
 
   /**
@@ -529,10 +688,15 @@ export class OperatorContract extends HolographBaseContract {
    * Updates the Holograph Utility Token address.
    * @param chainId The chain id of the network to send the transaction.
    * @param utilityToken The address of the Holograph Utility Token smart contract to use.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setUtilityToken(chainId: number, utilityToken: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setUtilityToken', args: [utilityToken], wallet})
+  async setUtilityToken(
+    chainId: number,
+    utilityToken: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setUtilityToken', args: [utilityToken], wallet, options})
   }
 
   /**
@@ -540,9 +704,14 @@ export class OperatorContract extends HolographBaseContract {
    * Updates the Minimum Gas Price.
    * @param chainId The chain id of the network to send the transaction.
    * @param minGasPrice The amount to set for minimum gas price.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setMinGasPrice(chainId: number, minGasPrice: bigint, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, functionName: 'setMinGasPrice', args: [minGasPrice], wallet})
+  async setMinGasPrice(
+    chainId: number,
+    minGasPrice: bigint,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, functionName: 'setMinGasPrice', args: [minGasPrice], wallet, options})
   }
 }

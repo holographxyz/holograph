@@ -83,7 +83,7 @@ export class FactoryContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The Holograph Protocol contract address in the provided network.
    */
-  async getHolograph(chainId: number) {
+  async getHolograph(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getHolograph'})
   }
 
@@ -99,7 +99,7 @@ export class FactoryContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getHolograph'})
+      results[network.chain] = await this.getHolograph(network.chain)
     }
 
     return results
@@ -112,7 +112,7 @@ export class FactoryContract extends HolographBaseContract {
    * @param chainId The chain id of the network to get the result from.
    * @returns The Holograph Registry contract address in the provided network.
    */
-  async getRegistry(chainId: number) {
+  async getRegistry(chainId: number): Promise<Address> {
     return this._getContractFunction({chainId, functionName: 'getRegistry'})
   }
 
@@ -128,7 +128,7 @@ export class FactoryContract extends HolographBaseContract {
     let networks = getSelectedNetworks(this.networks, chainIds)
 
     for (const network of networks) {
-      results[network.chain] = await this._getContractFunction({chainId: network.chain, functionName: 'getRegistry'})
+      results[network.chain] = await this.getRegistry(network.chain)
     }
 
     return results
@@ -139,10 +139,15 @@ export class FactoryContract extends HolographBaseContract {
    * Updates the Holograph Protocol module address.
    * @param chainId The chain id of the network to send the transaction.
    * @param holograph The address of the Holograph Protocol smart contract to use.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setHolograph(chainId: number, holograph: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, wallet, functionName: 'setHolograph', args: [holograph]})
+  async setHolograph(
+    chainId: number,
+    holograph: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, wallet, functionName: 'setHolograph', args: [holograph], options})
   }
 
   /**
@@ -150,10 +155,15 @@ export class FactoryContract extends HolographBaseContract {
    * Updates the Holograph Registry module address.
    * @param chainId The chain id of the network to send the transaction.
    * @param registry The address of the Holograph Registry smart contract to use.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
-  async setRegistry(chainId: number, registry: Address, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, wallet, functionName: 'setRegistry', args: [registry]})
+  async setRegistry(
+    chainId: number,
+    registry: Address,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, wallet, functionName: 'setRegistry', args: [registry], options})
   }
 
   /**
@@ -165,7 +175,7 @@ export class FactoryContract extends HolographBaseContract {
    * @param signer The address of wallet that created the payload.
    * @param wallet Holograph wallet instance, optional param.
    * @param options The override options for the transaction.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async deployHolographableContract(
     chainId: number,
@@ -174,7 +184,7 @@ export class FactoryContract extends HolographBaseContract {
     signer: Address,
     wallet?: {account: string | HolographWallet},
     options?: WriteContractOptions,
-  ) {
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       wallet,
@@ -192,7 +202,7 @@ export class FactoryContract extends HolographBaseContract {
    * @param signer The address of wallet that created the payload.
    * @param deployOnCurrentChain Whether to deploy the contract on the current chain.
    * @param bridgeSettings The BridgeSettings[] struct for each chain to deploy the contract on.
-   * @returns A transaction.
+   * @returns A transaction hash.
    */
   async deployHolographableContractMultiChain(
     chainId: number,
@@ -202,12 +212,14 @@ export class FactoryContract extends HolographBaseContract {
     deployOnCurrentChain = true,
     bridgeSettings: BridgeSettings[] = [],
     wallet?: {account: string | HolographWallet},
-  ) {
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
     return this._getContractFunction({
       chainId,
       wallet,
       functionName: 'deployHolographableContractMultiChain',
       args: [config, signature, signer, deployOnCurrentChain, bridgeSettings],
+      options,
     })
   }
 
@@ -220,8 +232,14 @@ export class FactoryContract extends HolographBaseContract {
    * @param payload The calldata to be used in the deployHolographableContract function.
    * @returns The function selector of the deployHolographableContract function.
    */
-  async bridgeIn(chainId: number, fromChain: number, payload: Hex, wallet?: {account: string | HolographWallet}) {
-    return this._getContractFunction({chainId, wallet, functionName: 'bridgeIn', args: [fromChain, payload]})
+  async bridgeIn(
+    chainId: number,
+    fromChain: number,
+    payload: Hex,
+    wallet?: {account: string | HolographWallet},
+    options?: WriteContractOptions,
+  ): Promise<Hex> {
+    return this._getContractFunction({chainId, wallet, functionName: 'bridgeIn', args: [fromChain, payload], options})
   }
 
   /**
@@ -232,15 +250,9 @@ export class FactoryContract extends HolographBaseContract {
    * @param toChain The destination chain id.
    * @param sender The address of person making the request.
    * @param payload The payload of the request.
-   * @returns The function selector, and its calldata.
+   * @returns An array with the bridgeOut function selector and the provided payload
    */
-  async bridgeOut(
-    chainId: number,
-    toChain: number,
-    sender: Address,
-    payload: Hex,
-    wallet?: {account: string | HolographWallet},
-  ) {
-    return this._getContractFunction({chainId, wallet, functionName: 'bridgeOut', args: [toChain, sender, payload]})
+  async bridgeOut(chainId: number, toChain: number, sender: Address, payload: Hex): Promise<[string, string]> {
+    return this._getContractFunction({chainId, functionName: 'bridgeOut', args: [toChain, sender, payload]})
   }
 }

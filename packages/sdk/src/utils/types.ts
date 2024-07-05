@@ -20,7 +20,7 @@ import {HolographWallet} from '../services'
 
 type _PrimitiveType = AbiParameterToPrimitiveType<{
   name: 'test'
-  type: 'bytes32'
+  type: 'bytes'
 }> // NOTICE: use this to figure out which primitive type to use
 
 export type AtLeastOne<T, U = {[K in keyof T]: Pick<T, K>}> = Partial<T> & U[keyof U]

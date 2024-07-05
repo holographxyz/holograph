@@ -18,6 +18,8 @@ describe('Contract class: FactoryContract', () => {
   let factory: FactoryContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
 
+  const senderAddress = testConfigObject.accounts?.default.address as Address
+
   beforeAll(() => {
     providersWrapper = new Providers()
     factory = new FactoryContract()
@@ -103,7 +105,15 @@ describe('Contract class: FactoryContract', () => {
     const chainId = chainIds[0]
   })
 
-  it.skip('bridgeOut(): should be able to bridge out a token', async () => {
+  it('bridgeOut(): should be able to bridge out a token', async () => {
     const chainId = chainIds[0]
+    const toChainId = chainIds[1]
+
+    const payload = '0x'
+
+    const result = await factory.bridgeOut(chainId, toChainId, senderAddress, payload)
+
+    expect(result[0]).toBe('0xb7e03661')
+    expect(result[1]).toBe(payload)
   })
 })

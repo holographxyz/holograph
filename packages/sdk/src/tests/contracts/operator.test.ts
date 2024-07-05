@@ -13,7 +13,7 @@ const expectedValues = {
   operatorAddress: localhostContractAddresses.holographOperator,
   utilityTokenAddress: localhostContractAddresses.holographUtilityToken,
   messagingModuleAddress: localhostContractAddresses.messageModule,
-  minGasPrice: '1000000000',
+  minGasPrice: 1000000000n,
 }
 
 describe('Contract class: OperatorContract', () => {
@@ -77,12 +77,12 @@ describe('Contract class: OperatorContract', () => {
 
   it('getBondedPod(): should be able to get the correct bonded pod', async () => {
     const pod = await operator.getBondedPod(chainIds[1], expectedValues.operatorAddress as Address)
-    expect(pod).toBe('0')
+    expect(pod).toBe(0n)
   })
 
   it('getBondedPodIndex(): should be able to get the correct bonded pod index', async () => {
     const index = await operator.getBondedPodIndex(chainIds[1], expectedValues.operatorAddress as Address)
-    expect(index).toBe('0')
+    expect(index).toBe(0n)
   })
 
   it('getMinGasPrice(): should be able to get the minimum value required to execute a job without it being marked as under priced', async () => {

@@ -2,7 +2,7 @@ import {Network, getNetworkByChainId} from '@holographxyz/networks'
 import {Abi, AbiFunction} from 'viem'
 
 export type HolographByNetworksResponse = {
-  [chainId: number]: string | string[]
+  [chainId: number]: any
   /**
    * @ignore
    * TODO:

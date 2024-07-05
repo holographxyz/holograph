@@ -2,10 +2,10 @@ import {Address} from 'abitype'
 import {beforeAll, describe, expect, it} from 'vitest'
 
 import {InterfacesContract} from '../../contracts'
-import {Providers} from '../../services'
+import {HolographWallet, Providers} from '../../services'
 import {testConfigObject, localhostContractAddresses} from '../setup'
 import {getChainIdsByNetworksConfig} from '../../utils/helpers'
-import {ChainIdType, InterfaceType, TokenUriType} from '../../utils/types'
+import {ChainIdType, HolographAccount, InterfaceType, TokenUriType} from '../../utils/types'
 
 //NOTICE: the expected values are for the development env -> 0x8dd0A4D129f03F1251574E545ad258dE26cD5e97
 const expectedValues = {
@@ -20,7 +20,7 @@ const expectedValues = {
   fromChainIdTypeExample: ChainIdType.EVM,
   fromChainIdExample: 1338n,
   toChainIdTypeExample: ChainIdType.HOLOGRAPH,
-  toChainIdExample: '4294967294',
+  toChainIdExample: 4294967294n,
 }
 
 const supportedPrepends: {type: number; prepend: string}[] = [
@@ -36,6 +36,10 @@ describe('Contract class: InterfacesContract', () => {
   let providersWrapper: Providers
   let interfaces: InterfacesContract
   const chainIds = getChainIdsByNetworksConfig(testConfigObject.networks)
+
+  const wallet = {
+    account: 'default',
+  }
 
   beforeAll(() => {
     providersWrapper = new Providers()
@@ -128,48 +132,79 @@ describe('Contract class: InterfacesContract', () => {
 
     const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
 
-    expect(supportsInterface).toBe('true')
+    expect(supportsInterface).toBe(true)
   })
 
   it('supportsInterfaceByNetworks(): should be able to validate if an interface is supported per network', async () => {
     const supportsInterfaceByNetworks = await interfaces.supportsInterfaceByNetworks(InterfaceType.ERC721, EIP165_ID)
 
     Object.values(supportsInterfaceByNetworks).forEach(supportsInterface => {
-      expect(supportsInterface).toBe('true')
+      expect(supportsInterface).toBe(true)
     })
   })
 
-  it.skip('updateInterface(): should be able to update if a interface is supported or nor', async () => {
+  it('updateInterface(): should be able to update if a interface is supported or not', async () => {
     const chainId = chainIds[0]
 
-    const supportsInterface = await interfaces.updateInterface(chainId, InterfaceType.ERC721, EIP165_ID, false)
+    const tx = await interfaces.updateInterface(chainId, InterfaceType.ERC721, EIP165_ID, false, wallet)
 
-    // expect(supportsInterface).toBe('true')
+    expect(tx.startsWith('0x')).toBeTruthy()
+
+    const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
+
+    expect(supportsInterface).toBe(false)
   })
 
-  it.skip('updateInterfaces(): should be able to update if a list of supported interfaces', async () => {
+  it('updateInterfaces(): should be able to update if a list of supported interfaces', async () => {
     const chainId = chainIds[0]
 
-    const supportsInterface = await interfaces.updateInterfaces(chainId, InterfaceType.ERC721, [EIP165_ID], false)
+    const tx = await interfaces.updateInterfaces(chainId, InterfaceType.ERC721, [EIP165_ID], true, wallet)
 
-    // expect(supportsInterface).toBe('true')
+    expect(tx.startsWith('0x')).toBeTruthy()
+
+    const supportsInterface = await interfaces.supportsInterface(chainId, InterfaceType.ERC721, EIP165_ID)
+
+    expect(supportsInterface).toBe(true)
   })
 
-  it.skip('updateChainIdMap(): should be able to update the helper structure to convert between the different types of chainIds', async () => {
+  it('updateChainIdMap(): should be able to update the helper structure to convert between the different types of chainIds', async () => {
     const chainId = chainIds[0]
 
-    // await interfaces.updateChainIdMap()
+    const tx = await interfaces.updateChainIdMap(
+      chainId,
+      expectedValues.fromChainIdTypeExample,
+      expectedValues.fromChainIdExample,
+      expectedValues.toChainIdTypeExample,
+      expectedValues.toChainIdExample,
+      wallet,
+    )
+
+    expect(tx.startsWith('0x')).toBeTruthy()
   })
 
-  it.skip('updateUriPrepend(): should be able to update the the prepend string for a TokenUriType', async () => {
+  it('updateUriPrepend(): should be able to update the the prepend string for a TokenUriType', async () => {
     const chainId = chainIds[0]
 
-    //  await interfaces.updateUriPrepend()
+    const tx = await interfaces.updateUriPrepend(
+      chainId,
+      supportedPrepends[2].type,
+      supportedPrepends[2].prepend,
+      wallet,
+    )
+
+    expect(tx.startsWith('0x')).toBeTruthy()
   })
 
-  it.skip('updateUriPrepends(): should be able to update the prepends strings for an array of TokenUriTypes', async () => {
+  it('updateUriPrepends(): should be able to update the prepends strings for an array of TokenUriTypes', async () => {
     const chainId = chainIds[0]
 
-    //  await interfaces.updateUriPrepends()
+    const tx = await interfaces.updateUriPrepends(
+      chainId,
+      [supportedPrepends[1].type, supportedPrepends[2].type],
+      [supportedPrepends[1].prepend, supportedPrepends[2].prepend],
+      wallet,
+    )
+
+    expect(tx.startsWith('0x')).toBeTruthy()
   })
 })

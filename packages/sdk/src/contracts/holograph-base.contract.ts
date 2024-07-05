@@ -102,7 +102,6 @@ export class HolographBaseContract {
       throw holographError
     }
     return result
-    //TODO: Standardize return types across the codebase
   }
 
   protected async _estimateContractGas<TAbi extends Abi>({
@@ -188,6 +187,7 @@ export class HolographBaseContract {
 
       throw holographError
     }
+    return result
     return mapReturnType(result)
   }
 
