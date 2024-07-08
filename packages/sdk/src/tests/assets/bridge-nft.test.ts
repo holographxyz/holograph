@@ -34,9 +34,8 @@ describe('Asset class: BridgeNFT', () => {
     contract = new HolographERC721Contract({
       contractInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
         symbol: 'HOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: sourceChainId,
@@ -48,11 +47,6 @@ describe('Asset class: BridgeNFT', () => {
 
     const myNFT = new NFT({
       contract,
-      metadata: {
-        name: 'My new NFT',
-        description: 'Probably nothing.',
-        creator: 'Holograph Protocol',
-      },
       ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
 

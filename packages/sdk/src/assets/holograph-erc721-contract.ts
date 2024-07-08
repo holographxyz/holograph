@@ -11,11 +11,11 @@ import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {FactoryContract, RegistryContract} from '../contracts'
 import {HolographWallet} from '../services'
 import {decodeBridgeableContractDeployedEvent} from '../utils/decoders'
+import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
+import {create2AddressFromDeploymentHash, getERC721DeploymentConfigHash} from '../utils/encoders'
 import {allEventsEnabled, destructSignature, generateRandomSalt, padAndHexify} from '../utils/helpers'
 import {evm2hlg} from '../utils/transformers'
 import {DeploymentConfig, ERC721Config, GasFee, Signature, SignDeploy, WriteContractOptions} from '../utils/types'
-import {create2AddressFromDeploymentHash, getERC721DeploymentConfigHash} from '../utils/encoders'
-import {EnforceHydrateCheck, IsNotDeployed} from '../utils/decorators'
 
 export class HolographERC721Contract {
   private _isHydrated = false
@@ -63,20 +63,12 @@ export class HolographERC721Contract {
     return this._contractInfo.name
   }
 
-  get description(): string | undefined {
-    return this._contractInfo.description
-  }
-
   get symbol() {
     return this._contractInfo.symbol
   }
 
-  get tokenType() {
-    return this._contractInfo.tokenType
-  }
-
-  get royaltiesBps() {
-    return this._contractInfo.royaltiesBps
+  get royaltiesPercentage() {
+    return this._contractInfo.royaltiesPercentage
   }
 
   get salt() {
@@ -98,27 +90,15 @@ export class HolographERC721Contract {
   }
 
   @IsNotDeployed()
-  public setDescription(description: string) {
-    validate.description.parse(description)
-    this._contractInfo.description = description
-  }
-
-  @IsNotDeployed()
   public setSymbol(symbol: string) {
     validate.symbol.parse(symbol)
     this._contractInfo.symbol = symbol
   }
 
   @IsNotDeployed()
-  public setTokenType(tokenType: ContractInfo['tokenType']) {
-    validate.tokenType.parse(tokenType)
-    this._contractInfo.tokenType = tokenType
-  }
-
-  @IsNotDeployed()
-  public setRoyaltiesBps(royalties: number) {
-    validate.royaltiesBps.parse(royalties)
-    this._contractInfo.royaltiesBps = royalties
+  public setRoyaltiesPercentage(royalties: number) {
+    validate.royaltiesPercentage.parse(royalties)
+    this._contractInfo.royaltiesPercentage = royalties
   }
 
   @IsNotDeployed()
@@ -216,9 +196,6 @@ export class HolographERC721Contract {
     }
   }
 
-  // TODO: Do later
-  public deployBatch() {}
-
   private async _getFactoryAddress(chainId = this.primaryChainId) {
     return this.factory.getAddress(chainId)
   }
@@ -249,7 +226,7 @@ export class HolographERC721Contract {
     return encodeAbiParameters(parseAbiParameters('string, string, uint16, uint256, bool, bytes'), [
       this.name,
       this.symbol,
-      this.royaltiesBps,
+      this.royaltiesPercentage,
       // @ts-ignore
       allEventsEnabled(), // eventConfig
       false, // skipInit

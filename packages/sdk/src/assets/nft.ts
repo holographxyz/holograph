@@ -1,23 +1,18 @@
-import {Address, Hex, numberToHex, pad, toHex} from 'viem'
+import {Address, Hex, pad, toHex} from 'viem'
 
-import {HolographERC721Contract} from './holograph-erc721-contract'
-import {
-  HolographOpenEditionERC721ContractV1,
-  HolographOpenEditionERC721ContractV2,
-} from './holograph-open-edition-erc721-contract'
 import {GAS_CONTROLLER} from '../constants/gas-controllers'
 import {CxipERC721Contract} from '../contracts'
 import {NotMintedNFTError} from '../errors/assets/not-minted-nft.error'
-import {CreateNFT, DEFAULT_TOKEN_URI, HolographNFTMetadata, validate} from './nft.validation'
+import {HolographERC721Contract} from './holograph-erc721-contract'
+import {CreateNFT, DEFAULT_TOKEN_URI, validate} from './nft.validation'
 import {queryTokenIdFromReceipt} from '../utils/decoders'
 import {IsNotMinted} from '../utils/decorators'
-import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 import {getParsedTokenId} from '../utils/transformers'
+import {MintConfig, TokenUriType, WriteContractOptions} from '../utils/types'
 
 export class NFT {
   public contract: HolographERC721Contract
   public isMinted: boolean
-  public metadata: HolographNFTMetadata
   public txHash?: string
 
   public ipfsMetadataCid?: string
@@ -25,8 +20,7 @@ export class NFT {
 
   private cxipERC721: CxipERC721Contract
 
-  constructor({contract, ipfsMetadataCid, metadata}: CreateNFT) {
-    this.metadata = validate.metadata.parse(metadata)
+  constructor({contract, ipfsMetadataCid}: CreateNFT) {
     this.ipfsMetadataCid = validate.ipfsMetadataCid.parse(ipfsMetadataCid)
     this.contract = validate.contract.parse(contract)
 
@@ -34,25 +28,10 @@ export class NFT {
     this.isMinted = false
   }
 
-  get name() {
-    return this.metadata?.name
-  }
-
-  get description() {
-    return this.metadata?.description
-  }
-
-  get creator() {
-    return this.metadata?.creator
-  }
-
-  get image() {
-    return this.metadata?.image
-  }
-
-  // AKA the NFT traits
-  get attributes() {
-    return this.metadata?.attributes
+  @IsNotMinted()
+  public setIpfsMetadataCid(ipfsMetadataCid: string) {
+    validate.ipfsMetadataCid.parse(ipfsMetadataCid)
+    this.ipfsMetadataCid = ipfsMetadataCid
   }
 
   get tokenId() {
@@ -65,48 +44,6 @@ export class NFT {
     if (!this._tokenId) throw new NotMintedNFTError(this.getParsedTokenId.name)
 
     return getParsedTokenId(this._tokenId!)
-  }
-
-  @IsNotMinted()
-  public setMetadata(metadata: HolographNFTMetadata) {
-    validate.metadata.parse(metadata)
-    this.metadata = metadata
-  }
-
-  @IsNotMinted()
-  public setName(name: string) {
-    validate.name.parse(name)
-    this.metadata.name = name
-  }
-
-  @IsNotMinted()
-  public setDescription(description: string) {
-    validate.description.parse(description)
-    this.metadata.description = description
-  }
-
-  @IsNotMinted()
-  public setCreator(creator: string) {
-    validate.creator.parse(creator)
-    this.metadata.creator = creator
-  }
-
-  @IsNotMinted()
-  public setAttributes(attributes: HolographNFTMetadata['attributes']) {
-    validate.attributes.parse(attributes)
-    this.metadata.attributes = attributes
-  }
-
-  @IsNotMinted()
-  public setImage(image: string) {
-    validate.image.parse(image)
-    this.metadata.image = image
-  }
-
-  @IsNotMinted()
-  public setIpfsMetadataCid(ipfsMetadataCid: string) {
-    validate.ipfsMetadataCid.parse(ipfsMetadataCid)
-    this.ipfsMetadataCid = ipfsMetadataCid
   }
 
   public async mint({chainId, wallet}: MintConfig, options?: WriteContractOptions) {
@@ -131,22 +68,6 @@ export class NFT {
       tokenId: tokenIdBytesString,
       txHash,
     }
-  }
-
-  public async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
-    return this.cxipERC721.exists(chainId, tokenId)
-  }
-
-  public async getOwner(tokenId: string, chainId: number) {
-    const tokenId_ = tokenId || this._tokenId!
-    if (!tokenId) throw new NotMintedNFTError(this.getOwner.name)
-    const owner = (await this.cxipERC721.ownerOf(chainId, tokenId_)) as Address
-    return owner
-  }
-
-  public async isOwner(account: Address, tokenId: string, chainId: number): Promise<boolean> {
-    const owner = await this.cxipERC721.ownerOf(chainId, tokenId)
-    return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
 
   public async estimateGasForMintingNFT({chainId, wallet}: MintConfig) {
@@ -187,13 +108,19 @@ export class NFT {
     }
   }
 
-  // TODO: Functions below are used for easy testing while in development. Remove before public release.
-  setTokenId(tokenId: string) {
-    validate.tokenId.parse(tokenId)
-    this._tokenId = tokenId
+  public async tokenIdExists(tokenId: string, chainId: number): Promise<boolean> {
+    return this.cxipERC721.exists(chainId, tokenId)
   }
 
-  toggleIsMinted() {
-    this.isMinted = !this.isMinted
+  public async getOwner(tokenId: string, chainId: number) {
+    const tokenId_ = tokenId || this._tokenId!
+    if (!tokenId) throw new NotMintedNFTError(this.getOwner.name)
+    const owner = (await this.cxipERC721.ownerOf(chainId, tokenId_)) as Address
+    return owner
+  }
+
+  public async isOwner(account: Address, tokenId: string, chainId: number): Promise<boolean> {
+    const owner = await this.cxipERC721.ownerOf(chainId, tokenId)
+    return String(owner)?.toLowerCase() === String(account)?.toLowerCase()
   }
 }

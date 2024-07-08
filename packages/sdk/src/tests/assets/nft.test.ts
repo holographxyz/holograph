@@ -3,7 +3,6 @@ import {beforeAll, beforeEach, describe, expect, it} from 'vitest'
 import {HolographERC721Contract} from '../../assets/holograph-erc721-contract'
 import {NFT} from '../../assets/nft'
 import {NOT_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/not-minted-nft.error'
-import {UPDATE_MINTED_NFT_ERROR_MESSAGE} from '../../errors/assets/update-minted-nft.error'
 import {HolographWallet} from '../../services'
 import {LOCALHOST2_CHAIN_ID, testConfigObject} from '../setup'
 import {generateRandomSalt, sleep} from '../../utils/helpers'
@@ -34,9 +33,8 @@ describe('Asset class: NFT', () => {
     contract = new HolographERC721Contract({
       contractInfo: {
         name: 'My First Contract',
-        description: 'Nothing',
         symbol: 'MFC',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
@@ -49,81 +47,17 @@ describe('Asset class: NFT', () => {
   beforeEach(() => {
     nft = new NFT({
       contract,
-      metadata: {
-        name: 'NFTs Without Boundaries',
-        description: 'Probably nothing.',
-        creator: 'Holograph Protocol',
-        attributes: {
-          key: 'value',
-          anotherKey: 'anotherValue',
-        },
-      },
       ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
   })
 
   it('should be able to get the NFT wrapper class', () => {
-    expect(nft).toHaveProperty('metadata')
-    expect(nft).toHaveProperty('name')
-    expect(nft).toHaveProperty('description')
-    expect(nft).toHaveProperty('creator')
-    expect(nft).toHaveProperty('image')
-    expect(nft).toHaveProperty('attributes')
     expect(nft).toHaveProperty('ipfsMetadataCid')
     expect(nft).toHaveProperty('getOwner')
     expect(nft).toHaveProperty('getParsedTokenId')
-    expect(nft).toHaveProperty('setMetadata')
-    expect(nft).toHaveProperty('setName')
-    expect(nft).toHaveProperty('setDescription')
-    expect(nft).toHaveProperty('setAttributes')
-    expect(nft).toHaveProperty('setCreator')
     expect(nft).toHaveProperty('estimateGasForMintingNFT')
     expect(nft).toHaveProperty('mint')
     expect(nft).toHaveProperty('tokenIdExists')
-  })
-
-  describe('getMetadata()', () => {
-    it('should be able to get the NFT metadata', () => {
-      const metadata = nft.metadata
-
-      expect(metadata).toHaveProperty('name')
-      expect(metadata).toHaveProperty('description')
-      expect(metadata).toHaveProperty('creator')
-      expect(metadata).toHaveProperty('attributes')
-      expect(metadata.name).toBe('NFTs Without Boundaries')
-      expect(metadata.description).toBe('Probably nothing.')
-      expect(metadata.creator).toBe('Holograph Protocol')
-      expect(metadata.attributes).toHaveProperty('key')
-      expect(metadata.attributes).toHaveProperty('anotherKey')
-      expect(metadata.attributes?.key).toBe('value')
-      expect(metadata.attributes?.anotherKey).toBe('anotherValue')
-    })
-  })
-
-  it('should be able to get the NFT name', () => {
-    const name = nft.name
-    expect(name).toBe('NFTs Without Boundaries')
-  })
-
-  it('should be able to get the NFT description', () => {
-    const description = nft.description
-
-    expect(description).toBe('Probably nothing.')
-  })
-
-  it('should be able to get the NFT creator', () => {
-    const creator = nft.creator
-
-    expect(creator).toBe('Holograph Protocol')
-  })
-
-  it('should be able to get the NFT attributes', () => {
-    const attributes = nft.attributes
-
-    expect(attributes).toHaveProperty('key')
-    expect(attributes).toHaveProperty('anotherKey')
-    expect(attributes?.key).toBe('value')
-    expect(attributes?.anotherKey).toBe('anotherValue')
   })
 
   it('should be able to get the NFT IPFS metadata cid', () => {
@@ -135,115 +69,6 @@ describe('Asset class: NFT', () => {
   describe('getParsedTokenId()', () => {
     it('should fail if the NFT has not been minted', () => {
       expect(() => nft.getParsedTokenId()).toThrowError(NOT_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to get the NFT tokenId', () => {
-      nft.setTokenId(expectedValues.tokenId.decimal)
-      nft.toggleIsMinted()
-
-      const tokenId = nft.getParsedTokenId()
-
-      expect(tokenId).toHaveProperty('decimal')
-      expect(tokenId).toHaveProperty('hex')
-      expect(tokenId).toHaveProperty('part')
-      expect(tokenId.part).toHaveProperty('chainId')
-      expect(tokenId.part).toHaveProperty('tokenNumber')
-      expect(tokenId.decimal).toEqual(expectedValues.tokenId.decimal)
-      expect(tokenId.hex).toEqual(expectedValues.tokenId.hex)
-      expect(tokenId.part.tokenNumber).toEqual(expectedValues.tokenId.part.tokenNumber)
-    })
-  })
-
-  describe('setMetadata()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-      expect(() =>
-        nft.setMetadata({
-          name: 'New NFT Name',
-          description: 'New NFT Description',
-          creator: 'New Creator',
-          attributes: {newKey: 'newValue'},
-        }),
-      ).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT metadata', () => {
-      nft.setMetadata({
-        name: 'New NFT Name',
-        description: 'New NFT Description',
-        creator: 'New Creator',
-        image: 'ipfs://QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
-        attributes: {newKey: 'newValue'},
-      })
-      const newMetadata = nft.metadata
-
-      expect(newMetadata.name).toBe('New NFT Name')
-      expect(newMetadata.description).toBe('New NFT Description')
-      expect(newMetadata.creator).toBe('New Creator')
-      expect(newMetadata.image).toBe('ipfs://QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg')
-      expect(newMetadata.attributes).toHaveProperty('newKey')
-      expect(newMetadata.attributes?.newKey).toBe('newValue')
-    })
-  })
-
-  describe('setName()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-      expect(() => nft.setName('New NFT Name')).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT name', () => {
-      nft.setName('New NFT Name')
-      const name = nft.name
-
-      expect(name).toBe('New NFT Name')
-    })
-  })
-
-  describe('setDescription()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-      expect(() => nft.setDescription('New NFT Description')).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT description', () => {
-      nft.setDescription('New NFT Description')
-      const description = nft.description
-
-      expect(description).toBe('New NFT Description')
-    })
-  })
-
-  describe('setCreator()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-      expect(() => nft.setCreator('New Creator')).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT creator', () => {
-      nft.setCreator('New NFT creator')
-      const creator = nft.creator
-
-      expect(creator).toBe('New NFT creator')
-    })
-  })
-
-  describe('setAttributes()', () => {
-    it('should fail if the NFT has been deployed', () => {
-      nft.toggleIsMinted()
-      expect(() =>
-        nft.setAttributes({
-          newKey: 'newValue',
-        }),
-      ).toThrowError(UPDATE_MINTED_NFT_ERROR_MESSAGE)
-    })
-
-    it('should be able to set the NFT attributes', () => {
-      nft.setAttributes({newKey: 'newValue'})
-      const attributes = nft.attributes
-
-      expect(attributes).toHaveProperty('newKey')
-      expect(attributes?.newKey).toBe('newValue')
     })
   })
 

@@ -2,7 +2,7 @@ import {Address, Hex} from 'viem'
 import * as z from 'zod'
 
 import {generateRandomSalt, getAddressTypeSchema} from '../utils/helpers'
-import {CheckTypeIntegrity, HolographVersion, TokenType} from '../utils/types'
+import {CheckTypeIntegrity, HolographVersion} from '../utils/types'
 
 const nameSchema = z.string().min(1, {message: 'Name is required'})
 const descriptionSchema = z.string().optional()
@@ -10,7 +10,7 @@ const symbolSchema = z
   .string()
   .min(1, {message: 'Symbol is required'})
   .transform(s => s.toUpperCase())
-const royaltiesBpsSchema = z.number().int().min(0).max(10000).default(0)
+const royaltiesPercentageSchema = z.number().int().min(0).max(10000).default(0)
 const saltSchema = z
   .string()
   .min(32, {
@@ -18,7 +18,6 @@ const saltSchema = z
   })
   .default(generateRandomSalt())
   .transform(salt => salt as Hex)
-const tokenTypeSchema = z.enum([TokenType.ERC721, TokenType.ERC1155]).default(TokenType.ERC721)
 export const primaryChainIdSchema = z.number().int().min(1)
 
 const publicSalePriceSchema = z.number().min(0)
@@ -49,8 +48,7 @@ export const contractInfoSchema = z.object({
   name: nameSchema,
   description: descriptionSchema,
   symbol: symbolSchema,
-  tokenType: tokenTypeSchema,
-  royaltiesBps: royaltiesBpsSchema,
+  royaltiesPercentage: royaltiesPercentageSchema,
   salt: saltSchema,
 })
 
@@ -77,7 +75,7 @@ export const holographOpenEditionERC721InitCodeV2ParamsSchema = z.object({
   initialOwner: getAddressTypeSchema('Initial owner'),
   fundsRecipient: getAddressTypeSchema('Funds recipient'),
   numOfEditions: z.number().int().min(0),
-  royaltyBps: royaltiesBpsSchema,
+  royaltiesPercentage: royaltiesPercentageSchema,
   salesConfigArray: z.array(z.union([z.number(), z.string(), z.bigint()])),
   metadataRendererAddress: getAddressTypeSchema('Metadata renderer'),
   metadataRendererInitCode: z.string(),
@@ -94,7 +92,7 @@ export const holographOpenEditionERC721InitCodeV1ParamsSchema = holographOpenEdi
 export const holographERC721InitCodeParamsSchema = z.object({
   contractName: nameSchema,
   contractSymbol: symbolSchema,
-  royaltyBps: royaltiesBpsSchema,
+  royaltiesPercentage: royaltiesPercentageSchema,
   eventConfig: z.string().startsWith('0x'),
   skipInit: z.boolean().default(false),
   holographOpenEditionERC721InitCode: z.string(),
@@ -104,8 +102,7 @@ export const validate = {
   name: nameSchema,
   description: descriptionSchema,
   symbol: symbolSchema,
-  tokenType: tokenTypeSchema,
-  royaltiesBps: royaltiesBpsSchema,
+  royaltiesPercentage: royaltiesPercentageSchema,
   salt: saltSchema,
   publicSalePrice: publicSalePriceSchema,
   maxSalePurchasePerAddress: maxSalePurchasePerAddressSchema,
@@ -145,7 +142,7 @@ export const OPEN_EDITION_INIT_CODE_ABI_PARAMETERS = {
           type: 'uint64', // numOfEditions
         },
         {
-          type: 'uint16', // royaltyBps
+          type: 'uint16', // royaltiesPercentage
         },
         {
           type: 'bool', // enableOpenSeaRoyaltyRegistry
@@ -199,7 +196,7 @@ export const OPEN_EDITION_INIT_CODE_ABI_PARAMETERS = {
           type: 'uint64', // numOfEditions
         },
         {
-          type: 'uint16', // royaltyBps
+          type: 'uint16', // royaltiesPercentage
         },
         {
           type: 'tuple', // salesConfig
@@ -242,11 +239,9 @@ export type CreateHolographERC721ContractSchema = z.input<typeof createHolograph
 
 export type CreateHolographERC721Contract = {
   contractInfo: {
-    symbol: string
     name: string
-    description?: string
-    tokenType?: TokenType
-    royaltiesBps?: number
+    symbol: string
+    royaltiesPercentage?: number
     salt?: string
   }
   primaryChainId: number
@@ -254,9 +249,9 @@ export type CreateHolographERC721Contract = {
 
 export type HydrateHolographERC721Contract = {
   contractInfo: {
-    symbol: string
     name: string
-    royaltiesBps?: number
+    symbol: string
+    royaltiesPercentage?: number
     salt?: string
   }
   chainId: number
@@ -284,11 +279,10 @@ export type CreateHolographOpenEditionERC721ContractSchema = z.input<
 
 export type CreateHolographOpenEditionERC721Contract = {
   contractInfo: {
-    symbol: string
     name: string
+    symbol: string
     description?: string
-    tokenType?: TokenType
-    royaltiesBps?: number
+    royaltiesPercentage?: number
     salt?: string
   }
   nftInfo: {
@@ -301,9 +295,10 @@ export type CreateHolographOpenEditionERC721Contract = {
 
 export type HydrateHolographOpenEditionERC721Contract = {
   contractInfo: {
-    symbol: string
     name: string
-    royaltiesBps?: number
+    symbol: string
+    description?: string
+    royaltiesPercentage?: number
     salt?: string
   }
   nftInfo: {

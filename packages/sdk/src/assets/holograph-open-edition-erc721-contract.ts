@@ -104,12 +104,8 @@ export class HolographOpenEditionERC721ContractV1 {
     return this._contractInfo.symbol
   }
 
-  get tokenType() {
-    return this._contractInfo.tokenType
-  }
-
-  get royaltiesBps() {
-    return this._contractInfo.royaltiesBps
+  get royaltiesPercentage() {
+    return this._contractInfo.royaltiesPercentage
   }
 
   get salt() {
@@ -179,15 +175,9 @@ export class HolographOpenEditionERC721ContractV1 {
   }
 
   @IsNotDeployed()
-  public setTokenType(tokenType: ContractInfo['tokenType']) {
-    validate.tokenType.parse(tokenType)
-    this._contractInfo.tokenType = tokenType
-  }
-
-  @IsNotDeployed()
-  public setRoyaltiesBps(royalties: number) {
-    validate.royaltiesBps.parse(royalties)
-    this._contractInfo.royaltiesBps = royalties
+  public setRoyaltiesPercentage(royalties: number) {
+    validate.royaltiesPercentage.parse(royalties)
+    this._contractInfo.royaltiesPercentage = royalties
   }
 
   @IsNotDeployed()
@@ -319,9 +309,6 @@ export class HolographOpenEditionERC721ContractV1 {
     }
   }
 
-  // TODO: Do later
-  public deployBatch() {}
-
   protected async _getRegistryAddress(chainId = this.primaryChainId) {
     return this.registry.getAddress(chainId)
   }
@@ -353,7 +340,7 @@ export class HolographOpenEditionERC721ContractV1 {
       metadataRendererAddress,
       metadataRendererInitCode,
       numOfEditions,
-      royaltyBps,
+      royaltiesPercentage,
       registryAddress,
       salesConfigArray,
     } = data
@@ -365,7 +352,7 @@ export class HolographOpenEditionERC721ContractV1 {
         initialOwner,
         fundsRecipient,
         numOfEditions,
-        royaltyBps,
+        royaltiesPercentage,
         enableOpenSeaRoyaltyRegistry,
         salesConfigArray,
         metadataRendererAddress,
@@ -381,11 +368,18 @@ export class HolographOpenEditionERC721ContractV1 {
   }
 
   protected _generateHolographERC721InitCode(data: HolographERC721InitCodeParams) {
-    const {contractName, contractSymbol, royaltyBps, eventConfig, skipInit, holographOpenEditionERC721InitCode} = data
+    const {
+      contractName,
+      contractSymbol,
+      royaltiesPercentage,
+      eventConfig,
+      skipInit,
+      holographOpenEditionERC721InitCode,
+    } = data
     return encodeAbiParameters(parseAbiParameters('string, string, uint16, uint256, bool, bytes'), [
       contractName,
       contractSymbol,
-      royaltyBps,
+      royaltiesPercentage,
       // @ts-ignore
       eventConfig,
       skipInit,
@@ -446,7 +440,7 @@ export class HolographOpenEditionERC721ContractV1 {
       metadataRendererInitCode,
       numOfEditions: 0,
       registryAddress,
-      royaltyBps: this.royaltiesBps,
+      royaltiesPercentage: this.royaltiesPercentage,
       salesConfigArray,
     })
   }
@@ -461,7 +455,7 @@ export class HolographOpenEditionERC721ContractV1 {
     const initCode = this._generateHolographERC721InitCode({
       contractName: JSON.stringify(this.name).slice(1, -1),
       contractSymbol: JSON.stringify(this.symbol).slice(1, -1),
-      royaltyBps: this.royaltiesBps,
+      royaltiesPercentage: this.royaltiesPercentage,
       eventConfig: this._getEventConfig(),
       skipInit: false,
       holographOpenEditionERC721InitCode: openEditionInitCode,
@@ -579,7 +573,7 @@ export class HolographOpenEditionERC721ContractV2 extends HolographOpenEditionER
       metadataRendererAddress,
       metadataRendererInitCode,
       numOfEditions,
-      royaltyBps,
+      royaltiesPercentage,
       registryAddress,
       salesConfigArray,
     } = data
@@ -589,7 +583,7 @@ export class HolographOpenEditionERC721ContractV2 extends HolographOpenEditionER
         initialOwner,
         fundsRecipient,
         numOfEditions,
-        royaltyBps,
+        royaltiesPercentage,
         salesConfigArray,
         metadataRendererAddress,
         metadataRendererInitCode,
@@ -621,7 +615,7 @@ export class HolographOpenEditionERC721ContractV2 extends HolographOpenEditionER
       metadataRendererInitCode,
       numOfEditions: 0,
       registryAddress,
-      royaltyBps: this.royaltiesBps,
+      royaltiesPercentage: this.royaltiesPercentage,
       salesConfigArray,
     })
   }

@@ -30,9 +30,8 @@ describe('Asset class: BridgeContract', () => {
     contract = new HolographERC721Contract({
       contractInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
         symbol: 'HOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: sourceChainId,

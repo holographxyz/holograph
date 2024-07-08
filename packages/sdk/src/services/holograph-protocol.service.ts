@@ -26,7 +26,6 @@ import {Providers} from './providers.service'
 import {getAddressTypeSchema, parseTimestampSecondsToISODate} from '../utils/helpers'
 import {ContractType, EventInfo} from '../utils/types'
 import {NFT} from '../assets/nft'
-import {HolographOpenEditionNFTMetadata, NFTMetadata} from '../assets/nft.validation'
 import {OpenEditionNFT} from '../assets/open-edition-nft'
 import {
   ContractNotFoundError,
@@ -172,8 +171,8 @@ export class HolographProtocol {
 
     switch (type) {
       case ContractType.CxipERC721: {
-        // const encodedRoyaltiesBps =  await client.public.getStorageAt({address, slot: '0x'}) // TODO: Awaiting protocol devs to calculate the slot
-        // const royaltiesBps = decodeAbiParameters(parseAbiParameters('uint256'), encodedRoyaltiesBps)
+        // const encodedRoyaltiesPercentage =  await client.public.getStorageAt({address, slot: '0x'}) // TODO: Awaiting protocol devs to calculate the slot
+        // const royaltiesPercentage = decodeAbiParameters(parseAbiParameters('uint256'), encodedRoyaltiesPercentage)
 
         return HolographERC721Contract.hydrate(contractInput)
       }
@@ -196,7 +195,7 @@ export class HolographProtocol {
           metadata = await response.json()
         }
 
-        contractInput.contractInfo['royaltiesBps'] = config.royaltyBPS
+        contractInput.contractInfo['royaltiesPercentage'] = config.royaltyBPS
 
         const openEditionInput = {
           ...contractInput,
@@ -274,7 +273,7 @@ export class HolographProtocol {
       throw new MetadataFetchError(this.hydrateNFT.name)
     }
 
-    let metadata: NFTMetadata = {
+    let metadata = {
       name: rawMetadata.name,
       description: rawMetadata.description,
       creator: rawMetadata.creator,
@@ -286,7 +285,7 @@ export class HolographProtocol {
       case ContractType.CxipERC721: {
         nft = new NFT({
           contract: nftContract as HolographERC721Contract,
-          metadata,
+          // metadata, // TODO: Remove comment once uploading to IPFS feature is available
           ipfsMetadataCid: tokenUri,
         })
         break
@@ -296,7 +295,7 @@ export class HolographProtocol {
         nft = new OpenEditionNFT({
           contract: nftContract as HolographOpenEditionERC721ContractV1 | HolographOpenEditionERC721ContractV2,
         })
-        nft['_metadata'] = rawMetadata as unknown as HolographOpenEditionNFTMetadata
+        // nft['_metadata'] = rawMetadata as unknown as HolographOpenEditionNFTMetadata // TODO: Remove comment once uploading to IPFS feature is available
         break
       }
       default:
