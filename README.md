@@ -1,10 +1,10 @@
 <p align="center">
   <a href="https://holograph.xyz">
-    <img src="https://www.holograph.xyz/icon.jpg" alt="Holograph logo"  />
+    <img src="https://aqpvzbjhwgcljojetaul.supabase.co/storage/v1/object/public/holograph/holograph_sdk.png" alt="Holograph logo" width="750px"  />
   </a>
 </p>
 
-<h1 align="center">Holograph SDK: Tokenize your app</h1>
+<h1 align="center">Holograph SDK: Omnichain Tokenization</h1>
 <br />
 
 <p align="center">
@@ -21,8 +21,9 @@
 </p>
 
 <br />
+<h2 align="center">Holograph is an omnichain tokenization protocol</h2>
 
-Holograph provides developers with the flexibility to create a diverse range of tokens, from standard fungible and non-fungible tokens to custom tokens for unique use cases. It also enables the seamless expansion of existing tokens across different chains. With the Holograph SDK, developers can efficiently create, deploy, mint, and bridge omnichain tokens, facilitating the integration of these mechanisms into their own applications.
+Holograph offers developers the flexibility to create a wide variety of tokens, including standard fungible and non-fungible tokens, as well as custom tokens for specialized use cases. It also allows for the seamless expansion of tokens across multiple chains. Using Holograph SDK, developers can efficiently create, deploy, mint, and bridge omnichain tokens, making it easy to integrate these capabilities into any application.
 
 ## Table of contents
 
@@ -35,12 +36,11 @@ Holograph provides developers with the flexibility to create a diverse range of 
 
 ## Documentation
 
-Check out our [documentation](https://docs.holograph.xyz/developer/sdk/quickstart-setup) site for more details on how to use Holograph SDK.
+Check out [Holograph Docs](https://docs.holograph.xyz/developer/sdk/quickstart-setup) for more details on how to use Holograph SDK.
 
 ## Installation
 
-To use Holograph SDK, all you need to do is install the
-`@holographxyz/sdk` package and its peer dependencies:
+To use Holograph SDK, install the `@holographxyz/sdk` package and its peer dependencies:
 
 ```sh
 # with pnpm
@@ -58,7 +58,7 @@ $ bun add @holographxyz/sdk @holographxyz/networks @holographxyz/environment
 
 ## Usage
 
-To deploy your first contract, you can use the following code snippet:
+To deploy your first contract, use the following code snippet:
 
 1. Set up your Holograph SDK configuration:
 
@@ -114,8 +114,7 @@ const avalancheSignatureData = await myContract.signDeploy(
 await myContract.deploy(avalancheSignatureData);
 ```
 
-More guides on how to get started are available
-[here](https://docs.holograph.xyz/developer/sdk/quickstart-setup)
+Go [here](https://docs.holograph.xyz/developer/sdk/quickstart-setup) for more guides on how to get started.
 
 ## Tutorials
 
