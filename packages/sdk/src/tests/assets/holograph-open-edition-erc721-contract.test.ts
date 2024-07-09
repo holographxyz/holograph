@@ -21,7 +21,7 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
         name: 'NFTs Without Boundaries',
         description: 'Probably nothing.',
         symbol: 'HOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       nftInfo: {
@@ -52,7 +52,6 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
     expect(contract).toHaveProperty('getContractInfo')
     expect(contract).toHaveProperty('signDeploy')
     expect(contract).toHaveProperty('deploy')
-    expect(contract).toHaveProperty('deployBatch')
   })
 
   describe('getContractInfo()', () => {
@@ -62,8 +61,7 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
       expect(info).toHaveProperty('name')
       expect(info).toHaveProperty('description')
       expect(info).toHaveProperty('symbol')
-      expect(info).toHaveProperty('royaltiesBps')
-      expect(info).toHaveProperty('tokenType')
+      expect(info).toHaveProperty('royaltiesPercentage')
       expect(info).toHaveProperty('salt')
       expect(info).toHaveProperty('ipfsUrl')
       expect(info).toHaveProperty('ipfsImageCid')
@@ -74,8 +72,7 @@ describe('Asset class: HolographOpenEditionERC721ContractV2', () => {
       expect(info.name).toBe('NFTs Without Boundaries')
       expect(info.description).toBe('Probably nothing.')
       expect(info.symbol).toBe('HOLO')
-      expect(info.royaltiesBps).toBe(2000)
-      expect(info.tokenType).toBe('ERC721')
+      expect(info.royaltiesPercentage).toBe(2000)
       expect(info.ipfsUrl).toBe(
         'https://holograph.mypinata.cloud/ipfs/QmR9VoYXafUYLh4eJyoUmMkD1mzAhrb2JddX1quctEUo93/nft.jpeg',
       )

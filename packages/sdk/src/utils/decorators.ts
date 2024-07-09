@@ -44,8 +44,8 @@ export function EnforceHydrateCheck() {
       ...args: any[]
     ) {
       if (this.isHydrated) {
-        if (this.salt === '0x0' || !this.royaltiesBps) {
-          throw new HydratedAssetPropertyNotFound(['salt', 'royaltiesBps'], propertyKey)
+        if (this.salt === '0x0' || !this.royaltiesPercentage) {
+          throw new HydratedAssetPropertyNotFound(['salt', 'royaltiesPercentage'], propertyKey)
         }
       }
       return originalMethod.apply(this, args)

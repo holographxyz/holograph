@@ -25,7 +25,7 @@ describe('Asset class: OpenEditionNFT', () => {
         name: 'My First Contract',
         description: 'Probably nothing.',
         symbol: 'MFC',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       nftInfo: {

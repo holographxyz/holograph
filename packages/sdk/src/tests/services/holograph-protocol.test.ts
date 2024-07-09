@@ -84,7 +84,7 @@ describe('Service: Holograph Protocol', () => {
       expect(moe.chainIds).toContain(chainId)
       expect(moe.name).toBe(openEditionErc721Contract.name)
       expect(moe.symbol).toBe(openEditionErc721Contract.symbol)
-      expect(moe.royaltiesBps).toBe(openEditionErc721Contract.royaltiesBps)
+      expect(moe.royaltiesPercentage).toBe(openEditionErc721Contract.royaltiesPercentage)
       expect(moe.nftIpfsImageCid).toBe(openEditionErc721Contract.nftIpfsImageCid)
     })
 
@@ -141,8 +141,9 @@ describe('Service: Holograph Protocol', () => {
 
       expect(hydratedNft).toBeInstanceOf(NFT)
       expect(hydratedNft.isMinted).toBe(true)
-      expect(hydratedNft.name).toBe(nft.name)
-      expect(hydratedNft.description).toBe(nft.description)
+      // TODO: Remove comments once uploading to IPFS feature is available
+      // expect(hydratedNft.name).toBe(nft.name)
+      // expect(hydratedNft.description).toBe(nft.description)
       expect(hydratedNft.ipfsMetadataCid).toBe(`ipfs://${nft.ipfsMetadataCid}`)
       expect(hydratedNft.tokenId).toBe(nft.tokenId)
     })
@@ -157,9 +158,10 @@ describe('Service: Holograph Protocol', () => {
 
       expect(hydratedNft).toBeInstanceOf(OpenEditionNFT)
       expect(hydratedNft.isMinted).toBe(true)
-      expect(hydratedNft.name).toBe(openEditionNFT.name)
-      expect(hydratedNft.description).toBe(openEditionNFT.description)
-      expect(hydratedNft.ipfsImageCid).toBe(openEditionNFT.ipfsImageCid)
+      // TODO: Remove comments once uploading to IPFS feature is available
+      // expect(hydratedNft.name).toBe(openEditionNFT.name)
+      // expect(hydratedNft.description).toBe(openEditionNFT.description)
+      // expect(hydratedNft.ipfsImageCid).toBe(openEditionNFT.ipfsImageCid)
       expect(hydratedNft.tokenId).toBe(openEditionNFT.tokenId)
     })
 
@@ -179,9 +181,8 @@ describe('Service: Holograph Protocol', () => {
     erc721Contract = new HolographERC721Contract({
       contractInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
         symbol: 'HOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: chainId,
@@ -199,7 +200,7 @@ describe('Service: Holograph Protocol', () => {
         name: 'Open Edition NFTs Without Boundaries',
         description: 'Probably nothing.',
         symbol: 'OHOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       nftInfo: {
@@ -224,10 +225,6 @@ describe('Service: Holograph Protocol', () => {
   async function mintNFTFromERC721Contract() {
     nft = new NFT({
       contract: erc721Contract,
-      metadata: {
-        name: 'My First NFT',
-        description: 'Nothing.',
-      },
       ipfsMetadataCid: 'QmfPiMDcWQNPmJpZ1MKicVQzoo42Jgb2fYFH7PemhXkM32/metadata.json',
     })
 

@@ -18,9 +18,8 @@ describe('Asset class: HolographERC721Contract', () => {
     contract = new HolographERC721Contract({
       contractInfo: {
         name: 'NFTs Without Boundaries',
-        description: 'Probably nothing',
         symbol: 'HOLO',
-        royaltiesBps: 2000,
+        royaltiesPercentage: 2000,
         salt: generateRandomSalt(),
       },
       primaryChainId: LOCALHOST2_CHAIN_ID,
@@ -37,7 +36,6 @@ describe('Asset class: HolographERC721Contract', () => {
     expect(contract).toHaveProperty('getContractInfo')
     expect(contract).toHaveProperty('signDeploy')
     expect(contract).toHaveProperty('deploy')
-    expect(contract).toHaveProperty('deployBatch')
   })
 
   describe('getContractInfo()', () => {
@@ -45,16 +43,12 @@ describe('Asset class: HolographERC721Contract', () => {
       const contractInfo = contract.getContractInfo()
 
       expect(contractInfo).toHaveProperty('name')
-      expect(contractInfo).toHaveProperty('description')
       expect(contractInfo).toHaveProperty('symbol')
-      expect(contractInfo).toHaveProperty('royaltiesBps')
-      expect(contractInfo).toHaveProperty('tokenType')
+      expect(contractInfo).toHaveProperty('royaltiesPercentage')
       expect(contractInfo).toHaveProperty('salt')
       expect(contractInfo.name).toBe('NFTs Without Boundaries')
-      expect(contractInfo.description).toBe('Probably nothing')
       expect(contractInfo.symbol).toBe('HOLO')
-      expect(contractInfo.royaltiesBps).toBe(2000)
-      expect(contractInfo.tokenType).toBe('ERC721')
+      expect(contractInfo.royaltiesPercentage).toBe(2000)
     })
   })
 
