@@ -1,7 +1,5 @@
-# Holograph SDK
-
 <p align="center">
-  <a href="https://github.com/holographxyz/holograph">
+  <a href="https://holograph.xyz">
     <img src="https://www.holograph.xyz/icon.jpg" alt="Holograph logo"  />
   </a>
 </p>
@@ -24,7 +22,7 @@
 
 <br />
 
-Holograph provides developers the flexibility to create a wide variety of tokens, from standard fungible and non-fungible tokens to custom tokens for novel use cases. Holograph also facilitates the seamless expansion of existing tokens across different chains. Holograph SDK enables omnichain tokens to be created, deployed, minted, and bridged.
+Holograph provides developers with the flexibility to create a diverse range of tokens, from standard fungible and non-fungible tokens to custom tokens for unique use cases. It also enables the seamless expansion of existing tokens across different chains. With the Holograph SDK, developers can efficiently create, deploy, mint, and bridge omnichain tokens, facilitating the integration of these mechanisms into their own applications.
 
 ## Table of contents
 
@@ -106,7 +104,6 @@ const myContract = new HolographERC721Contract({
 });
 
 const signatureData = await myContract.signDeploy(wallet);
-
 const { contractAddress, txHash } = await myContract.deploy(signatureData);
 
 // Deploying on other chains
@@ -122,15 +119,13 @@ More guides on how to get started are available
 
 ## Tutorials
 
-- Deploying Contract: https://docs.holograph.xyz/developer/sdk/deploying-contracts
+- Deploying Contracts: https://docs.holograph.xyz/developer/sdk/deploying-contracts
 - Minting Tokens: https://docs.holograph.xyz/developer/sdk/minting-tokens
 - Bridging Tokens: https://docs.holograph.xyz/developer/sdk/bridging-tokens
 
 ## Contributing
 
 Feel like contributing? That's awesome!
-
-([emoji key](https://allcontributors.org/docs/en/emoji-key)):
 
 This project follows the
 [all-contributors](https://github.com/all-contributors/all-contributors)
